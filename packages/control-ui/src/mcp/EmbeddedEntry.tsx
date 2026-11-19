@@ -10,6 +10,8 @@ import { HandoffController } from './handoff';
 import { createHandoffPort } from './handoff-port';
 import { HostProbe } from './HostProbe';
 import { createViewCloser } from './view-close';
+import { useReviewView } from './review-view';
+import type { CockpitCheckpoint } from '../App';
 import { cockpitHostFromName, type CockpitHost } from '../host-label';
 
 export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: CockpitBridge; diagnostics?: boolean }) {
@@ -29,6 +31,8 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
   const [companionConstraints, setCompanionConstraints] = useState<CompanionConstraints>({});
   const [expansionProblem, setExpansionProblem] = useState('');
   const expansionAttempt = useRef(0);
+  const review = useReviewView(bridge);
+  const checkpoint = useRef<CockpitCheckpoint | null>(null);
   const terminal = useRef<HTMLElement>(null);
   const [closeState, setCloseState] = useState<'open' | 'closing' | 'closed' | 'blocked'>('open');
   useLayoutEffect(() => {
@@ -63,6 +67,7 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
         expansionAttempt.current++;
         setExpansionProblem('');
       }
+      review.observe();
     };
     bridge.app.ontoolresult = result => {
       if (!alive) return;
@@ -104,7 +109,7 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
     const hostTransport = new PostMessageTransport(window.parent, window.parent);
     void bridge.app.connect(trace ? trace.wrap(hostTransport) : hostTransport, { timeout: 10_000 }).then(() => { connected = true; update(); }).catch(() => { if (alive) setProblem('Die Codex-Anbindung konnte nicht bestätigt werden.'); });
     return () => { alive = false; };
-  }, [bridge, trace]);
+  }, [bridge, trace, review.observe]);
   const closeFromApp = async () => {
     const session = bootstrap?.sessionId;
     if (!session || current.current?.sessionId !== session) throw Error('session_changed');
@@ -124,7 +129,7 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
       if (bridge.app.getHostContext()?.availableDisplayModes?.includes('inline')) {
         const result = await bridge.app.requestDisplayMode({ mode: 'inline' }, { timeout: 10_000 });
         if (result.mode !== 'inline') throw Error('inline_mode_unconfirmed');
-        flushSync(() => setExpanded(false));
+        review.observe();
       }
       if (terminal.current) {
         const box = terminal.current.getBoundingClientRect();
@@ -170,7 +175,7 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
       ? 'Kontext wird entwertet und die Sitzung wird geschlossen …' : closeState === 'closed'
         ? 'Kontextbereinigung und Sitzungsende sind bestätigt. Der Host kann diese Karte weiter anzeigen.'
         : 'Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.'}</p></section>
-      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} companionEmpty={bootstrap.companionEmpty} companionFallback={bootstrap.companionFallback} provenance={bootstrap.provenance} host={cockpitHost} companionConstraints={companionConstraints} compact={!expanded} handoff={handoff} onExpand={() => void open()} onReturnToCompact={returnToCompact} onDisplay={bootstrap.displayAck ? reportDisplay : undefined}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
+      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} companionEmpty={bootstrap.companionEmpty} companionFallback={bootstrap.companionFallback} provenance={bootstrap.provenance} host={cockpitHost} companionConstraints={companionConstraints} compact={cockpitHost === 'codex' ? !expanded : review.role === 'card'} handoff={handoff} review={cockpitHost === 'codex' ? undefined : review} checkpoint={checkpoint} onExpand={() => { if (cockpitHost === 'codex') void open(); else void review.show('reader'); }} onReturnToCompact={returnToCompact} onDisplay={bootstrap.displayAck ? reportDisplay : undefined}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
     {visibleProblem && <p role="alert">{visibleProblem}</p>}
     {trace && closeState === 'open' && expanded && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
   </div>;

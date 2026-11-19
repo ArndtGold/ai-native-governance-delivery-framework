@@ -572,24 +572,27 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       expect(await scroll.evaluate(el => el.scrollTop)).toBe(0);
       // SCN-CDR-017/027/028: retain position metadata, re-read on return, never swap a vanished version silently.
       await scroll.evaluate(el => { el.scrollTop = 345; });
+      const subjectHeading = card.getByRole('heading', { level: 2 });
+      const subjectTitle = await subjectHeading.innerText();
       const cycleRun = async () => {
-        await expect(nextRun).toBeEnabled(); await nextRun.click();
-        await expect(navigation).toContainText('1 von 3');
-        await expect(nextRun).toBeEnabled(); await nextRun.click();
-        await expect(navigation).toContainText('2 von 3');
-        await expect(nextRun).toBeEnabled(); await nextRun.click();
-        await expect(navigation).toContainText('3 von 3');
+        const counter = navigation.locator('.companion-run-counter > span').first();
+        const start = Number((await counter.innerText()).match(/^(\d+) von 3$/)[1]);
+        for (let step = 1; step <= 3; step++) {
+          await expect(nextRun).toBeEnabled(); await nextRun.click();
+          await expect(counter).toHaveText(`${(start - 1 + step) % 3 + 1} von 3`);
+        }
       };
       await cycleRun();
       await expect(content.getByRole('heading', { name: 'PRD: Synthetic saved filter Neue Entscheidung' })).toBeAttached();
       await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBe(345);
+      await expect(subjectHeading).toHaveText(subjectTitle);
       await expect(nextRun).toBeEnabled(); await nextRun.click();
-      await expect(navigation).toContainText('1 von 3');
+      await expect(subjectHeading).not.toHaveText(subjectTitle);
       replaceCompanionPrd(writer, fixture.runId, 'Nach Run-Rückkehr', appendix);
-      await expect(nextRun).toBeEnabled(); await nextRun.click();
-      await expect(navigation).toContainText('2 von 3');
-      await expect(nextRun).toBeEnabled(); await nextRun.click();
-      await expect(navigation).toContainText('3 von 3');
+      // Updating a draft can reorder Runs by activity. Return by identity, never
+      // by its former ordinal; the full switcher cycle is checked above and below.
+      await menu.click();
+      await options.getByRole('menuitem', { name: 'Zurück zum Chat-Run' }).click();
       await expect(reader.getByRole('alert')).toContainText('Die zuvor gelesene Fassung ist nicht mehr verfügbar');
       await expect(content).toHaveCount(0);
       await expect(change).toBeEnabled(); await change.click();
@@ -719,8 +722,60 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
   }
 });
 
+const reviewTitle = 'Statusmeldungen im Kundenportal';
+const reviewQuestion = 'Prüfe, ob Ziel und Umfang deinem Auftrag entsprechen.';
+const requirements = `# UR: Statusmeldungen im Kundenportal
+
+Status: draft
+Gate: UR
+Gate approval: open
+Requirements clarification: complete
+Preview requirement: none
+
+## Problem
+
+Kunden erfahren erst auf Nachfrage, ob ihre Anfrage angekommen ist. Der Support beantwortet dadurch regelmäßig dieselben Rückfragen.
+
+## Goal
+
+Kunden sehen nach dem Absenden sofort, dass ihre Anfrage eingegangen ist. Sie können später im Portal nachsehen, ob sie bereits bearbeitet wird.
+
+## Scope
+
+- Nach dem Absenden erscheint eine Eingangsbestätigung mit der Nummer der Anfrage.
+- In der Übersicht stehen die Status „Eingegangen“, „In Bearbeitung“ und „Erledigt“.
+- Fehlt der aktuelle Stand, erklärt das Portal dies und bietet eine Möglichkeit zum erneuten Laden.
+
+## Non-Goals
+
+E-Mail-Benachrichtigungen und verbindliche Bearbeitungsfristen sind nicht Teil dieses Vorhabens.
+
+## Affected Users
+
+Kunden mit einer laufenden Anfrage und das Supportteam.
+
+## Acceptance Signals
+
+1. Nach erfolgreichem Absenden sind Eingangsbestätigung und Anfragenummer sichtbar.
+2. In der Übersicht lässt sich eine Anfrage anhand ihrer Nummer finden.
+3. Ein veralteter Stand ist als solcher erkennbar.
+
+## Risks And Unknowns
+
+Der Support prüft, ob die drei Status seine üblichen Abläufe verständlich abbilden.
+
+## Existing Source Of Truth
+
+Bestehende Anfragenübersicht und gemeinsam abgestimmter Ablauf des Supportteams.
+
+## Next Step
+
+Prüfe, ob die beschriebenen Status und der vereinbarte Umfang zur Anfrage passen.
+`;
+
 for (const closeMode of ['accepted', 'ignored', 'deny-release']) test(`built Cockpit close: ${closeMode} (synthetic host)`, async ({ page }) => {
-  const temporary = mkdtempSync(join(tmpdir(), 'agdf-sdk-trace-browser-')), f = fixture(), before = treeBytes(f.root);
+  const temporary = mkdtempSync(join(tmpdir(), 'agdf-sdk-trace-browser-'));
+  const f = fixture({ title: reviewTitle, content: requirements }), before = treeBytes(f.root);
   const ui = readCockpitUiBuild(), session = createCockpitSessionService(f.root);
   const tools = [COCKPIT_RENDER_DEFINITION, COCKPIT_READ_DEFINITION].map((definition, i) => ({ name: definition.name, definition,
     parse: value => parseCockpitArguments(value, i === 0), execute: (value, signal) => i === 0 ? session.render(value) : session.read(value, signal) }));
@@ -756,29 +811,79 @@ for (const closeMode of ['accepted', 'ignored', 'deny-release']) test(`built Coc
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     await page.goto('http://127.0.0.1:' + server.address().port + '/?closeMode=' + closeMode);
     const frame = page.frameLocator('iframe');
+    if (closeMode === 'accepted') {
+      const card = frame.locator('[data-role="card"]');
+      await page.setViewportSize({ width: 360, height: 800 });
+      await expect(card.getByRole('heading', { level: 1 })).toHaveCount(1);
+      await expect(card.getByRole('heading', { name: reviewTitle })).toBeVisible();
+      const mark = card.locator('header img');
+      await expect(mark).toBeVisible();
+      expect(await mark.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
+      const taskCard = card.locator('.review-task-card');
+      await expect(taskCard.getByText('Anforderungen · Entwurf')).toBeVisible();
+      await expect(taskCard.getByText(reviewQuestion)).toBeVisible();
+      await expect(taskCard.getByText(/Kontrollstatus|Approval: UR/)).toHaveCount(0);
+      await expect(card.getByRole('button', { name: 'Prüfung öffnen' })).toBeVisible();
+      await page.screenshot({ path: evidencePath('cockpit-review-card-360.png') });
+      await card.getByRole('button', { name: 'Prüfung öffnen' }).click();
+      await page.setViewportSize({ width: 480, height: 800 });
+      const reader = frame.locator('[data-role="reader"]');
+      await expect(reader.locator('header img')).toBeVisible();
+      await expect(reader.locator('[data-review-source]')).toBeVisible();
+      await expect(reader.getByText('Eine frühere Lesestelle ist in dieser neu geöffneten Ansicht nicht verfügbar.')).toHaveCount(0);
+      await expect(reader.getByText(reviewQuestion)).toBeVisible();
+      await expect(reader.getByText('Entwurf', { exact: true })).toBeVisible();
+      await expect(reader.locator('[data-review-source]')).toContainText('Kunden sehen nach dem Absenden sofort');
+      const provenance = reader.locator('.review-source details');
+      const identity = await provenance.getByText('Revision', { exact: false }).locator('code').textContent();
+      await expect(provenance.locator('code').first()).not.toBeVisible();
+      await provenance.locator('summary').focus();
+      await provenance.locator('summary').press('Enter');
+      await expect(provenance.getByText(identity, { exact: true })).toBeVisible();
+      await provenance.locator('summary').press('Enter');
+      await page.screenshot({ path: evidencePath('cockpit-review-reader-480.png') });
+      await page.evaluate(() => window.sdkTraceHarness.setTheme('dark'));
+      await expect(frame.locator('html')).toHaveAttribute('data-theme', 'dark');
+      const darkHeader = reader.locator('header');
+      await expect(reader.getByText(reviewQuestion)).toBeVisible();
+      expect(await darkHeader.evaluate(header => getComputedStyle(header, '::before').backgroundImage.includes('data:image/jpeg'))).toBe(true);
+      await page.screenshot({ path: evidencePath('cockpit-review-reader-dark-480.png'), animations: 'disabled' });
+      await page.evaluate(() => window.sdkTraceHarness.setTheme('light'));
+      await expect(frame.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+      const firstVisibleParagraph = pane => {
+        const top = pane.getBoundingClientRect().top;
+        return [...pane.querySelectorAll('p, li, h1, h2, h3, h4, pre')]
+          .find(row => row.getBoundingClientRect().bottom > top)?.textContent;
+      };
+      const source = reader.locator('[data-review-source]');
+      await source.evaluate(pane => { pane.scrollTop = 400; });
+      await expect.poll(() => source.evaluate(pane => pane.scrollTop)).toBeGreaterThan(0);
+      const anchor = await source.evaluate(firstVisibleParagraph);
+      expect(anchor).toBeTruthy();
+      await reader.getByRole('button', { name: 'Vollansicht öffnen' }).click();
+      await page.setViewportSize({ width: 1200, height: 900 });
+      const workspace = frame.locator('[data-role="workspace"]');
+      await expect(workspace.locator('header img')).toBeVisible();
+      await expect(workspace.locator('[data-review-source]')).toHaveCSS('border-top-width', '0px');
+      await expect(workspace.locator('.review-source details').getByText(identity, { exact: true })).toHaveCount(1);
+      await expect(workspace.getByText('Nachweise', { exact: true })).toBeVisible();
+      await page.screenshot({ path: evidencePath('cockpit-review-workspace-1200.png') });
+      await page.setViewportSize({ width: 480, height: 800 });
+      await workspace.getByRole('button', { name: 'Zurück zur Prüfung' }).click();
+      await expect(reader.locator('.review-source details').getByText(identity, { exact: true })).toHaveCount(1);
+      await expect.poll(() => source.evaluate(firstVisibleParagraph)).toBe(anchor);
+      expect(await page.evaluate(() => window.sdkTraceHarness.logs.filter(row => row.kind === 'context-ack'))).toEqual([]);
+      await reader.getByRole('button', { name: 'Vollansicht öffnen' }).click();
+    } else {
+      await expect(frame.getByText('Eine frühere Lesestelle ist in dieser neu geöffneten Ansicht nicht verfügbar.')).toBeVisible();
+      if (closeMode === 'ignored') await page.screenshot({ path: evidencePath('cockpit-review-reopened-no-checkpoint.png') });
+      await frame.getByRole('button', { name: 'Anforderungen öffnen', exact: true }).click();
+    }
+    await expect(frame.locator('[data-review-source]')).toBeVisible();
     await frame.getByText('Host-Verbindung prüfen', { exact: true }).click();
     expect(trace).toHaveLength(0);
     await frame.getByRole('button', { name: 'SDK-Nachweis aufzeichnen' }).click();
     await expect(frame.getByLabel('SDK-Nachrichten dieser Ansicht')).toContainText('ui/initialize');
-    await frame.getByRole('button', { name: 'Alle Vorhaben', exact: true }).first().click();
-    await expect(frame.getByRole('region', { name: 'Vorhaben · Runs' })).toBeVisible();
-    if (closeMode === 'accepted') {
-      for (const width of [390, 1440]) {
-        await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-        await expect(frame.locator('button[data-focus-id="fixture-a"]')).toBeVisible();
-        await page.screenshot({ path: evidencePath(`built-mcp-run-overview-${width}.png`), fullPage: true });
-      }
-      const lifecycle = frame.getByRole('combobox', { name: 'Lifecycle' });
-      await lifecycle.click();
-      await frame.getByRole('option', { name: 'Abgeschlossen' }).click();
-      await expect(frame.locator('button[data-focus-id="fixture-completed"]')).toBeVisible();
-      await lifecycle.click();
-      await frame.getByRole('option', { name: 'Aktiv' }).click();
-      await frame.getByRole('searchbox').fill('fixture-a');
-    }
-    await frame.locator('button[data-focus-id="fixture-a"]').click();
-    await frame.getByRole('button', { name: 'Entwurf ansehen: Anforderungen', exact: true }).click();
-    await expect(frame.getByRole('button', { name: /Zurück zur (Übersicht|Statuskarte)/ })).toBeVisible();
     await frame.getByRole('button', { name: 'Verknüpfter Kontext ansehen', exact: true }).click();
     await expect(frame.getByRole('button', { name: 'Kontext übergeben', exact: true })).toBeEnabled();
     await frame.getByRole('button', { name: 'Kontext übergeben', exact: true }).click();
@@ -861,28 +966,37 @@ test('MCP negative read retains correction; blocked run remains a successful vie
     await build({ configFile: false, logLevel: 'error', build: { outDir: temporary, emptyOutDir: false,
       lib: { entry: new URL('./sdk-trace-host.ts', import.meta.url).pathname, formats: ['es'], fileName: () => 'host.js' }, target: 'es2022', minify: false } });
     server = createServer(async (req, res) => {
-      if (req.url === '/tool') {
+      const path = new URL(req.url, 'http://127.0.0.1').pathname;
+      if (path === '/tool') {
         const buffers = []; for await (const bytes of req) buffers.push(bytes);
         const input = JSON.parse(Buffer.concat(buffers).toString()), result = await client.callTool(input); replies.push({ input, result });
         res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(result)); return;
       }
-      if (req.url === '/prepared') { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(prepared)); return; }
-      res.setHeader('content-type', req.url === '/host.js' ? 'text/javascript' : 'text/html');
-      res.end(req.url === '/cockpit.html' ? ui.files['cockpit.html'] : req.url === '/host.js' ? readFileSync(join(temporary, 'host.js'))
+      if (path === '/prepared') { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(prepared)); return; }
+      res.setHeader('content-type', path === '/host.js' ? 'text/javascript' : 'text/html');
+      res.end(path === '/cockpit.html' ? ui.files['cockpit.html'] : path === '/host.js' ? readFileSync(join(temporary, 'host.js'))
         : '<!doctype html><iframe title="Synthetic Cockpit" style="width:100%;height:1400px"></iframe><script type="module" src="/host.js"></script>');
     });
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-    await page.goto('http://127.0.0.1:' + server.address().port);
+    await page.goto('http://127.0.0.1:' + server.address().port + '/?closeMode=accepted');
     const frame = page.frameLocator('iframe');
-    await frame.getByRole('button', { name: 'Nachweise und weitere Dokumente', exact: true }).click();
-    await expect(frame.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true })).toBeVisible();
+    await expect(frame.getByText(/Der gespeicherte Stand des Vorhabens konnte nicht verifiziert werden/)).toBeVisible();
+    await expect(frame.getByRole('button', { name: 'Prüfung öffnen' })).toHaveCount(0);
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.screenshot({ path: evidencePath('cockpit-review-blocked-card-360.png') });
+    await frame.getByRole('button', { name: 'Arbeitsstand ansehen' }).click();
+    await expect(frame.locator('[data-role="workspace"]')).toBeVisible();
+    const reviewSource = frame.getByRole('button', { name: 'Anforderungen öffnen', exact: true });
+    await expect(reviewSource).toBeVisible();
+    expect(replies.some(row => row.input.arguments.operation === 'document')).toBe(false);
     const run = replies.find(row => row.input.arguments.operation === 'snapshot').result;
     expect(run.isError).toBeUndefined(); expect(run.structuredContent.data.run.evaluation.blocking_reason).not.toBe('none');
     expect(run.structuredContent.data.run.document_states.some(row => row.source_state === 'missing')).toBe(true);
-    await expect(frame.getByRole('region', { name: 'Dokumente', exact: true }).getByText('Dokument nicht verfügbar.', { exact: true })).toBeVisible();
+    await frame.getByText('Arbeitsstand und Quellen', { exact: true }).click();
+    await expect(frame.getByText('Dokument nicht verfügbar.', { exact: true })).toBeVisible();
     await page.screenshot({ path: evidencePath('mcp-cockpit-blocked-run.png'), fullPage: true });
     deny = true;
-    await frame.getByRole('button', { name: 'Stand des Vorhabens öffnen', exact: true }).click();
+    await reviewSource.click();
     await expect(frame.getByText('Die Quelldaten haben sich geändert. Angezeigte Inhalte gehören zum vorherigen Datenstand. Bewusst neu laden.', { exact: true })).toBeVisible();
     const negative = replies.findLast(row => row.input.arguments.operation === 'document').result;
     expect(negative.isError).toBe(true); expect(negative.content).toHaveLength(2); expect(negative.structuredContent.code).toBe('source_changed');

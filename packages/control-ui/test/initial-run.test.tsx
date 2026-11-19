@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { App } from '../src/App';
 import { EmbeddedEntry } from '../src/mcp/EmbeddedEntry';
 import { CockpitBridge } from '../src/mcp/transport';
@@ -160,7 +160,9 @@ it('SCN-042: scoped bootstrap validates identity and malformed selectors',()=>{
 it('a fresh host render reopens an expired session with the same explicit Run and no automatic message', async () => {
   let expired = true;
   const read = vi.fn(async (path:string) => expired ? { ...inventory, snapshot_id:null, state:'blocked', code:'session_expired', retryable:false, data:null }
-    : path.startsWith('/api/snapshot?run_id=') ? detail('run-a') : inventory) as unknown as ReadTransport;
+    : path.startsWith('/api/snapshot?run_id=') ? { ...fixtureMeta, data: { kind: 'run', run: { ...runData('run-a'), resources: [{
+      resource_id: 'run-state', run_id: 'run-a', type: 'Run State', path: 'RUN_STATE.md', registered_reference: 'RUN_STATE.md', status: 'registered',
+    }] } } } : inventory) as unknown as ReadTransport;
   const app = { setupSizeChangedNotifications:vi.fn(()=>vi.fn()),sendSizeChanged:vi.fn(async()=>{}), getHostVersion:()=>({name:'test-host',version:'fixture'}), connect:vi.fn(async()=>{}), getHostCapabilities:()=>({serverTools:{}}), getHostContext:()=>({displayMode:'inline'}),
     updateModelContext:vi.fn(), sendMessage:vi.fn(), ontoolresult:(_:unknown)=>{}, onhostcontextchanged:()=>{} };
   const bridge = { app, read, readForSession:()=>read, operation:vi.fn(async()=>({})), session:'' } as unknown as CockpitBridge;
@@ -170,10 +172,12 @@ it('a fresh host render reopens an expired session with the same explicit Run an
   expect((screen.getByRole('button',{name:'Sitzung abgelaufen'}) as HTMLButtonElement).disabled).toBe(true);
   expired = false;
   await act(async()=>app.ontoolresult(bootstrap(sessionB,2,'run-a')));
-  await screen.findByRole('heading',{name:'run-a',level:2});
+  await screen.findByRole('heading',{name:'run-a',level:1});
   expect(bridge.session).toBe(sessionB);
-  expect((screen.getByRole('button',{name:'Neu laden'}) as HTMLButtonElement).disabled).toBe(false);
   expect(vi.mocked(read).mock.calls.map(c=>c[0])).toEqual(['/api/snapshot?run_id=run-a','/api/snapshot?run_id=run-a']);
+  fireEvent.click(screen.getByRole('button',{name:'Arbeitsstand ansehen'}));
+  expect(await screen.findByText('Für diesen Schritt liegt kein registriertes Dokument zur Prüfung vor.')).toBeTruthy();
+  expect(vi.mocked(read).mock.calls.some(([path])=>path.startsWith('/api/documents/'))).toBe(false);
   expect(app.updateModelContext).not.toHaveBeenCalled(); expect(app.sendMessage).not.toHaveBeenCalled();
 });
 it('SCN-042/043: new render remounts/cancels old reader, stale render is ignored, host mode preserves the reader and publishes nothing',async()=>{
@@ -193,26 +197,23 @@ it('SCN-042/043: new render remounts/cancels old reader, stale render is ignored
   const count=vi.mocked(read).mock.calls.length;
   await act(async()=>{mode='fullscreen';app.onhostcontextchanged();});
   expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();expect(vi.mocked(read).mock.calls.length).toBe(count);
-  expect(screen.getByRole('heading',{name:'run-b',level:1})).toBeTruthy();
-  expect(screen.queryByRole('group',{name:'Ansicht'})).toBeNull();
-  expect(screen.queryByRole('button',{name:'Vorhaben öffnen'})).toBeNull();
-  fireEvent.click(screen.getByRole('button',{name:'Nachweise und weitere Dokumente'}));
-  expect(screen.getByRole('heading',{name:'Dokumente'})).toBeTruthy();
+  expect(screen.getByRole('region',{name:'AGDF Prüfung'}).getAttribute('data-role')).toBe('workspace');
+  expect(screen.getByText('Nachweise')).toBeTruthy();
   expect(app.requestDisplayMode).not.toHaveBeenCalled();
   expect(vi.mocked(read).mock.calls.length).toBe(count);
   await act(async()=>{mode='inline';app.onhostcontextchanged();});
-  expect(screen.queryByRole('group',{name:'Ansicht'})).toBeNull();
-  expect(screen.getByRole('heading',{name:'AGDF Cockpit',level:1})).toBe(document.activeElement);
-  expect(screen.getByRole('button',{name:'Vorhaben öffnen'})).toBeTruthy();
+  expect(screen.queryByRole('navigation',{name:'Leseansicht'})).toBeNull();
+  expect(screen.getByRole('heading',{name:'run-b',level:1})).toBe(document.activeElement);
+  expect(screen.getByRole('button',{name:'Arbeitsstand ansehen'})).toBeTruthy();
 
   expect(app.updateModelContext).not.toHaveBeenCalled();expect(app.sendMessage).not.toHaveBeenCalled();
 });
-it('keeps the compact Run readable when expansion is unavailable or unconfirmed and clears the alert on success', async () => {
+it('keeps the review readable when expansion is unavailable or unconfirmed and clears the notice on success', async () => {
   const read = transport();
   let availableDisplayModes = ['inline'];
   const requestDisplayMode = vi.fn()
     .mockResolvedValueOnce({ mode: 'inline' })
-    .mockResolvedValueOnce({ mode: 'fullscreen' });
+    .mockResolvedValueOnce({ mode: 'pip' });
   const app = {
     setupSizeChangedNotifications: vi.fn(() => vi.fn()),
     connect: vi.fn(async () => {}),
@@ -226,20 +227,23 @@ it('keeps the compact Run readable when expansion is unavailable or unconfirmed 
   const bridge = { app, readForSession: () => read, request: (action: () => unknown) => action(), session: '' } as unknown as CockpitBridge;
   render(<EmbeddedEntry bridge={bridge}/>);
   await act(async () => app.ontoolresult(bootstrap()));
-  const expand = await screen.findByRole('button', { name: 'Vorhaben öffnen' });
+  const expand = await screen.findByRole('button', { name: 'Arbeitsstand ansehen' });
 
   fireEvent.click(expand);
-  expect(screen.getByRole('alert').textContent).toContain('Hier steht nur die kompakte Karte zur Verfügung');
+  await screen.findByText('Der Host hat die gewählte Ansicht nicht bestätigt. Du kannst hier weiterlesen.');
+  expect(screen.getByRole('heading', { name: 'run-a', level: 1 })).toBeTruthy();
   expect(requestDisplayMode).not.toHaveBeenCalled();
 
-  availableDisplayModes = ['inline', 'fullscreen'];
-  fireEvent.click(expand);
-  await screen.findByText('Die größere Ansicht wurde nicht bestätigt. Du kannst in der kompakten Karte weiterlesen.');
-  expect(screen.getByRole('heading', { name: 'run-a', level: 2 })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Zurück zur Karte' }));
+  availableDisplayModes = ['inline', 'pip'];
+  fireEvent.click(await screen.findByRole('button', { name: 'Arbeitsstand ansehen' }));
+  await screen.findByText('Der Host hat die gewählte Ansicht nicht bestätigt. Du kannst hier weiterlesen.');
+  expect(screen.getByRole('heading', { name: 'run-a', level: 1 })).toBeTruthy();
 
-  fireEvent.click(expand);
+  fireEvent.click(screen.getByRole('button', { name: 'Zurück zur Karte' }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Arbeitsstand ansehen' }));
   await screen.findByRole('heading', { name: 'run-a', level: 1 });
-  expect(screen.queryByRole('alert')).toBeNull();
+  await waitFor(() => expect(screen.queryByText('Der Host hat die gewählte Ansicht nicht bestätigt. Du kannst hier weiterlesen.')).toBeNull());
   expect(requestDisplayMode).toHaveBeenCalledTimes(2);
   expect(vi.mocked(read).mock.calls.map(call => call[0])).toEqual(['/api/snapshot?run_id=run-a']);
 });
@@ -272,10 +276,10 @@ it('SCN-047: capacity feedback preserves the current requested Run and never sen
   const bridge={app,read,readForSession:()=>read,operation,session:''} as unknown as CockpitBridge;
   render(<EmbeddedEntry bridge={bridge}/>);
   await act(async()=>app.ontoolresult(bootstrap()));
-  await screen.findByRole('heading',{name:'run-a',level:2});
+  await screen.findByRole('heading',{name:'run-a',level:1});
   await act(async()=>app.ontoolresult({structuredContent:{...inventory,state:'blocked',code:'resource_limit',data:null}}));
   expect(screen.getByRole('alert').textContent).toContain('Vier Cockpit-Ansichten');
-  expect(screen.getByRole('heading',{name:'run-a',level:2})).toBeTruthy();
+  expect(screen.getByRole('heading',{name:'run-a',level:1})).toBeTruthy();
   expect(bridge.session).toBe(sessionA);expect(operation).not.toHaveBeenCalled();
   expect(app.updateModelContext).not.toHaveBeenCalled();expect(app.sendMessage).not.toHaveBeenCalled();
 });
@@ -299,6 +303,7 @@ for (const accepted of [true, false]) it(`closed card settles public inline mode
   const bridge={app,readForSession:()=>read,operation,session:''} as unknown as CockpitBridge;
   render(<EmbeddedEntry bridge={bridge} diagnostics/>);
   await act(async()=>app.ontoolresult(bootstrap()));
+  await screen.findByText('Eine frühere Lesestelle ist in dieser neu geöffneten Ansicht nicht verfügbar.');
   await screen.findByRole('button',{name:'SDK-Nachweis aufzeichnen'});
   fireEvent.click(screen.getByRole('button',{name:'SDK-Nachweis aufzeichnen'}));
   fireEvent.click(screen.getByRole('button',{name:'Sitzung beenden und Host schließen lassen'}));
@@ -319,4 +324,54 @@ for (const accepted of [true, false]) it(`closed card settles public inline mode
   expect(vi.mocked(read).mock.calls).toHaveLength(reads);
   expect(operation).toHaveBeenCalledTimes(1);
   expect(app.requestTeardown).toHaveBeenCalledTimes(accepted?1:0);
+});
+
+it('opens the registered review source, keeps it on workspace return, and refuses to restore a changed revision', async () => {
+  const run = runData('run-a');
+  run.persisted!.current_gate = 'UR';
+  run.evaluation!.current_gate = 'UR';
+  run.evaluation!.next_operation = { type: 'human_gate_decision', operation_key: 'approval.record', actor: 'human', effect: 'decision', gate: 'UR' };
+  const resource = { resource_id: 'step', run_id: run.run_id, type: 'UR',
+    path: 'documents/UR.md', registered_reference: 'documents/UR.md', status: 'registered' };
+  run.resources = [resource];
+  let revision = 'review-one', mode = 'inline';
+  const read = vi.fn(async (path: string) => ({ ...fixtureMeta,
+    data: path.startsWith('/api/documents/') ? { kind: 'document', run: { ...run, revision_id: revision },
+      document: { resource, format: 'markdown', content: '# Bound excerpt\n\nRead the reviewed source.', content_digest: 'a'.repeat(64) } }
+      : { kind: 'run', run: { ...run, revision_id: revision } } })) as unknown as ReadTransport;
+  const app = { setupSizeChangedNotifications: vi.fn(() => vi.fn()), connect: vi.fn(async () => {}),
+    getHostVersion: () => ({ name: 'test-host', version: 'fixture' }), getHostCapabilities: () => ({ serverTools: {} }),
+    getHostContext: () => ({ displayMode: mode, availableDisplayModes: ['inline', 'pip', 'fullscreen'] }),
+    requestDisplayMode: vi.fn(async ({ mode: next }: { mode: string }) => { mode = next; return { mode }; }),
+    updateModelContext: vi.fn(), sendMessage: vi.fn(), ontoolresult: (_: unknown) => {}, onhostcontextchanged: () => {} };
+  const operation = vi.fn(async () => ({}));
+  const bridge = { app, request: (fn: () => Promise<unknown>) => fn(), readForSession: () => read, operation, session: '' } as unknown as CockpitBridge;
+  render(<EmbeddedEntry bridge={bridge}/>);
+  await act(async () => app.ontoolresult(bootstrap()));
+  expect(await screen.findAllByRole('heading', { name: 'run-a' })).toHaveLength(1);
+  expect(screen.getByText('Prüfe, ob Ziel und Umfang deinem Auftrag entsprechen.')).toBeTruthy();
+  expect(within(screen.getByText('Prüfe, ob Ziel und Umfang deinem Auftrag entsprechen.').closest('.review-task-card') as HTMLElement)
+    .queryByText('Freigegebenen Umfang umsetzen.')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Prüfung öffnen' }));
+  await screen.findByRole('heading', { name: 'Bound excerpt' });
+  expect(screen.queryByText('Eine frühere Lesestelle ist in dieser neu geöffneten Ansicht nicht verfügbar.')).toBeNull();
+  expect(screen.getByText('Gelesene Fassung')).toBeTruthy();
+  expect(screen.getByText('review-one', { selector: '.review-source details code' }).closest('details')?.open).toBe(false);
+  fireEvent.click(screen.getByText('Quellenangaben'));
+  expect(screen.getByText('review-one', { selector: '.review-source details code' }).closest('details')?.open).toBe(true);
+  fireEvent.click(screen.getByRole('button', { name: 'Vollansicht öffnen' }));
+  await screen.findByRole('button', { name: 'Zurück zur Prüfung' });
+  fireEvent.click(screen.getByRole('button', { name: 'Zurück zur Prüfung' }));
+  await screen.findByRole('button', { name: 'Vollansicht öffnen' });
+  expect(screen.getByRole('heading', { name: 'Bound excerpt' })).toBeTruthy();
+  expect(app.requestDisplayMode.mock.calls.map(([request]) => request.mode)).toEqual(['pip', 'fullscreen', 'pip']);
+  expect(vi.mocked(read).mock.calls.filter(([path]) => path.startsWith('/api/documents/'))).toHaveLength(1);
+  expect(operation.mock.calls).toHaveLength(0);
+  revision = 'review-two';
+  await act(async () => app.ontoolresult(bootstrap(sessionB, 2)));
+  await screen.findByText(/Die bisherige Fassung konnte nicht bestätigt werden/);
+  expect(screen.queryByRole('heading', { name: 'Bound excerpt' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Aktuelle Quelle öffnen' })).toBeTruthy();
+  expect(app.updateModelContext).not.toHaveBeenCalled();
+  expect(app.sendMessage).not.toHaveBeenCalled();
 });

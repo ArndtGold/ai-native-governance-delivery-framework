@@ -4,7 +4,6 @@
 // run view stays the source of every run state, and the companion never invents an event. It imports
 // no Core module; the format is the versioned journal format of SDD-009.
 
-export const EVENT_POLL_MS = 2_000;
 export const EVENT_SCHEMA = 'companion-event/1';
 export const JOURNAL_FILE = 'events.jsonl';
 // The writer's one rotation file; read only when the cursor left the current file (CR finding B6).

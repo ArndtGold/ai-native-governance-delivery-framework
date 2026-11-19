@@ -20,9 +20,9 @@ import type { CompanionActivity, Resource, PlannedDocument, Envelope, WorkEntry 
 import type { ArchiveLoader } from '../ArchiveDetail';
 import type { CockpitHost } from '../host-label';
 
-export function CompactCockpit({ state, headingRef, enabled, visible = true, onSelect, onReload, onOverview, onExpand, onOpen, onOpenCompanion, onBack, onAbout, view, onViewChange, returnNotice, draftCheck, sourcePending, loadArchive, loadPlanned, sourceEntry, host, activity, activityUnknown, motion, onToggleMotion, sound, onToggleSound, activeRunCount, runIndex, onStepRun, onReturnToChatRun, reader, onReaderWidth, companionConstraints, onReaderLink, onReaderClose, companionEmpty }: {
+export function CompactCockpit({ observationNotice, state, headingRef, enabled, visible = true, onSelect, onReload, onOverview, onExpand, onOpen, onOpenCompanion, onBack, onAbout, view, onViewChange, returnNotice, draftCheck, sourcePending, loadArchive, loadPlanned, sourceEntry, host, activity, activityUnknown, motion, onToggleMotion, sound, onToggleSound, activeRunCount, runIndex, onStepRun, onReturnToChatRun, reader, onReaderWidth, companionConstraints, onReaderLink, onReaderClose, companionEmpty }: {
   reader: CompanionReader; onReaderWidth: (wide: boolean) => void; companionConstraints?: CompanionConstraints; onReaderLink: (id: string) => void; onReaderClose: () => void;
-  state: ReadingState; headingRef: RefObject<HTMLHeadingElement | null>; enabled: boolean; visible?: boolean;
+  observationNotice?: ReactNode; state: ReadingState; headingRef: RefObject<HTMLHeadingElement | null>; enabled: boolean; visible?: boolean;
   view: WorkView; onViewChange: (view: WorkView) => void; returnNotice?: string | null;
   onSelect: (id: string) => void; onReload: () => void; onOverview: () => void; onRuns?: () => void; onExpand?: () => void;
   onOpen?: (resource: Resource, origin?: string) => void; onBack?: () => void; draftCheck?: ReactNode; loadArchive?: ArchiveLoader; loadPlanned?: (rowId: string, signal: AbortSignal) => Promise<Envelope<PlannedDocument>>;
@@ -101,6 +101,7 @@ export function CompactCockpit({ state, headingRef, enabled, visible = true, onS
     {!noActiveRun && state.route.view === 'overview' && state.inventory?.data && <><div className="compact-overview-heading"><div><h2>Arbeit am Projekt</h2><p className="overview-repository"><span>Repository</span> <code>{target ?? 'Noch nicht verfügbar'}</code></p></div><OverviewFigure visible={visible}/></div>{returnNotice && <p role="status">{returnNotice}</p>}<Overview compact loadPlanned={loadPlanned} loadArchive={loadArchive} result={state.inventory} onSelect={onSelect} current={usable} view={view} onViewChange={onViewChange}/></>}
     {!enabled && <ReadState state="blocked" code="session_invalid"/>}
     <ReadingFeedback state={state} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>
+    {observationNotice}
     {companionView ? <CompanionWorkspace reader={reader} onWidth={onReaderWidth} constraints={companionConstraints} onLink={onReaderLink} onClose={onReaderClose} onReload={onReload} footer={footer}>{content}</CompanionWorkspace> : <>{content}{footer}</>}
 
   </section>;

@@ -21,14 +21,14 @@ import { execFileSync } from 'node:child_process';
 import { createRun } from '../lib/control-state/run-state-repository.js';
 import { upsertTableRow, replaceFirstScalar } from '../lib/control-state/run-state-edits.js';
 import { sealRunState } from '../lib/control-state/run-seal.js';
-export function fixture({ layout = 'run-folders-v1' } = {}) {
+export function fixture({ layout = 'run-folders-v1', title = 'Fixture document',
+  content = clarifiedUr.replace('Independent work', title) + '\nOriginal source: ä, β, 日本語.\n' } = {}) {
   if (layout !== 'run-folders-v1') throw Error('unsupported_fixture_layout');
   const cleanup = [], f = currentFixture({ after(fn) { cleanup.push(fn); } });
   const root = f.root, runPath = createRun(root, 'fixture-a'), documentPath = runDocumentPath('fixture-a', 'UR.md');
   const revision = () => parseRunState(fs.readFileSync(runPath, 'utf8')).meta.revision_id;
   const binding = () => ({ run_id: 'fixture-a', expected_revision_id: revision() });
-  const content = clarifiedUr.replace('Independent work', 'Fixture document') + '\nOriginal source: ä, β, 日本語.\n';
-  const recorded = f.call('step.record', { step: 'ur', title: 'Fixture document', source: f.material(binding(), 'UR', content) }, binding());
+  const recorded = f.call('step.record', { step: 'ur', title, source: f.material(binding(), 'UR', content) }, binding());
   if (recorded.outcome !== 'accepted') throw Error(JSON.stringify(recorded));
   const completePath = createRun(root, 'fixture-completed');
   fs.writeFileSync(completePath, sealRunState(root, fs.readFileSync(completePath, 'utf8').replace('lifecycle: active', 'lifecycle: completed')));

@@ -50,9 +50,9 @@ for (const name of companionFiles.filter(file => file.endsWith(".mjs"))) {
   }
   assert.doesNotMatch(source, /\bimport\s*\(/u, `${name} uses no dynamic import`);
   // The host demands `$.process.run(...)` at the call site, so register.mjs holds the one wrapper that
-  // the single run-view call of run-state.mjs goes through (T-013 finding F1); no module spawns (SDD-010).
+  // the run-view call goes through and owns the single read-only observer stream.
   // Parsed, so comments cannot fake a call and `spawn` or spacing cannot hide one (delta review 2026-11-07).
-  const expectedCalls = { "register.mjs": ["$.process.run"], "run-state.mjs": ["processes.run"] };
+  const expectedCalls = { "register.mjs": ["$.process.run", "$.process.spawn"], "run-state.mjs": ["processes.run"] };
   assert.deepEqual(processCalls(source), expectedCalls[name] ?? [], `${name} process calls`);
 }
 {

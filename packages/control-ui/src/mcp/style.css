@@ -217,6 +217,25 @@
 .mcp-terminal h1 { font-size: var(--agdf-text-xl); margin: 0 0 var(--agdf-space-2); }
 .mcp-terminal p { margin: 0; }
 
+.review-task { margin-block: var(--agdf-space-3) 0; font-size: var(--agdf-text-lg); font-weight: var(--agdf-weight-semibold); }
+.review-task-card { margin-block: var(--agdf-space-3); padding: var(--agdf-space-4); border-radius: var(--agdf-radius-xl); background: var(--cockpit-soft); }
+.review-task-card[data-blocked="true"] { border-inline-start: 2px solid var(--cockpit-risk-line); background: var(--cockpit-risk-bg); }
+.review-task-card .review-task { margin-block: 0 var(--agdf-space-3); }
+.review-task-meta { margin: 0 0 var(--agdf-space-1); color: var(--cockpit-muted); font-size: var(--agdf-text-xs); }
+.review-task-card .primary, .review-controls button { min-block-size: 44px; }
+.review-controls { display: flex; flex-wrap: wrap; gap: var(--agdf-space-2) var(--agdf-space-4); margin-block: var(--agdf-space-1); }
+.review-controls .text-link { padding-inline: 0; }
+.review-reader { max-width: 76ch; margin-inline: auto; padding: var(--agdf-space-4); min-width: 0; overflow-wrap: anywhere; }
+.review-reader[data-role="workspace"] { max-width: 110ch; }
+.review-reader details { margin-block: var(--agdf-space-2); }
+.review-reader pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.review-source { margin-block: var(--agdf-space-3); }
+.review-versions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 25rem), 1fr)); gap: var(--agdf-space-4); }
+.review-versions > section { min-width: 0; }
+.review-reader [data-review-source] {
+  max-inline-size: 80ch; max-block-size: min(65vh, 48rem); overflow: auto;
+  margin: var(--agdf-space-3) auto 0; padding: 0; border: 0;
+}
 /* Keep the compact inventory scannable without removing its full-view detail. */
 .compact-cockpit .backlog-tools { display: grid; grid-template-columns: 1fr; }
 .compact-cockpit .backlog-switch { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--agdf-space-1); }

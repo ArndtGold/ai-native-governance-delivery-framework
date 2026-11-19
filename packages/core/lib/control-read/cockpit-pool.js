@@ -14,7 +14,7 @@ export class ReadWorkerPool {
     this.root = root; this.timeout = timeout; this.workerURL = workerURL;
     this.limits = limits; this.maxOldGenerationSizeMb = maxOldGenerationSizeMb;
     this.budget = budget;
-    this.retiring = null; this.scope = null; this.changed = null; this.changeWaiter = null;
+    this.retiring = null; this.scope = null; this.changed = null; this.observationUnavailable = false; this.changeWaiter = null;
     this.worker = null; this.active = null; this.waiting = null; this.closed = false; this.sequence = 0;
   }
   #spawn() {
@@ -27,16 +27,23 @@ export class ReadWorkerPool {
     catch (e) { this.budget?.release(token); throw e; }
     worker.once('exit', () => this.budget?.release(token));
     this.worker = worker;
-    worker.on('message', ({ id, result, error, changed, phase }) => {
+    worker.on('message', ({ id, result, error, changed, observationUnavailable, phase }) => {
       if (this.worker !== worker) return;
       if (phase === 'read_worker_ready') { if (this.active) this.active.startup_ms = performance.now() - this.active.started; return; }
+      if (observationUnavailable) {
+        if (observationUnavailable === this.scope?.snapshot_id) {
+          this.observationUnavailable = true;
+          this.changeWaiter?.reject(new ControlReadError('observation_unavailable'));
+        }
+        return;
+      }
       if (changed) {
         if (changed === this.scope?.snapshot_id) { this.changed = changed; this.changeWaiter?.finish(true); }
         return;
       }
       if (this.worker !== worker || this.active?.id !== id) return;
       if (!error && result?.snapshot_id && ['snapshot', 'run', 'document', 'context', 'artifact_readiness'].includes(this.active.request.operation)) {
-        this.scope = { ...result, data: null }; this.changed = null;
+        this.scope = { ...result, data: null }; this.changed = null; this.observationUnavailable = false;
         this.changeWaiter?.reject(new ControlReadError('cancelled'));
       }
       this.#finish(this.active, error ? new ControlReadError(error) : null, result);
@@ -53,7 +60,7 @@ export class ReadWorkerPool {
     this.#pump();
   }
   #reset(code) {
-    this.scope = null; this.changed = null; this.changeWaiter?.reject(new ControlReadError(code));
+    this.scope = null; this.changed = null; this.observationUnavailable = false; this.changeWaiter?.reject(new ControlReadError(code));
     const worker = this.worker; this.worker = null;
     const retirement = Promise.resolve().then(() => worker?.terminate());
     this.retiring = retirement;
@@ -98,6 +105,7 @@ export class ReadWorkerPool {
     if (this.closed || !snapshot || snapshot !== this.scope?.snapshot_id) return Promise.reject(new ControlReadError('resource_denied'));
     if (signal?.aborted) return Promise.reject(new ControlReadError('cancelled'));
     if (this.changeWaiter) return Promise.reject(new ControlReadError('busy'));
+    if (this.observationUnavailable) return Promise.reject(new ControlReadError('observation_unavailable'));
     const scope = this.scope;
     const envelope = changed => ({ ...scope, state: 'available', code: null, retryable: false, data: { changed }, authorizes: false });
     if (this.changed === snapshot) return Promise.resolve(envelope(true));

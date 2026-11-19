@@ -15,6 +15,12 @@ export function RunClosureFacts({ closure }: { closure: RunClosure }) {
     <dt>Zeitpunkt</dt><dd>{closure.closed_at ?? 'Nicht verfügbar'}</dd>
   </dl>;
 }
+export function primaryWorkSource(data: Detail, current: boolean) {
+  const sources = data.resources.filter(r => r.status === 'registered' && r.run_id === data.run_id);
+  const step = sources.find(r => r.type === data.evaluation?.current_gate);
+  const run = sources.find(r => r.type === 'Run State');
+  return observedAssessment(data, current) === 'open' ? step ?? run : run ?? step;
+}
 // Core supplies the assessment. A retained or mismatched observation cannot confirm current work.
 export function WorkStep({ data, compact = false, condensed = false, current = true, onOpen, sourceDisabled = false, figure, compactDetails, children, evidenceOnly = false, showGate = false, gateContent }: {
   data: Detail; compact?: boolean; condensed?: boolean; current?: boolean; onOpen?: (resource: Resource, origin?: string) => void; sourceDisabled?: boolean; figure?: ReactNode; compactDetails?: ReactNode; children?: ReactNode; evidenceOnly?: boolean; showGate?: boolean; gateContent?: ReactNode;
@@ -30,7 +36,7 @@ export function WorkStep({ data, compact = false, condensed = false, current = t
   const clarifying = situation.kind === 'clarification_required';
   const building = situation.kind === 'in_progress';
   const currentSources = sources.filter(resource => resource.type === e.current_gate && (!data.document_states || data.document_states.some(state => state.resource_id === resource.resource_id && state.source_state === 'available')));
-  const primarySource = assessment === 'open' ? stepSource ?? runSource : runSource ?? stepSource;
+  const primarySource = primaryWorkSource(data, current);
   const closure = assessment === 'ended' ? data.closure ?? null : null;
   const title = assessment === 'open' ? 'Weiterarbeit offen' : assessment === 'blocked' ? 'Vor der Weiterarbeit klären'
     : assessment === 'completed' ? 'Vorhaben abgeschlossen' : closure ? `Vorhaben beendet · ${label(closure.outcome)}` : 'Aktuelle Voraussetzungen nicht bestätigt';

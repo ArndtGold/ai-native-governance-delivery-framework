@@ -120,7 +120,14 @@ try {
   const p=f.present("SD","de");assert.equal(p.value.outcome,"accepted");
   assert.equal(f.run("run-approve","--revision",f.revision(),"--gate","SD","--presentation",p.value.family_result.presentation_id,"--response","Approval: PRD").value.outcome,"rejected");
   assert.equal(f.run("run-approve","--revision",f.revision(),"--gate","SD","--presentation",p.value.family_result.presentation_id,"--response","Approval: SD").value.outcome,"accepted");
-  const approvedSd=readFileSync(f.file("SD.md"));assert.equal(revise().terminal,true);
+  const approvedSd=readFileSync(f.file("SD.md"));
+  const approvedRevision = f.revision(), revisionPreparation = revise();
+  assert.equal(revisionPreparation.terminal, false);
+  assert.equal(revisionPreparation.continuation.phase, "source_revision_preparation");
+  assert.equal(revisionPreparation.continuation.source_gate, "SD");
+  assert.equal(revisionPreparation.continuation.revision_id, approvedRevision);
+  assert.equal(revisionPreparation.authorizes, false);
+  assert.equal(f.revision(), approvedRevision, "preparation cannot reopen the approved source");
   assert.equal(dispatch("sd-definition","--run",f.runId).terminal,true);
   assert.equal(bound("--continue-delivery").continuation.phase,"tp_definition");
   assert.deepEqual(readFileSync(f.file("SD.md")),approvedSd);

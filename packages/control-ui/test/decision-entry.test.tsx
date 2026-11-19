@@ -284,3 +284,21 @@ for (const kind of ['accepted', 'wrong_binding', 'malformed']) it(`rejects untru
   expect(screen.queryByText(f.view.labels.confirmed)).toBeNull();
   expect(f.app.callServerTool).toHaveBeenCalledTimes(1);
 });
+
+it('reads a newly opened expanded decision in its own session and explains that there is no old reading position', async () => {
+  const f = fixture();
+  f.app.getHostContext = () => ({ displayMode: 'pip' });
+  const document = { state: 'available', data: { closed: true, document: {
+    content: '# Confirmed current document', content_digest: f.view.document_digest!.slice(7),
+  } } };
+  f.operation.mockResolvedValue(document);
+  render(<DecisionEntry bridge={f.bridge}/>);
+  await act(async () => { f.app.ontoolresult({ _meta: { agdf_decision: f.view } }); });
+  await screen.findByRole('heading', { name: 'Confirmed current document' });
+  await screen.findByText('This view was opened again. The previous reading position is unavailable.');
+  expect(f.operation).toHaveBeenCalledExactlyOnceWith({
+    operation: 'document', snapshot_id: f.view.snapshot_id, run_id: f.view.binding.run_id, resource_id: f.view.resource_id,
+  }, undefined, f.view.read_session_id);
+  expect(f.app.sendMessage).not.toHaveBeenCalled();
+  expect(f.app.updateModelContext).not.toHaveBeenCalled();
+});

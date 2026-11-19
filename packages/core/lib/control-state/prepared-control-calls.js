@@ -13,6 +13,20 @@ export function continueDeliveryCall(input, runId = input.run_id) {
     skill_id: 'gate-check', run_id: runId, continue_delivery: true } };
 }
 
+// A source apply or its original receipt may continue only the revision it reopened.
+export function reopenedSourceAuthoringCall(input, status) {
+  const receipt = status?.receipt;
+  if (status?.status !== 'recorded' || status.family !== 'source_revision.apply' || status.pending
+      || !receipt?.resulting_revision_id || !input.run_id || receipt.run_id !== input.run_id
+      || receipt.previous_revision_id !== input.expected_revision_id
+      || receipt.resulting_revision_id !== status.current_revision_id) return null;
+  return { tool: 'agdf_inspect', arguments: {
+    operation: 'authoring-inputs', bundle: true, presentation_language: input.presentation_language,
+    working_directory: input.working_directory, primary_target: input.primary_target, target_source: input.target_source,
+    run_id: input.run_id, expected_revision_id: receipt.resulting_revision_id,
+  } };
+}
+
 // Observation of the original UUID, never a new write or refreshed revision.
 export function originalOperationCall(input) {
   const kind = input.command?.kind;
@@ -74,7 +88,7 @@ function stagedCloseoutOperationId(binding, reportDigest) {
 
 // `revision` continues an accepted source revision preview: apply keeps the
 // preview's operation UUID, which the proposal binds, and its preview digest.
-export function preparedCommandCall(group, kind, input, { gate, material, recording, presentationId, revision } = {}) {
+export function preparedCommandCall(group, kind, input, { gate, material, recording, presentationId, revision, sourceGate } = {}) {
   if (!RUN_COMMAND_DESCRIPTORS[kind] || RUN_COMMAND_DESCRIPTORS[kind].group !== group) return undefined;
   let payload = {}, slot;
   if (kind === 'material.stage') {
@@ -92,6 +106,7 @@ export function preparedCommandCall(group, kind, input, { gate, material, record
   if (kind === 'step.record') payload = { ...(material ? { source: material } : {}), ...recordingStep(gate) };
   // The proposal reference stays an input: staged material rarely outlives the
   // person's confirmation, and restaging identical bytes keeps the same digest.
+  if (kind === 'source_revision.preview' && sourceGate) payload = { source_gate: sourceGate };
   if (kind === 'source_revision.apply' && revision) payload = { source_gate: revision.source_gate, preview_digest: revision.preview_digest };
   const unbound = ['run.create', 'project.initialize'].includes(kind);
   const binding = { schema_version: '1', presentation_language: input.presentation_language,

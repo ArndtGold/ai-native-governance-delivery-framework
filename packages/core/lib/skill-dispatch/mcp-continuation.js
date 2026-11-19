@@ -39,6 +39,13 @@ export function mcpControlContinuation(input, result, availableGroups = []) {
       instruction: 'Use the current control snapshot and the exact registered OR and QA evidence returned by the supplied read. Follow only its supplied evidence pages. Inspect Git separately for the explicitly requested handoff. This read grants no write or VCS authority.',
       next_calls: [inspect('authoring-inputs', { bundle: true, authoring_scope: CLOSEOUT_AUTHORING_SCOPE })] } };
   }
+  if (continuation.phase === 'source_revision_preparation' && run && revision) {
+    const missing = ['agdf_record', 'agdf_revise'].filter(group => !availableGroups.includes(group));
+    return { ...result, continuation: missing.length
+      ? { ...retained, control_transport: 'unavailable', missing_mcp_groups: missing }
+      : { ...retained, control_transport: 'typed_mcp',
+        next_calls: [inspect('operation-contract', { module: 'agdf_revise/source_revision.preview', gate: continuation.source_gate })] } };
+  }
   let recording;
   if (['prd_definition', 'sd_definition', 'tp_definition'].includes(continuation.phase))
     recording = inspectArtefactRecordingMode(readRunState(root, { runId: run, ignoreRunIdEnv: true }), result.control.current_gate);

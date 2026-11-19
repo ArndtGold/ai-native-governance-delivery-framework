@@ -1,6 +1,6 @@
 import { baseResult, bindHostAction } from "./result.js";
 import { inspectArtefactRecordingMode } from '../control-state/run-artefact-recording.js';
-import { preparedCommandCall } from '../control-state/prepared-control-calls.js';
+import { preparedCommandCall, reopenedSourceAuthoringCall } from '../control-state/prepared-control-calls.js';
 import { inspectProjectState } from './project-state.js';
 import process from "node:process";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
@@ -247,11 +247,14 @@ export function createControlInspectService(dependencies = {}) {
             }
             const state = readRunState(target.governance_target, { runId: input.run_id });
             const targetId = resolveControlCommandTarget(target.governance_target).target_id;
+            const sourceGate = input.kind === 'source_revision.preview' ? input.gate : undefined;
             const valid = parseRunState(state.content, input.run_id).valid && state.meta?.revision_id === input.expected_revision_id
-              && runSealState(target.governance_target, state.content).status === 'valid';
+              && runSealState(target.governance_target, state.content).status === 'valid'
+              && (!sourceGate || sourceRevisionBoundary(state, sourceGate));
             return { report: valid ? { ...operationContract(input.group, input.kind, { gate: input.gate ?? state.current_gate }),
               prepared_call: preparedCommandCall(input.group, input.kind, { ...input, presentation_language: input.presentation_language, target_id: targetId },
-                { gate: input.gate ?? state.current_gate, recording: inspectArtefactRecordingMode(state, input.gate ?? state.current_gate) }),
+                { gate: input.gate ?? state.current_gate, sourceGate,
+                  recording: inspectArtefactRecordingMode(state, input.gate ?? state.current_gate) }),
               ...(input.kind === 'artefact.record' ? { recording: inspectArtefactRecordingMode(state, input.gate ?? state.current_gate) } : {}),
               // Revision proposals are staged in their own slot. Offer that staging form with the
               // revision commands and beside a material.stage form, whose prepared_call uses the gate's slot.
@@ -281,13 +284,18 @@ export function createControlInspectService(dependencies = {}) {
           }
           case 'project-state':
             return { report: inspectProjectState(target.governance_target, input, dependencies.gitObservation), presentation: null };
-          case 'operation-status':
+          case 'operation-status': {
             if (input.planning) return { report: input.contract_module.startsWith('run.create_from_planned/')
               ? inspectPlannedHandoffOperation(target.governance_target, input.planning.plan_id, input.operation_id)
               : inspectPlannedOperation(target.governance_target, input.planning.plan_id, input.operation_id), presentation: null };
             if (input.contract_module.startsWith('project.initialize/')) return { report: inspectProjectState(target.governance_target, input, dependencies.gitObservation), presentation: null };
-            return { report: { ...inspectRunOperation(target.governance_target, { runId: input.run_id ?? creationRunId(input.operation_id), operationId: input.operation_id, targetId: resolveControlCommandTarget(target.governance_target).target_id }), expected_revision_id: input.expected_revision_id ?? null,
+            const status = inspectRunOperation(target.governance_target, { runId: input.run_id ?? creationRunId(input.operation_id),
+              operationId: input.operation_id, targetId: resolveControlCommandTarget(target.governance_target).target_id });
+            const next = reopenedSourceAuthoringCall(input, status);
+            return { report: { ...status, expected_revision_id: input.expected_revision_id ?? null,
+              ...(next ? { next_calls: [next] } : {}),
               ...(!input.run_id ? { lookup_scope: 'run_creation', recovery_instruction: 'This target-only lookup is for Run creation. For a write to an existing Run, inspect operation-status with the original run_id, original expected_revision_id and the same original UUID in module. An unavailable creation lookup does not prove an approval effect. Never substitute a fresh UUID or infer success from a changed gate alone.' } : {}) }, presentation: null };
+          }
           case "artifact-readiness":
             return { report: inspectArtifactReadiness(target.governance_target, {
               runId: input.run_id, gate: input.gate, expectedRevisionId: input.expected_revision_id,

@@ -85,7 +85,16 @@ withTpFixture(f => {
   assert.equal(f.recordTp(true, input => { input.material.digest = 'sha256:' + '0'.repeat(64); }).value.outcome, 'rejected');
   assert.deepEqual(readFileSync(f.state),beforeBadProof);
   const current = f.present('TP', 'de'); assert.equal(f.approve('TP', current.value.family_result.presentation_id).value.outcome, 'accepted');
-  assert.equal(f.revise().terminal, true); assert.equal(f.dispatch('tp-definition', '--run', f.runId).terminal, true);
+  const approvedTp = readFileSync(f.file('TP.md')), approvedRevision = f.revision();
+  const revisionPreparation = f.revise();
+  assert.equal(revisionPreparation.terminal, false);
+  assert.equal(revisionPreparation.continuation.phase, 'source_revision_preparation');
+  assert.equal(revisionPreparation.continuation.source_gate, 'TP');
+  assert.equal(revisionPreparation.continuation.revision_id, approvedRevision);
+  assert.equal(revisionPreparation.authorizes, false);
+  assert.equal(f.revision(), approvedRevision, 'preparation cannot reopen the approved source');
+  assert.deepEqual(readFileSync(f.file('TP.md')), approvedTp);
+  assert.equal(f.dispatch('tp-definition', '--run', f.runId).terminal, true);
   assert.equal(f.recordTp(true).value.outcome, 'rejected'); assert.deepEqual(readFileSync(f.canonicalFile('SD.md')), sourceBytes);
 });
 console.log('TP assembled assignment, ready-draft/revision, protected-source, recording and approval boundaries passed.');

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useCallback, useState, type RefObject } from 'react';
 import { createApi, type ReadTransport } from './api';
-import { initialState, readingReducer, hasExpiredSession } from './state';
+import { initialState, readingReducer, hasExpiredSession, isTemporaryReadFailure } from './state';
 import type { CompanionActivity, Inventory, OverviewInventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
 import { ReadState, ReadingFeedback, readingStatus, label } from './feedback';
 import { Overview, type WorkView } from './Overview';
@@ -28,6 +28,7 @@ import { useDraftCheck } from './useDraftCheck';
 import { DraftCheck } from './DraftCheck';
 import { ContextPanel } from './ContextPanel';
 import type { HandoffController } from './mcp/handoff';
+import type { CompanionContinuation } from './mcp/companion-continuation';
 import type { CockpitProvenance } from './mcp/bootstrap';
 import { AboutCockpit } from './AboutCockpit';
 import type { CockpitHost } from './host-label';
@@ -42,9 +43,9 @@ const sameActivity = (a?: CompanionActivity, b?: CompanionActivity) => a === b |
   && a.run_id === b.run_id && a.revision_id === b.revision_id && a.gate === b.gate && a.expires_at === b.expires_at);
 export type CompanionDisplay = { status: string; gate?: string; gate_state?: 'current' | 'done' };
 
-export function App({ secret = '', transport, compact: hostCompact = false, onExpand, initialRunId, companionEmpty = false, companionFallback, handoff, provenance, host = 'unknown', onDisplay, companionConstraints, review, checkpoint }: {
+export function App({ secret = '', transport, compact: hostCompact = false, onExpand, initialRunId, companionEmpty = false, companionFallback, handoff, provenance, host = 'unknown', onDisplay, companionConstraints, review, checkpoint, continuation }: {
   secret?: string; transport?: ReadTransport; compact?: boolean; onExpand?: () => void; onReturnToCompact?: () => Promise<void>;
-  review?: ReviewView; checkpoint?: RefObject<CockpitCheckpoint | null>;
+  review?: ReviewView; checkpoint?: RefObject<CockpitCheckpoint | null>; continuation?: CompanionContinuation;
   initialRunId?: string; companionEmpty?: boolean; companionFallback?: boolean; handoff?: HandoffController; provenance?: CockpitProvenance; host?: CockpitHost;
   onDisplay?: (snapshotId: string, signal: AbortSignal, presentation?: CompanionDisplay) => Promise<boolean>; companionConstraints?: CompanionConstraints;
 }) {
@@ -176,6 +177,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
     if (background) capturePosition(generation); else readingPosition.current = null;
     focusAfterRead.current = !background && !companionRead;
     dispatch({ type: 'begin', generation, route: companionRead ? { view: 'detail', runId: requested.runId } : requested, background });
+    let operation = 'snapshot';
     try {
       let scope = live.current.scope;
       const refresh = reload || live.current.stale || !scope?.snapshot_id;
@@ -184,8 +186,20 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
         || live.current.detail?.data?.revision_id !== observed.revision)) throw Error('source_changed');
       const expected = scope?.snapshot_id ? { target: scope.target.target_id, snapshot: scope.snapshot_id, replacement: true } : undefined;
       if (refresh || requested.view === 'overview') {
-        scope = await read<ReadingScope>('/api/snapshot' + (requested.runId ? '?run_id=' + requested.runId : ''), controller.signal, expected);
+        const path = '/api/snapshot' + (requested.runId ? '?run_id=' + requested.runId : '');
+        const capture = () => read<ReadingScope>(path, controller.signal, expected);
+        const retry = host === 'codex' && background && requested.view === 'detail';
+        try { scope = await capture(); }
+        catch (error) {
+          if (!retry || !retryableCapture(readFailureCode(error))) throw error;
+          scope = null;
+        }
+        // A background refresh can start a new read of the same Run after a short outage.
+        // A cancelled navigation may already have been superseded by another selection.
+        if (retry && (!scope || (!scope.data && retryableCapture(scope.code)))
+          && !controller.signal.aborted && generation === sequence.current) scope = await capture();
       } else if (requested.view === 'detail') {
+        operation = 'run';
         scope = await read<ReadingScope>(`/api/runs/${requested.runId}?snapshot=${scope!.snapshot_id}`, controller.signal, expected);
       }
       if (controller.signal.aborted || generation !== sequence.current) return;
@@ -216,18 +230,21 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
           route = { view: 'detail', runId: route.runId }; removed = true;
         }
         else {
-          const readDocument = (selected: Resource, binding: Envelope<ReadingScope>) =>
-            read<ReadingScope>(`/api/documents/${selected.resource_id}?snapshot=${binding.snapshot_id}`, controller.signal,
+          const readDocument = (selected: Resource, binding: Envelope<ReadingScope>) => {
+            operation = 'document';
+            return read<ReadingScope>(`/api/documents/${selected.resource_id}?snapshot=${binding.snapshot_id}`, controller.signal,
               { target: binding.target.target_id, snapshot: binding.snapshot_id!, replacement: true });
+          };
           try {
             scope = await readDocument(resource, scope);
             if (observed && !scope.data) throw Error(scope.code ?? 'read_failed');
           } catch (error) {
             if (controller.signal.aborted || generation !== sequence.current) return;
-            const code = error instanceof Error && error.message in knownErrors ? error.message : 'read_failed';
+            const code = readFailureCode(error);
             if (!observed?.recoverBinding || !['resource_denied', 'read_failed'].includes(code)) throw error;
             // Another capture can retire the panel's selectors during host expansion.
             // Rebind once and only read the same registered bytes for the same decision.
+            operation = 'snapshot';
             const fresh = await read<ReadingScope>(`/api/snapshot?run_id=${requested.runId}`, controller.signal, expected);
             if (controller.signal.aborted || generation !== sequence.current) return;
             const run = fresh.data?.kind === 'run' ? fresh.data.run : null;
@@ -284,10 +301,14 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       dispatch({ type: 'ready', generation, route: companionRead ? { view: 'detail', runId: requested.runId } : route, scope, inventory, detail, document: companionRead ? null : document, removed });
       return observed && document && detail ? { generation, capture: { document, detail } } : undefined;
     } catch (error) {
-      if (!controller.signal.aborted) dispatch({ type: 'error', generation, code: error instanceof Error && error.message in knownErrors ? error.message : 'read_failed',
-        ...(observed && { recoverRoute: { view: 'detail' as const, runId: observed.resource.run_id } }) });
+      if (!controller.signal.aborted) {
+        const code = readFailureCode(error);
+        if (host === 'codex' && requested.runId) logCompanionRead(operation, code, requested.runId);
+        dispatch({ type: 'error', generation, code,
+          ...(observed && { recoverRoute: { view: 'detail' as const, runId: observed.resource.run_id } }) });
+      }
     }
-  }, [read, handoff, checkpoint, !!review]);
+  }, [read, handoff, checkpoint, host, !!review]);
   const draftAction = useDraftCheck({ live, read, visible: cardVisible, pending: draftPending, handoff,
     before: () => { freshnessPending.current?.abort(); },
     commit: (scope, original) => {
@@ -392,6 +413,17 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       };
     }
     let checking = false; const controller = new AbortController();
+    const updateAfterFailure = (code: string) => {
+      const route = live.current.route;
+      const companion = host === 'codex' && compact && route.view === 'detail';
+      if (companion && code === 'cancelled') return;
+      const recapture = companion && (isTemporaryReadFailure(code) || code === 'resource_denied');
+      if (route.view === 'detail' && (code === 'source_changed' || recapture)) void navigate(route, true, true);
+      else {
+        if (companion && route.runId) logCompanionRead('freshness', code, route.runId);
+        void handoff?.invalidate(); dispatch({ type: 'stale', snapshot, code });
+      }
+    };
     const check = async () => {
       if (document.hidden || checking || draftPending.current || contextPending.current) return; checking = true;
       const generation = sequence.current;
@@ -403,8 +435,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
         catch (error) { if (request.signal.aborted) return; throw error; }
         finally { controller.signal.removeEventListener('abort', cancel); if (freshnessPending.current === request) freshnessPending.current = null; }
         if (request.signal.aborted || controller.signal.aborted || generation !== sequence.current || document.hidden) return;
-        if (result.code === 'source_changed' && live.current.route.view === 'detail') void navigate(live.current.route, true, true);
-        else if (result.code) { void handoff?.invalidate(); dispatch({ type: 'stale', snapshot, code: result.code }); }
+        if (result.code) updateAfterFailure(result.code);
         else if (host === 'codex' && compact) {
           // An unchanged observation keeps its state, so a quiet poll does not redraw the Cockpit.
           const activity = result.companion_observation?.activity;
@@ -413,10 +444,9 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
             && sameActivity(previous.activity, activity) && previous.unknown === unknown ? previous : { snapshot, generation, activity, unknown });
         }
       } catch (error) {
-        if (!controller.signal.aborted && generation === sequence.current) {
-          const code = error instanceof Error && error.message === 'session_expired' ? error.message : 'read_failed';
-          void handoff?.invalidate();
-          dispatch({ type: 'stale', snapshot, code });
+        if (!controller.signal.aborted && generation === sequence.current && !document.hidden) {
+          const code = readFailureCode(error);
+          updateAfterFailure(host === 'codex' && compact || code === 'session_expired' ? code : 'read_failed');
         }
       }
       finally { checking = false; }
@@ -716,7 +746,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
   }
   const refreshed = companionRefresh?.snapshot === state.scope?.snapshot_id && companionRefresh?.generation === state.generation
     ? companionRefresh : null;
-  if (compact) return <><CompactCockpit observationNotice={observationNotice} host={host}
+  if (compact) return <><CompactCockpit observationNotice={observationNotice} host={host} continuation={continuation}
     activity={refreshed ? refreshed.activity : state.scope?.companion_observation?.activity}
     activityUnknown={refreshed ? refreshed.unknown : state.scope?.companion_observation?.liveness === 'unknown'} companionEmpty={companionEmpty} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={companionVisible} reader={reader} onReaderClose={() => {
       reader.close();
@@ -771,4 +801,10 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       <footer className="cockpit-footer"><span>Lokale Beobachtung · {status.title}{status.previous && ' · Vorheriger Datenstand bleibt sichtbar'} · Das Cockpit verändert keine Kontrolldateien.</span></footer>
     </main></div>{aboutOpen && <AboutCockpit onClose={closeAbout} provenance={provenance} host={host}/>}</div>;
 }
-const knownErrors: Record<string, boolean> = Object.fromEntries(['source_changed', 'session_invalid', 'session_expired', 'resource_denied', 'document_missing', 'document_removed', 'document_unsupported', 'read_failed', 'busy', 'timeout', 'resource_limit', 'control_absent', 'dto_invalid', 'control_layout_unsupported', 'run_version_unsupported', 'control_invalid', 'run_missing', 'invalid_run'].map(c => [c, true]));
+const knownErrors: Record<string, boolean> = Object.fromEntries(['source_changed', 'session_invalid', 'session_expired', 'resource_denied', 'document_missing', 'document_removed', 'document_unsupported', 'read_failed', 'busy', 'timeout', 'cancelled', 'resource_limit', 'control_absent', 'dto_invalid', 'control_layout_unsupported', 'run_version_unsupported', 'control_invalid', 'run_missing', 'invalid_run'].map(c => [c, true]));
+const readFailureCode = (error: unknown) => error instanceof Error && Object.hasOwn(knownErrors, error.message) ? error.message : 'read_failed';
+const retryableCapture = (code: string | null) => code === 'source_changed' || isTemporaryReadFailure(code);
+function logCompanionRead(operation: string, code: string, runId: string) {
+  if (!/^[a-z0-9][a-z0-9._-]{0,127}$/.test(runId) || !/^[a-z][a-z0-9_]{0,127}$/.test(code)) return;
+  console.warn(`AGDF Companion read ${JSON.stringify({ operation, code, run_id: runId })}`);
+}

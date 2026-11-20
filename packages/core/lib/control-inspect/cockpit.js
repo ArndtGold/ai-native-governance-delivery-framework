@@ -25,7 +25,7 @@ import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactRea
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { inspectApprovedArtefact } from '../control-state/artefact-binding-proof.js';
 import { runClosure } from '../control-state/run-operations.js';
-import { projectRunEntry } from '../companion/run-view.js';
+import { projectRunEntry, readUrFacts } from '../companion/run-view.js';
 // Shared with the companion run view, in a module every runtime profile carries.
 import { boundedCode, projectCockpitAssessment } from './run-classification.js';
 export { boundedCode, projectCockpitAssessment };
@@ -148,12 +148,16 @@ export function createCockpitReader(root, options = {}) {
     const findingBytes = finding && SUPPORTED.has(finding.path.split('.').at(-1)?.toLowerCase())
       && view.readOptionalFileSync(join(root, finding.path), READ_LIMITS.preview).bytes;
     const findingDigest = findingBytes && !findingBytes.includes(0) ? rawDigest(findingBytes) : null;
-    const urTitle = readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, '').trim();
+    const ur = state.artefacts.get('UR');
+    const urFacts = companion && ur && readUrFacts(root, String(ur.path ?? '').replace(/^`|`$/g, '').trim(), 'de');
+    const urTitle = urFacts?.heading || readArtefactHeading(root, ur).replace(/^UR:\s*/i, '').trim();
+    const companionGoal = urFacts?.sourceLanguage === 'de' ? urFacts.authoredGoal : urFacts?.localizedGoal;
     const identity = runIdentity({ runId: run.run_id, runContent: run.content, urHeading: urTitle });
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
       closure: projectRunClosure(run.content), work_summary,
       ...(companion && { figure: companion.figure, companion: { route: companion.mode, path: companion.path,
         next_text: companionText(companion.next_step_text), blocking_text: companionText(companion.blocking_text),
+        ...(companionGoal && { goal: companionText(companionGoal) }),
         ...(decision?.available && !decision.decided && { decision_material_version: decision.material_version }),
         ...(findingDigest && { finding: { resource_id: finding.resource_id, content_digest: findingDigest } }) } }),
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.

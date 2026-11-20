@@ -82,7 +82,7 @@ visit(resolve(dispatcherRoot, 'lib/mcp-decision-protocol.js'));
 visit(resolve(dispatcherRoot, 'lib/mcp-dispatch-runtime.js'));
 const writeSymbols = ["writeFileSync", "createWriteStream", "renameSync", "unlinkSync", "rmSync",
   "rmdirSync", "mkdirSync", "openSync", "fsyncSync", "linkSync", "appendFileSync"];
-// Bound continuation composes the existing writer; the MCP adapter adds no write owner.
+// The MCP adapter composes Core's fixed write owners.
 const continuationWriteOwners = new Map([
   // Existing immutable preview publication owner; no new writer is introduced
   // by the error projector. Reads use its bounded read/validation functions.
@@ -118,6 +118,8 @@ const continuationWriteOwners = new Map([
   // rotates its own file once. It never writes inside a project root or the control store.
   // appendFileSync is scanned too, so no other reachable module gains an append (CR finding C5).
   ["runtime/core/lib/companion/journal.js", ["renameSync", "mkdirSync", "appendFileSync"]],
+  // Continuation owns a private directory below the launcher-supplied Codex data root.
+  ["runtime/core/lib/companion/codex-continuation.js", ["mkdirSync", "openSync"]],
 ]);
 function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
   assert.deepEqual(writeSymbols.filter(symbol => new RegExp(`\\b${symbol === 'renameSync' ? 'renameSync(?:WithRetry)?' : symbol}\\b`, 'u').test(content)), owners.get(packagePath) ?? [],
@@ -127,6 +129,15 @@ function assertWriteBoundary(packagePath, content, owners = continuationWriteOwn
     assert.equal(calls.length, 1, 'placement has one fixed existing-anchor open');
     assert.match(content, /openSync\(anchorPath, constants\.O_RDONLY \| \(constants\.O_NOFOLLOW \?\? 0\)\)/u,
       'placement cannot acquire create, truncate or write flags');
+  }
+  if (packagePath === 'runtime/core/lib/companion/codex-continuation.js') {
+    assert.equal((content.match(/\bopenSync\s*\(/gu) ?? []).length, 1);
+    assert.match(content, /openSync\(path, constants\.O_RDONLY \| \(constants\.O_NOFOLLOW \?\? 0\) \| \(constants\.O_NONBLOCK \?\? 0\)\)/u,
+      'continuation reads must open the existing record read-only');
+    assert.equal((content.match(/\bmkdirSync\s*\(/gu) ?? []).length, 1);
+    assert.match(content, /const directory = 'codex-continuation';/u);
+    assert.match(content, /if \(create\) mkdirSync\(join\(dataRoot, directory\), \{ recursive: true, mode: 0o700 \}\)/u,
+      'continuation can create only its private directory');
   }
 }
 for (const [path, content] of visited) {

@@ -1,11 +1,11 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { gateMarks } from '../../../../plugins/agdf/host-templates/claude/companion/gate-bar.mjs';
+import { BUILD_MARK, gateMarks } from '../../../../plugins/agdf/host-templates/claude/companion/gate-bar.mjs';
 import { matchesActivity } from '../../../core/lib/companion/activity.js';
-import { activityLabel, activityOf } from '../../../../plugins/agdf/host-templates/claude/companion/view.mjs';
+import { activityOf } from '../../../../plugins/agdf/host-templates/claude/companion/view.mjs';
 import { companionLabels, label } from '../../../../plugins/agdf/host-templates/claude/companion/localization.mjs';
 import registry from '../../../../plugins/agdf/meta/agdf-interaction-locales.json';
 import { RunFigure, useReducedFigureMotion } from '../RunFigure';
-import { phaseName } from '../presentation';
+import { gateName, phaseName } from '../presentation';
 import { ReadState, readingStatus } from '../feedback';
 import { refreshUnavailable } from '../RefreshControl';
 import { hasExpiredSession, type ReadingState } from '../state';
@@ -13,15 +13,18 @@ import type { CompanionActivity, Detail, Resource } from '../types';
 
 import { companionDecision, companionSource } from '../companion-source';
 import { Icon } from './Icon';
-import { CompanionProgress } from './CompanionProgress';
+import { CompanionGatePath, CompanionProgress } from './CompanionProgress';
+import { CompanionContinuationAction } from './CompanionContinuationAction';
+import type { CompanionContinuation } from './companion-continuation';
 
 const gateRationales: Readonly<Record<string, string>> = registry.locales.de.gateRationale;
 const labels = companionLabels(registry);
 const companionLabel = (path: string, params?: Record<string, string>) => label(labels, 'de', path, params);
 
-export function CompanionCard({ state, data, activity, activityUnknown, current, visible, enabled, motion, mismatch, sourcePending, sourceShown, showWidthHint, onOpen }: {
+export function CompanionCard({ state, data, activity, activityUnknown, current, visible, enabled, motion, mismatch, sourcePending, sourceInReader, canOfferApproval, showWidthHint, onOpen, onReload, continuation }: {
   state: ReadingState; data: Detail; activity?: CompanionActivity; activityUnknown?: boolean; current: boolean; visible: boolean; enabled: boolean; motion: boolean; mismatch: boolean;
-  sourcePending: boolean; sourceShown?: boolean; showWidthHint?: boolean; onOpen: (resource: Resource, digest: string) => void;
+  sourcePending: boolean; sourceInReader: boolean; canOfferApproval: boolean; showWidthHint?: boolean; onOpen: (resource: Resource, digest: string) => void;
+  onReload: () => void; continuation?: CompanionContinuation;
 }) {
   const evaluation = data.evaluation;
   const companion = data.companion;
@@ -44,32 +47,38 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
     return () => clearTimeout(timer);
   }, [activeUntil]);
   const work = active && gate ? activityOf({ reason: { key: 'working', gate } }, { gate }, true, companionLabel, phaseName) : null;
-  // Without a sign of life of the Codex Companion hooks the card cannot tell a resting agent from a blind
-  // Companion; it says so in a neutral tone instead of showing an idle step (brand: Visible uncertainty).
-  const unknown = !work && activityUnknown === true && current && visible !== false && !state.refreshing && !previous && !expired && pending
-    && evaluation?.next_operation?.actor === 'agent';
-  const status = expired ? 'Sitzung abgelaufen' : previous ? 'Zuletzt beobachteter Stand' : blocked ? 'Blockiert'
-    : waiting ? companionLabel('waitingCaptions.waitingApproval')
-    : human ? companionLabel('waitingCaptions.waitingDecision') : completed ? 'Abgeschlossen'
-    : work ? work.label : unknown ? 'Aktivität unbekannt' : pending && gate ? activityLabel(gate, false, companionLabel, phaseName) : pending ? 'Schritt steht an'
-    : assessment === 'ended' ? 'Beendet' : 'Stand nicht bestätigt';
+  const unknown = activityUnknown === true && current && visible !== false && !state.refreshing;
+  const marks = companion && assessment !== 'unconfirmed' ? gateMarks({ path: companion.path, gate, route: companion.route, lifecycle: data.lifecycle }) : [];
+  const gateMark = completed ? marks.filter(mark => mark.mark === 'done').at(-1)
+    : marks.find(mark => mark.mark === 'current' && (mark.gate === BUILD_MARK || mark.gate === gate));
+  const observedGate = current || ((previous || expired) && !mismatch)
+    ? gateMark?.gate ?? gate
+    : undefined;
+  const displayedPhase = observedGate ? gateName(observedGate) : undefined;
+  const status = displayedPhase && (previous || expired)
+    ? `Zuletzt war das Vorhaben in der Phase „${displayedPhase}“.`
+    : completed ? 'Das Vorhaben ist abgeschlossen.'
+    : displayedPhase ? `Das Vorhaben ist in der Phase „${displayedPhase}“.`
+    : expired ? 'Die Sitzung ist abgelaufen.' : 'Der aktuelle Stand konnte nicht bestätigt werden.';
   const tone = previous || expired ? 'previous' : blocked ? 'blocked' : human ? 'decision' : completed ? 'completed' : work ? 'working' : undefined;
   const source = companionSource(data, state.scope?.target.target_id ?? '', !mismatch && state.detail?.state === 'available');
   const resource = source?.resource;
   const widthHintId = useId();
-  const showSourceHint = current && !blocked && showWidthHint;
-  const marks = companion && assessment !== 'unconfirmed' ? gateMarks({ path: companion.path, gate, route: companion.route, lifecycle: data.lifecycle }) : [];
-  const displayGate = current && !previous
-    ? marks.find(mark => mark.mark === 'current') ?? (completed ? marks.filter(mark => mark.mark === 'done').at(-1) : undefined)
-    : undefined;
-  const currentStep = current && !previous && companion?.route !== 'undecided'
-    ? marks.findIndex(({ mark }) => mark === 'current') + 1 : 0;
-  const reason = waiting ? `${phaseName(gate)} zur Entscheidung lesen.` : blocked
+  const stepId = useId();
+  const showSourceHint = current && !blocked && showWidthHint && !!resource && !sourceInReader;
+  const displayGate = current && !previous ? gateMark : undefined;
+  const currentStep = displayGate?.mark === 'current' && companion?.route !== 'undecided'
+    ? marks.indexOf(displayGate) + 1 : 0;
+  const nextStep = companion?.next_text || evaluation?.next_action_de;
+  const review = waiting && !!resource;
+  const reason = review ? 'Lies den Entwurf und prüfe, ob er zu deinem Auftrag passt.' : blocked
     ? companion?.blocking_text || 'Die Kontrollauswertung meldet ein Hindernis.'
-    : companion?.next_text || evaluation?.next_action_de;
-  const approval = current && waiting ? evaluation?.missing_approval : null;
+    : nextStep;
+  const offerApproval = waiting && canOfferApproval;
+  const approval = current && offerApproval ? evaluation?.missing_approval : null;
   const title = data.title ?? data.run_id;
-  const goal = data.objective && data.objective !== title ? data.objective : null;
+  const displayGoal = companion?.goal ?? data.objective;
+  const goal = displayGoal && displayGoal !== title ? displayGoal : null;
   const goalPreview = useRef<HTMLParagraphElement>(null);
   const [goalClipped, setGoalClipped] = useState(false);
   useLayoutEffect(() => {
@@ -82,8 +91,9 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
     return () => observer?.disconnect();
   }, [goal]);
   const rationale = gate && (human || pending) && Object.hasOwn(gateRationales, gate) ? gateRationales[gate] : null;
-  const nextStep = companion?.next_text || evaluation?.next_action_de;
-  const approvalStep = waiting && nextStep && nextStep !== reason ? nextStep : null;
+  const snapshotId = state.scope?.snapshot_id;
+  const action = current && visible && snapshotId && data.revision_id && data.lifecycle === 'active'
+    && (offerApproval || (pending && evaluation?.next_operation?.actor === 'agent'));
 
   return <article className="compact-run companion-card" data-tone={tone} aria-label="Companion-Statuskarte"
     data-display-gate={displayGate?.gate} data-display-gate-state={displayGate?.mark}>
@@ -92,31 +102,37 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
       <p className="companion-signal" role={!human || previous || expired ? 'status' : undefined}>{status}</p>
     </div>
     <h2 tabIndex={-1} data-focus-id="companion-run-heading">{title}</h2>
-    {currentStep > 0 && <p className="companion-pit-stop">Boxenstopp {currentStep} von {marks.length}</p>}
-    {goal && <div className="companion-goal"><strong>Ziel</strong><p ref={goalPreview}>{goal}</p></div>}
-    {state.detail?.code && <ReadState state={state.detail.state} code={state.detail.code}/>}
-    {mismatch && <ReadState state="partial" code="persisted_mismatch"/>}
-    {(blocked || human || pending) && <div className="companion-turn">
+    {goal && <p className="companion-goal" ref={goalPreview}>{goal}</p>}
+    {(blocked || human || pending || reason) && <div className="companion-turn">
       <strong role={human && !previous && !expired ? 'status' : undefined}>{previous || expired ? 'Zuletzt beobachteter Schritt' : human ? 'Du bist dran' : blocked ? 'Klärung nötig'
         : work ? work.turn.who : evaluation?.next_operation?.actor === 'agent' ? 'Codex ist als Nächstes dran' : 'Als Nächstes'}</strong>
-      {work ? <p>{work.turn.what}</p> : reason && <p>{reason}</p>}
-      {unknown && <p className="compact-muted companion-liveness-hint">Die Companion sieht gerade nicht, ob Codex arbeitet. Prüfe in Codex unter /hooks, ob die AGDF-Hooks freigegeben sind.</p>}
-      {approval && <p className="compact-muted">Wenn der Entwurf passt, antworte im Chat mit <code>{approval}</code>.</p>}
+      {reason && <p id={stepId}>{reason}</p>}
+      {work && work.turn.what !== reason && <p>{work.turn.what}</p>}
       {blocked && companion?.next_text && companion.next_text !== reason && <p>{companion.next_text}</p>}
-      {resource && source && !expired && !sourceShown && <>
+      {resource && source && !expired && !sourceInReader &&
         <button type="button" className="companion-source" aria-disabled={!current || sourcePending || undefined}
           aria-describedby={showSourceHint ? widthHintId : undefined} data-focus-id={`companion:${resource.resource_id}`}
-          onClick={() => { if (current && !sourcePending) onOpen(resource, source.digest); }}>{blocked ? 'Befund öffnen' : `${resource.type}-Entwurf öffnen`}</button>
-        {showSourceHint && <p className="companion-source-hint" id={widthHintId}>In einer breiteren Ansicht öffnet sich der Entwurf automatisch daneben.</p>}
-      </>}
+          onClick={() => { if (current && !sourcePending) onOpen(resource, source.digest); }}>{blocked ? 'Befund öffnen' : `${resource.type}-Entwurf öffnen`}</button>}
       {current && !resource && (waiting || blocked) && <p className="compact-muted">{waiting ? 'Der registrierte Entwurf ist nicht verfügbar.' : 'Kein passender registrierter Befund verfügbar.'}</p>}
+      {approval && <p className="compact-muted">Wenn der Entwurf passt, antworte im Chat mit <code>{approval}</code>.</p>}
+      {action && continuation && snapshotId && data.revision_id && <CompanionContinuationAction
+        key={snapshotId} port={continuation} approval={waiting}
+        stepId={reason ? stepId : undefined} onReload={onReload}
+        selection={{ snapshot_id: snapshotId, run_id: data.run_id, revision_id: data.revision_id }} />}
     </div>}
-    {marks.length > 0 && <CompanionProgress marks={marks} previous={previous}/>}
-    {(goal && goalClipped || rationale || approvalStep) && <details className="companion-details"><summary>ⓘ Details</summary>
+    {state.detail?.code && <ReadState state={state.detail.state} code={state.detail.code}/>}
+    {mismatch && <ReadState state="partial" code="persisted_mismatch"/>}
+    {marks.length > 0 && <div className="companion-progress">
+      {currentStep > 0 && <p className="companion-pit-stop">Boxenstopp {currentStep} von {marks.length}</p>}
+      <CompanionProgress marks={marks} previous={!current}/>
+    </div>}
+    {(goal && goalClipped || rationale || unknown || showSourceHint || marks.length > 0) && <details className="companion-details"><summary>ⓘ Details</summary>
       <dl>
+        {unknown && <><dt>Codex-Aktivität</dt><dd>Ob Codex gerade an diesem Run arbeitet, ist unklar.</dd></>}
         {rationale && <><dt>Wozu dieses Gate da ist</dt><dd>{rationale}</dd></>}
+        {showSourceHint && <><dt>Entwurfsansicht</dt><dd id={widthHintId}>In einer breiteren Ansicht öffnet sich der Entwurf automatisch daneben.</dd></>}
         {goal && goalClipped && <><dt>Ziel</dt><dd className="companion-full-goal">{goal}</dd></>}
-        {approvalStep && <><dt>Nächster Schritt</dt><dd>{approvalStep}</dd></>}
+        {marks.length > 0 && <><dt>Vollständige Gate-Reihenfolge</dt><dd><CompanionGatePath marks={marks} previous={!current}/></dd></>}
       </dl>
     </details>}
   </article>;

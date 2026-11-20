@@ -95,6 +95,21 @@ it('retains the existing expired-session close acknowledgement without accepting
   await expect(bridge.operation({ operation: 'snapshot' })).rejects.toThrow('session_expired');
 });
 
+it.each(['exception', 'text content'])('preserves a scoped read rejection forwarded as %s', async form => {
+  const bridge = new CockpitBridge(); bridge.session = session(1);
+  const rejection = { schema_version: '2', target: { target_id: 'target', display_path: '/fixture' }, snapshot_id: null,
+    observed_as_of: null, source_digest: null, state: 'blocked', code: 'source_changed', retryable: true, data: null, authorizes: false };
+  const mock = (value: unknown) => form === 'exception'
+    ? callServerTool.mockRejectedValue(new Error(`MCP error -32603: ${JSON.stringify(value)}`))
+    : callServerTool.mockResolvedValue({ isError: true, content: [{ type: 'text', text: JSON.stringify(value) }] });
+  const read = (target = 'target') => bridge.read('/api/freshness?snapshot=old', new AbortController().signal, { target, snapshot: 'old' });
+  mock(rejection);
+  await expect(read()).resolves.toEqual(rejection);
+  await expect(read('another-target')).rejects.toThrow('dto_invalid');
+  mock({ ...rejection, state: 'available', data: { unchanged: true } });
+  await expect(read()).rejects.toThrow();
+});
+
 it('maps historical document selection to scoped MCP selectors without a current Run binding', async () => {
   const bridge = new CockpitBridge(); bridge.session = session(1);
   const meta = { schema_version: '2', target: { target_id: 'target', display_path: '/fixture' }, snapshot_id: session(2),

@@ -2,9 +2,11 @@
 import { AppBridge, PostMessageTransport } from '@modelcontextprotocol/ext-apps/app-bridge';
 const iframe = document.querySelector('iframe')!;
 const companion = new URLSearchParams(location.search).get('companion');
+const continuation = new URLSearchParams(location.search).get('continuation');
 const reviewJourney = new URLSearchParams(location.search).get('closeMode') === 'accepted';
 const displayModes = companion === 'panel' ? ['fullscreen'] as const : companion ? ['inline', 'fullscreen'] as const : reviewJourney ? ['inline', 'pip', 'fullscreen'] as const : ['fullscreen'] as const;
-const bridge = new AppBridge(null, { name: companion === 'panel' ? 'chatgpt' : companion ? 'Codex' : 'Synthetic trace host', version: '1' }, { serverTools: {}, logging: {}, updateModelContext: {} }, {
+const bridge = new AppBridge(null, { name: companion === 'panel' ? 'chatgpt' : companion ? 'Codex' : 'Synthetic trace host', version: '1' },
+  { serverTools: {}, logging: {}, updateModelContext: {}, ...(continuation ? { message: { text: {} } } : {}) }, {
   hostContext: { displayMode: displayModes[0], availableDisplayModes: [...displayModes], locale: 'de' },
 });
 const logs: unknown[] = [];
@@ -18,6 +20,11 @@ bridge.onupdatemodelcontext = async params => {
   if (new URLSearchParams(location.search).get('closeMode') === 'deny-release'
     && (params.structuredContent as { kind?: string } | undefined)?.kind === 'agdf_cockpit_invalid_selection') throw Error('release_rejected');
   logs.push({ kind: 'context-ack', params }); return {};
+};
+if (continuation) bridge.onmessage = async params => {
+  logs.push({ kind: 'continuation-message', params });
+  if (continuation === 'withhold') await new Promise(() => {});
+  return {};
 };
 bridge.addEventListener('loggingmessage', value => { logs.push(value); });
 bridge.oncalltool = async params => (await fetch('/tool', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(params) })).json();

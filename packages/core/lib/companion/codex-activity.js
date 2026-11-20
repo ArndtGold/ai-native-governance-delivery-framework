@@ -3,6 +3,7 @@ import { isAbsolute, join } from 'node:path';
 import { atomicWrite, withOwnedFileLockWait } from '../owned-file-lock.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
 import { hasSymlinkComponent } from '../control-state/contained-file.js';
+import { createCodexContinuationAdmission } from './codex-continuation.js';
 import { activityRecordLimit, codexTurnBound, isActivityId, isAgdfDispatchTool, quarantineActivity, retireTurns, selectActivity,
   updateActivity, workBinding } from './activity.js';
 
@@ -92,6 +93,26 @@ function mutate(dataRoot, create, now, change) {
   }, { waitMs: LOCK_WAIT_MS });
 }
 
+function observeContinuation(dataRoot, input, now) {
+  const turn = { session: input.session_id, id: input.turn_id };
+  const admission = createCodexContinuationAdmission(dataRoot);
+  if (input.hook_event_name === 'Stop') {
+    admission.settleTurn(turn);
+    return;
+  }
+  if (input.hook_event_name !== 'PostToolUse' || !isAgdfDispatchTool(input.tool_name) || input.tool_response?.isError === true) return;
+  const output = input.tool_response?.structuredContent;
+  const work = output?.continuation?.work_admission;
+  if (input.tool_input?.continue_delivery !== true || output?.terminal !== false || output.authorizes !== false
+    || !work || work.run_id !== input.tool_input.run_id || work.run_id !== output.continuation.run_id) return;
+  const root = output.target?.governance_target;
+  if (resolveControlCommandTarget(root).target_id !== work.target_id) return;
+  if (!admission.associateTurn(work, work.attempt_id, work.owner, turn).matched) return;
+  const records = load(directory(dataRoot));
+  if (records.some(row => row.session === turn.session && row.turn === turn.id && row.terminal === true
+    && row.kind === 'ended' && row.until > now)) admission.settleRunning(work, work.attempt_id, turn);
+}
+
 export function observeCodexActivity(dataRoot, input, now = Date.now()) {
   const { hook_event_name: event, session_id: session, turn_id: turn, tool_use_id: tool } = input ?? {};
   if (!isActivityId(session)) return false;
@@ -108,6 +129,9 @@ export function observeCodexActivity(dataRoot, input, now = Date.now()) {
       || input.tool_input?.continue_delivery !== true || !isActivityId(tool))) return false;
     const binding = terminal || input.tool_response?.isError === true
       ? null : workBinding(input.tool_input, input.tool_response?.structuredContent);
+    // Admission evidence is correlated even for a continuation phase with no
+    // visual activity projection. Display failures never settle an attempt.
+    try { observeContinuation(dataRoot, input, now); } catch { /* Preserve admission on uncertainty. */ }
     if (binding) binding.target_id = resolveControlCommandTarget(binding.target_id).target_id;
     const kind = terminal ? (event === 'Stop' ? 'ended' : 'interrupted') : (binding ? 'work' : 'lost');
     return mutate(dataRoot, terminal || Boolean(binding), now, (activity, liveness) => {

@@ -21,6 +21,32 @@ function hasRegisteredDocumentBinding(result: Envelope<DocumentData>, detail?: E
       && r.run_id === data.resource.run_id && r.type === data.resource.type && r.registered_reference === data.resource.registered_reference && r.status === 'registered');
 }
 
+const metadataLabels: Record<string, string> = {
+  Status: 'Status', Gate: 'Gate', 'Gate approval': 'Gate-Freigabe', 'Based on': 'Grundlage',
+  Date: 'Datum', Owner: 'Verantwortlich', 'Traceability contract': 'Nachverfolgbarkeit',
+  'Requirements clarification': 'Anforderungsklärung', 'Preview requirement': 'Vorschauanforderung',
+  'Design Decisions contract': 'Nachweis der Designentscheidungen',
+  'Planning Decisions contract': 'Nachweis der Planungsentscheidungen',
+  Type: 'Typ', 'Report mode': 'Berichtsmodus',
+};
+
+function splitArtifactMetadata(content: string, type: string) {
+  // Only the complete template block immediately after the title belongs in the details.
+  const heading = /^(?:\uFEFF)?(?:[ \t]*\r?\n)*# [^\r\n]+\r?\n[ \t]*\r?\n/u.exec(content);
+  if (!heading) return;
+  const rest = content.slice(heading[0].length);
+  const separator = /\r?\n[ \t]*\r?\n/u.exec(rest);
+  if (!separator) return;
+  const fields = new Map<string, string>();
+  for (const line of rest.slice(0, separator.index).split(/\r?\n/u)) {
+    const field = /^([A-Za-z ]+):[ \t]*(.*)$/u.exec(line);
+    if (!field || !Object.hasOwn(metadataLabels, field[1]) || fields.has(field[1])) return;
+    fields.set(field[1], field[2].trim());
+  }
+  if (fields.get('Gate') !== type) return;
+  return { content: heading[0] + rest.slice(separator.index + separator[0].length), fields };
+}
+
 export function OriginalDocumentDownload({ result, detail, current, className = 'document-download', children }: {
   result: Envelope<DocumentData>; detail?: Envelope<Detail>; current: boolean; className?: string; children?: ReactNode;
 }) {
@@ -32,7 +58,7 @@ export function OriginalDocumentDownload({ result, detail, current, className = 
     aria-label={label} title={children == null ? label : undefined}>{children ?? label}</a>;
 }
 
-export function DocumentView({ result, onOpen, runTitle, detail, current = true, simple = false, navigationEnabled = true, showDownload = true }: { result: Envelope<DocumentData>; onOpen: (id: string) => void; runTitle?: string; detail?: Envelope<Detail>; current?: boolean; simple?: boolean; navigationEnabled?: boolean; showDownload?: boolean }) {
+export function DocumentView({ result, onOpen, runTitle, detail, current = true, simple = false, companion = false, navigationEnabled = true }: { result: Envelope<DocumentData>; onOpen: (id: string) => void; runTitle?: string; detail?: Envelope<Detail>; current?: boolean; simple?: boolean; companion?: boolean; navigationEnabled?: boolean }) {
   const data = result.data;
   const bound = hasRegisteredDocumentBinding(result, detail);
   const artefacts = Array.isArray(detail?.data?.persisted?.artefacts) ? detail.data.persisted.artefacts : [];
@@ -53,29 +79,79 @@ export function DocumentView({ result, onOpen, runTitle, detail, current = true,
     : assessment === 'completed' ? 'Vorhaben abgeschlossen'
     : assessment === 'ended' && detail?.data?.closure ? `Vorhaben beendet · ${label(detail.data.closure.outcome)}` : 'Aktuelle Voraussetzungen nicht bestätigt';
   const summary = readable && data?.format === 'markdown' ? sourceSummary(data.content!) : null;
-  const checkDetails = confirmed && state?.check && <details className="document-provenance" aria-label="Prüfdetails"><summary>Prüfdetails</summary>
+  const check = confirmed ? state?.check : undefined;
+  const checkStatus = check?.display.state === 'passed' ? 'Formale Prüfung bestanden' : check?.display.state === 'corrections_required' ? 'Korrekturen erforderlich'
+    : check?.display.state === 'unchecked' ? 'Noch nicht geprüft' : 'Prüfung nicht verfügbar';
+  const checkResult = check?.result && <details><summary>Originalbefunde</summary><pre>{JSON.stringify(check.result, null, 2)}</pre></details>;
+  const checkDetails = check && <details className="document-provenance" aria-label="Prüfdetails"><summary>Prüfdetails</summary>
       <p>Die formale Prüfung prüft die vorhandenen Autorenregeln. Sie ersetzt weder die inhaltliche Prüfung noch eine Freigabe.</p>
-      <dl className="document-source-fields"><dt>Prüfstand</dt><dd>{state.check.display.state === 'passed' ? 'Formale Prüfung bestanden' : state.check.display.state === 'corrections_required' ? 'Korrekturen erforderlich' : state.check.display.state === 'unchecked' ? 'Noch nicht geprüft' : 'Prüfung nicht verfügbar'}</dd>
-        <dt>Gate</dt><dd>{state.check.source.gate}</dd><dt>Revision</dt><dd><code>{state.check.source.revision_id}</code></dd>
-        <dt>Quelle</dt><dd><code>{state.check.source.artifact_path ?? 'Nicht verfügbar'}</code></dd><dt>SHA-256</dt><dd><code>{state.check.source.artifact_digest ?? 'Nicht verfügbar'}</code></dd>
+      <dl className="document-source-fields"><dt>Prüfstand</dt><dd>{checkStatus}</dd>
+        <dt>Gate</dt><dd>{check.source.gate}</dd><dt>Revision</dt><dd><code>{check.source.revision_id}</code></dd>
+        <dt>Quelle</dt><dd><code>{check.source.artifact_path ?? 'Nicht verfügbar'}</code></dd><dt>SHA-256</dt><dd><code>{check.source.artifact_digest ?? 'Nicht verfügbar'}</code></dd>
         <dt>Beobachtet</dt><dd>{result.observed_as_of ?? 'Nicht verfügbar'}</dd></dl>
-      {state.check.source.reason && <p>Originalgrund: <code>{state.check.source.reason}</code></p>}
-      {state.check.result && <details><summary>Originalbefunde</summary><pre>{JSON.stringify(state.check.result, null, 2)}</pre></details>}
+      {check.source.reason && <p>Originalgrund: <code>{check.source.reason}</code></p>}
+      {checkResult}
     </details>;
-  const sourceDetails = <details className="document-provenance"><summary>Quellenangaben</summary><dl className="document-source-fields"><dt>Beobachtete Run-Revision</dt><dd><code>{detail?.data?.revision_id ?? 'Nicht verfügbar'}</code></dd><dt>Beobachtet</dt><dd>{result.observed_as_of ?? 'Nicht verfügbar'}</dd><dt>Dokumenttyp</dt><dd>{data?.resource.type ?? 'Dokument'}</dd><dt>Registrierte Quelle</dt><dd><code>{data?.resource.registered_reference}</code></dd>{data?.content_digest && <><dt>Quellenfingerabdruck</dt><dd><code>{data.content_digest}</code></dd></>}</dl></details>;
-  if (simple) return <>
-    <div className="document-state-context">{!(confirmed && state?.state === 'draft_checked') && <DocumentStateLabel state={state} type={data?.resource.type ?? ''} current={!!confirmed} recordedApproval={!!approval}/>}
-      {confirmed && state?.check?.display.findings?.length ? <ul aria-label="Aktuelle Korrekturen">{state.check.display.findings.map((finding, i) => <li key={`${finding.code}:${i}`}>{finding.message ?? finding.code}</li>)}</ul> : null}
-    </div>
-    {result.state !== 'available' ? <ReadState state={result.state} code={result.code}/> : data?.content !== undefined
-      ? <article className="document document-original-text" aria-label="Originaldokument">{data.format === 'markdown'
-        ? <PassiveMarkdown content={data.content} links={navigationEnabled ? data.links ?? {} : {}} onOpen={onOpen} preserveHtmlText/>
-        : <pre>{data.content}</pre>}</article>
-      : <ReadState state="error" code="dto_invalid"/>}
-    {showDownload && <OriginalDocumentDownload result={result} detail={detail} current={current}/>}
-    {checkDetails}
-    {sourceDetails}
+  const revision = detail?.data?.revision_id;
+  const sourceFields = <>
+    <dt>Beobachtete Run-Revision</dt><dd><code>{revision ?? 'Nicht verfügbar'}</code></dd>
+    <dt>Beobachtet</dt><dd>{result.observed_as_of ?? 'Nicht verfügbar'}</dd>
+    {!companion && <><dt>Dokumenttyp</dt><dd>{data?.resource.type ?? 'Dokument'}</dd></>}
+    <dt>Registrierte Quelle</dt><dd><code>{data?.resource.registered_reference}</code></dd>
+    {data?.content_digest && <><dt>Quellenfingerabdruck</dt><dd><code>{data.content_digest}</code></dd></>}
   </>;
+  const sourceDetails = <details className="document-provenance"><summary>Quellenangaben</summary><dl className="document-source-fields">{sourceFields}</dl></details>;
+  const findings = check?.display.findings;
+  const showBadge = !companion && !(confirmed && state?.state === 'draft_checked');
+  if (simple || companion) {
+    const artifact = companion && bound && readable && data?.format === 'markdown' ? splitArtifactMetadata(data.content!, data.resource.type) : undefined;
+    const links = navigationEnabled ? data?.links ?? {} : {};
+    const checkSource = check?.source;
+    const checkedDigest = checkSource?.artifact_digest;
+    const checkFields = checkSource && Object.entries({
+      'Geprüftes Gate': checkSource.gate !== data?.resource.type && checkSource.gate,
+      'Geprüfte Run-Revision': checkSource.revision_id !== revision && checkSource.revision_id,
+      'Geprüfte Quelle': checkSource.artifact_path !== data?.resource.path
+        && checkSource.artifact_path !== data?.resource.registered_reference && checkSource.artifact_path,
+      'SHA-256 der Prüfung': checkedDigest?.replace(/^sha256:/u, '') !== data?.content_digest?.replace(/^sha256:/u, '') && checkedDigest,
+      Originalgrund: checkSource.reason,
+    }).filter(([, value]) => value);
+    return <>
+      {(showBadge || !!findings?.length) && <div className="document-state-context">
+        {showBadge && <DocumentStateLabel state={state} type={data?.resource.type ?? ''} current={!!confirmed} recordedApproval={!!approval}/>}
+        {!!findings?.length && <ul aria-label="Aktuelle Korrekturen">{findings.map((finding, i) => <li key={`${finding.code}:${i}`}>{finding.message ?? finding.code}</li>)}</ul>}
+      </div>}
+      {result.state !== 'available' ? <ReadState state={result.state} code={result.code}/> : data?.content !== undefined
+        ? <article className="document document-original-text" aria-label="Originaldokument">{data.format === 'markdown'
+          ? <PassiveMarkdown content={artifact?.content ?? data.content} links={links} onOpen={onOpen} preserveHtmlText/>
+          : <pre>{data.content}</pre>}</article>
+        : <ReadState state="error" code="dto_invalid"/>}
+      {companion ? <details className="document-provenance companion-document-details">
+        <summary>Dokumentdetails</summary>
+        <h3>Quelle</h3>
+        <dl className="document-source-fields">{sourceFields}</dl>
+        {artifact && <>
+          <h3>Angaben im Dokument</h3>
+          <dl className="document-source-fields">
+            {[...artifact.fields].filter(([, value]) => value).map(([key, value]) =>
+              <div key={key}><dt>{metadataLabels[key]}</dt><dd><PassiveMarkdown content={value} links={links} onOpen={onOpen} preserveHtmlText/></dd></div>)}
+          </dl>
+        </>}
+        {checkSource && <>
+          <h3>Prüfstand</h3>
+          <p>{checkStatus}</p>
+          {!!checkFields?.length && <dl className="document-source-fields">
+            {checkFields.map(([key, value]) => <div key={key}><dt>{key}</dt><dd><code>{value}</code></dd></div>)}
+          </dl>}
+          {checkResult}
+        </>}
+      </details> : <>
+        <OriginalDocumentDownload result={result} detail={detail} current={current}/>
+        {checkDetails}
+        {sourceDetails}
+      </>}
+    </>;
+  }
   return <>
     <section className="document-context" aria-label="Einordnung des Dokuments">
       {runTitle && <p>Zum Vorhaben <strong>{runTitle}</strong></p>}

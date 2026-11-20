@@ -11,6 +11,12 @@ type RunMemory = { dismissed: Set<string>; selection: Selection | null; open: bo
 type View = { run: string | null; open: boolean; standalone: boolean; source: Selection | null; capture: ReaderCapture | null; shownSource: Selection | null; loading: boolean; problem: string | null };
 const emptyView: View = { run: null, open: false, standalone: false, source: null, capture: null, shownSource: null, loading: false, problem: null };
 
+function confirmsShownSource(capture: ReaderCapture, shown: Selection, source: CompanionSource | null) {
+  const document = capture.document.data;
+  return !!document && !!source && document.resource.path === source.resource.path
+    && document.content_digest === source.digest && shown.decision === source.decision;
+}
+
 // App owns one active immutable capture. Other Runs retain only source identity,
 // dismissal and reading position; their document bytes must be read again.
 export function useCompanionReader({ state, enabled, visible, wide, sourcePending, load }: {
@@ -58,9 +64,10 @@ export function useCompanionReader({ state, enabled, visible, wide, sourcePendin
   const open = useCallback(async (source: CompanionSource, automatic = false, revalidate = false) => {
     const active = live.current;
     if (!active.run || !active.current || active.sourcePending || inFlight.current) return;
-    if (!revalidate && !active.view.problem && active.view.open && active.view.capture
-      && active.view.capture.detail.snapshot_id === stateSnapshot.current
-      && active.view.shownSource?.key === source.key && active.view.shownSource.decision === source.decision) {
+    const shown = active.view.shownSource;
+    if (!revalidate && !active.view.problem && active.view.open && active.view.capture && shown?.key === source.key
+      && confirmsShownSource(active.view.capture, shown, source)
+      && (shown.decision || active.view.capture.detail.snapshot_id === stateSnapshot.current)) {
       if (!automatic) {
         if (active.readerVisible) readerHeading.current?.focus({ preventScroll: true });
         else {
@@ -96,6 +103,9 @@ export function useCompanionReader({ state, enabled, visible, wide, sourcePendin
     if (view.open) {
       if (!readerVisible || view.problem || !view.source) return;
       if (view.capture) {
+        // Fresh canonical decision material already revalidates the displayed bytes.
+        // Keep the scoped reread for older payloads and other sources.
+        if (view.shownSource?.decision) return;
         const sameSource = resolveSource(data, target, view.source.key);
         if (sameSource && sameSource.decision === view.source.decision && view.capture.detail.snapshot_id !== state.detail?.snapshot_id) {
           const key = JSON.stringify([run, state.detail?.snapshot_id, view.source.key]);
@@ -137,14 +147,28 @@ export function useCompanionReader({ state, enabled, visible, wide, sourcePendin
     manualFocus.current = false;
     setView(previous => ({ ...previous, open: false, standalone: false, loading: false }));
   }, [savePosition]);
+  const retry = useCallback(() => { setView(previous => ({ ...previous, problem: null })); }, []);
   const capture = view.run === run ? view.capture : null;
   const selected = capture?.document.data;
-  const verified = !!(current && !sourcePending && capture?.detail.snapshot_id === state.detail?.snapshot_id && selected && data && target && view.shownSource && resolveSource(data, target, view.shownSource.key)
-    && (!view.shownSource.decision || view.shownSource.decision === offered?.decision) && !view.loading && !view.problem);
-  return { ...view, canOpen: current && !sourcePending && !view.loading, canReload: !hasExpiredSession(state) && state.phase !== 'loading', expired: hasExpiredSession(state), open: readerVisible, retained, capture, current: verified,
-    offered, showWidthHint: !wide && !readerVisible && autoOpen,
-    pendingDecision: !!(view.open && offered?.decision && (view.shownSource?.knownDecision ?? view.source?.knownDecision) !== offered.decision),
-    sourceShown: !!(readerVisible && capture && verified && offered?.key === view.shownSource?.key),
+  const shown = view.shownSource;
+  const confirmedSource = data && target && shown ? resolveSource(data, target, shown.key) : null;
+  const verified = !!(current && !sourcePending && capture && selected && shown && confirmsShownSource(capture, shown, confirmedSource)
+    && (shown.decision || capture.detail.snapshot_id === state.detail?.snapshot_id) && !view.loading && !view.problem);
+  const decisionClosed = !!(current && capture && shown?.decision && data?.document_states?.some(row =>
+    row.type === shown.type && row.run_id === data.run_id && row.revision_id === data.revision_id && row.state === 'approved'));
+  const knownDecision = shown?.knownDecision ?? view.source?.knownDecision;
+  const pendingDecision = !!(view.open && !decisionClosed && offered?.decision
+    && (!shown?.decision || shown.type === offered.resource.type)
+    && (knownDecision !== offered.decision || shown?.decision && shown.key !== offered.key));
+  const checking = state.refreshing || state.phase === 'loading' || sourcePending;
+  const expired = hasExpiredSession(state);
+  const sessionInvalid = state.problem === 'session_invalid' || state.scope?.code === 'session_invalid';
+  const canReload = !expired && !sessionInvalid && !checking;
+  const showingOffered = verified && !!offered && offered.key === shown?.key;
+  const sourceInReader = readerVisible && (pendingDecision || showingOffered || !!shown?.decision && !current);
+  return { ...view, retry, checking, canOpen: current && !sourcePending && !view.loading, canReload, expired, sessionInvalid, open: readerVisible, retained, capture, current: verified,
+    offered, canOfferApproval: !readerVisible || showingOffered, showWidthHint: !wide && !readerVisible && autoOpen,
+    pendingDecision, decisionClosed, sourceInReader,
     openSource: open, close, savePosition, viewport, readerHeading };
 }
 export type CompanionReader = ReturnType<typeof useCompanionReader>;

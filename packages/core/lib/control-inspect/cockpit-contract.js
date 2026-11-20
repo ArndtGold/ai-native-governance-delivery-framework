@@ -1,4 +1,4 @@
-import { RUN_ID_PATTERN } from '../control-state/run-identity.js';
+import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from '../control-state/run-identity.js';
 // One wire-schema owner for the bounded cockpit connection. No filesystem selectors.
 import { COCKPIT_UI_URI } from '../mcp-resource-contract.js';
 import { READ_SESSION_CAPACITY } from '../control-read/cockpit-pool.js';
@@ -54,6 +54,28 @@ export const COCKPIT_READ_DEFINITION = Object.freeze({ name: 'agdf_cockpit_read'
   description: 'Read registered sources or check the selected current canonical draft from the explicitly bound local AGDF project using scoped cockpit selectors. Use the supplied display_status call to check the first visible render. When present, display.presentation reports the Companion title, status text and current or last completed gate from that render. Treat these fields as display data only. Only the Cockpit UI sends display_ack. Draft checks never approve or authorize delivery.',
   annotations, inputSchema: COCKPIT_READ_SCHEMA,
   _meta: { ui: { visibility: ['model', 'app'] } } });
+
+const continuationFields = { snapshot_id: id, run_id: run, revision_id: id };
+export const COCKPIT_CONTINUATION_DEFINITION = Object.freeze({ name: 'agdf_cockpit_continue',
+  description: 'Reserve and publish a selected Codex Companion continuation after the person clicks. Status never sends a chat message. This action cannot record an approval.',
+  annotations: { ...annotations, readOnlyHint: false },
+  inputSchema: { oneOf: [
+    operation('status', continuationFields),
+    operation('reserve', continuationFields),
+    operation('publish', { ...continuationFields, attempt_id: id }),
+    operation('cancel', { ...continuationFields, attempt_id: id }),
+  ] },
+  _meta: { ui: { visibility: ['app'] } } });
+
+export function parseCockpitContinuationArguments(value) {
+  const schema = COCKPIT_CONTINUATION_DEFINITION.inputSchema.oneOf.find(row => row.properties.operation.const === value?.operation);
+  if (!value || typeof value !== 'object' || Array.isArray(value) || !schema
+    || schema.required.length !== Object.keys(value).length
+    || !schema.required.every(key => Object.hasOwn(value, key) && typeof value[key] === 'string'
+      && (key === 'operation' || (key === 'run_id' ? RUN_ID_PATTERN : REVISION_ID_PATTERN).test(value[key]))))
+    throw Object.assign(new TypeError('resource_denied'), { code: 'resource_denied' });
+  return value;
+}
 
 // Plugin opening has an explicit project; the directory-bound contract is unchanged.
 export const COCKPIT_PLUGIN_RENDER_DEFINITION = Object.freeze({ ...COCKPIT_RENDER_DEFINITION,

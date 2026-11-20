@@ -8,7 +8,10 @@ import { mcpControlContinuation } from '#agdf-core/skill-dispatch/mcp-continuati
 import { inspectRunInputResolution } from '#agdf-core/control-state/run-input-resolution.js';
 import { assertMcpControlReadBoundary } from "#agdf-core/control-read-boundary.js";
 import { knownExecutionCode, validExecutionFacts } from '#agdf-core/mcp-tool-errors.js';
-import { createCompanionJournal } from '#agdf-core/companion/journal.js';
+import { COMPANION_DATA_ROOT_ENV, createCompanionJournal } from '#agdf-core/companion/journal.js';
+import { createCodexContinuationAdmission } from '#agdf-core/companion/codex-continuation.js';
+import { isCurrentContinuation } from '#agdf-core/companion/codex-continuation-binding.js';
+import { resolveControlCommandTarget } from '#agdf-core/control-state/approval-command-contract.js';
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
 import { composeMcpProtocolRuntime, errorSupport, inspectMcpDispatcherRuntime, configuredMcpCommandGroups } from './mcp-protocol-runtime.js';
@@ -31,26 +34,33 @@ export function preDispatchFailure(error) {
   const code = knownExecutionCode(PREPARATION_REASONS.find(([pattern]) => pattern.test(reason))?.[1] ?? reason);
   return Object.assign(new Error(code), { facts: { code, dispatch: 'not_dispatched' } });
 }
-export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode, inspected = inspectMcpDispatcherRuntime() } = {}) {
+export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode, inspected = inspectMcpDispatcherRuntime(),
+  continuationQualified = inspected.continuationQualified, companionDataRoot } = {}) {
   const pluginMode = cockpitMode === 'plugin';
   if (cockpitMode !== undefined && !pluginMode || pluginMode && (surface !== 'codex' || cockpitDir !== undefined)
     || !pluginMode && (!['codex', 'claude'].includes(surface) || typeof cockpitDir !== 'string' || !isAbsolute(cockpitDir))) throw new TypeError('AGDF_COCKPIT_TARGET_INVALID');
   let root;
   try { if (!pluginMode) { root = realpathSync(cockpitDir); if (!lstatSync(root).isDirectory()) throw Error(); } }
   catch { throw new TypeError('AGDF_COCKPIT_TARGET_INVALID'); }
-  const [{ COCKPIT_RENDER_DEFINITION, COCKPIT_PLUGIN_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, COCKPIT_UI_URI, COCKPIT_MIME, COCKPIT_LIMITS, parseCockpitArguments, parsePluginCockpitArguments },
+  const [{ COCKPIT_RENDER_DEFINITION, COCKPIT_PLUGIN_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, COCKPIT_CONTINUATION_DEFINITION, COCKPIT_UI_URI, COCKPIT_MIME, COCKPIT_LIMITS, parseCockpitArguments, parseCockpitContinuationArguments, parsePluginCockpitArguments },
     { createCockpitSessionService }, { READ_LIMITS }] = await Promise.all([
     import("#agdf-core/control-inspect/cockpit-contract.js"),
     import("#agdf-core/control-inspect/cockpit-session.js"),
     import("#agdf-core/control-read/snapshot.js"),
   ]);
-  const session = createCockpitSessionService(root, { pluginMode, integrationSurface: surface });
+  const session = createCockpitSessionService(root, { pluginMode, integrationSurface: surface, continuationQualified, companionDataRoot });
   const renderDefinition = pluginMode ? COCKPIT_PLUGIN_RENDER_DEFINITION : COCKPIT_RENDER_DEFINITION;
+  const continuationHost = inspected.continuationHost;
+  const matchingClient = host => !continuationHost || host?.client?.name === continuationHost.name && host.client.version === continuationHost.version;
   const tools = [
     { name: renderDefinition.name, definition: renderDefinition,
-      parse: value => pluginMode ? parsePluginCockpitArguments(value) : parseCockpitArguments(value, true), execute: value => session.render(value) },
+      parse: value => pluginMode ? parsePluginCockpitArguments(value) : parseCockpitArguments(value, true),
+      execute: (value, _signal, host) => session.render(value, { continuation: matchingClient(host) }) },
     { name: COCKPIT_READ_DEFINITION.name, definition: COCKPIT_READ_DEFINITION,
       parse: parseCockpitArguments, execute: (value, signal) => session.read(value, signal) },
+    ...(session.continuationAvailable ? [{ name: COCKPIT_CONTINUATION_DEFINITION.name, definition: COCKPIT_CONTINUATION_DEFINITION,
+      requiresUi: true, parse: parseCockpitContinuationArguments, execute: (value, signal, host) => matchingClient(host)
+        ? session.continue(value, signal) : { schema_version: '1', authorizes: false, state: 'unavailable' } }] : []),
   ];
   // Claude Code renders no MCP app UI today; its cockpit stays hidden until a client declares support.
   return Object.freeze({ ...errorSupport(true), mode: 'cockpit', definition: renderDefinition, tools,
@@ -60,7 +70,9 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
     ...(pluginMode ? { unsupportedUiCode: 'host_ui_unsupported' } : {}),
     ui: Object.freeze({ uri: COCKPIT_UI_URI, mimeType: COCKPIT_MIME, limit: COCKPIT_LIMITS.html,
       ...(pluginMode ? { label: 'Cockpit' } : {}) }),
-    serialize: value => JSON.stringify(value), failure: code => code === 'host_ui_unsupported'
+    serialize: value => JSON.stringify(value), failure: (code, name) => name === COCKPIT_CONTINUATION_DEFINITION.name
+      ? { schema_version: '1', authorizes: false, state: 'unavailable' }
+      : code === 'host_ui_unsupported'
       ? { ...session.failure(code), retryable: false,
         next_action: 'Use a Codex session that advertises MCP App UI support; configuration or tool discovery alone cannot render Cockpit.' }
       : session.failure(code), close: () => session.close(),
@@ -69,7 +81,37 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
   });
 }
 
-export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispatcherRuntime(), commandGroups = configuredMcpCommandGroups(), runtimeControl, materialGrants, verifyRuntime, inputContext, executionContext } = {}) {
+function stopCodexContinuation(result, state, language) {
+  const de = language?.toLowerCase().split('-')[0] === 'de';
+  const text = state === 'running' ? de ? 'Codex arbeitet bereits an diesem Run.' : 'Codex is already working on this Run.'
+    : state === 'pending' ? de ? 'Die Bestätigung von Codex steht noch aus.' : 'Codex has not confirmed the original handoff yet.'
+    : state === 'stale' ? de ? 'Der Run hat sich geändert. Öffne den aktuellen Stand.' : 'The Run has changed. Open its current state.'
+    : de ? 'Die Fortsetzung für diesen Run ist gerade nicht verfügbar.' : 'Continuation is unavailable for this Run.';
+  return { ...result, outcome: 'control_result', terminal: true, presentation: { markdown: text, authorizes: false }, continuation: null, recovery: null,
+    host_action: { mode: 'transmit_presentation_verbatim_and_stop', source: 'presentation.markdown',
+      allow_surrounding_text: false, may_request_run_or_evidence: false, text } };
+}
+
+function admitCodexContinuation(admission, input, result) {
+  if (!input.continueDelivery || result.terminal || !result.continuation || !result.control?.next_operation) return result;
+  const operation = result.control.next_operation, root = result.target?.governance_target;
+  if (operation.actor !== 'agent' && !(input.continuationAttemptId && operation.operation_key === 'approval.record')) return result;
+  if (!admission) return input.continuationAttemptId || input.continuationOwner
+    ? stopCodexContinuation(result, 'unavailable', input.presentationLanguage) : result;
+  const scope = { root, target_id: resolveControlCommandTarget(root).target_id,
+    run_id: input.runId, revision_id: result.continuation.revision_id ?? result.control.revision_id,
+    operation_key: operation.operation_key, actor: operation.actor };
+  const decision = admission.claim(scope, { attemptId: input.continuationAttemptId, owner: input.continuationOwner },
+    () => isCurrentContinuation(root, scope));
+  if (!decision.admitted) return stopCodexContinuation(result, decision.state, input.presentationLanguage);
+  return { ...result, continuation: { ...result.continuation,
+    work_admission: { attempt_id: decision.attempt_id, owner: decision.owner, target_id: scope.target_id, run_id: scope.run_id },
+    instruction: `${result.continuation.instruction} After a canonical write, use the owner-bound resume_call from this dispatch when its ready next action is to continue this Run. Never reuse it outside this turn.`,
+  } };
+}
+
+export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispatcherRuntime(), commandGroups = configuredMcpCommandGroups(), runtimeControl, materialGrants, verifyRuntime, inputContext, executionContext,
+  continuationQualified = inspected.continuationQualified, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV] } = {}) {
   const readBudget = createReadWorkerBudget();
   const delivery = createPresentationDelivery();
   const verifyProducer = verifyRuntime ?? (() => {
@@ -89,7 +131,13 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
   // Companion events (companion core SDD-006): the executing process journals each final command result
   // once, below the data root the launcher hands over; review facts read the sealed material here.
   const journal = createCompanionJournal({ sealedFiles: transferId => services.material.sealedFiles(transferId) });
-  const execute = input => mcpControlContinuation(input, services.dispatch(input), commandGroups);
+  const admission = surface === 'codex' && continuationQualified === true && companionDataRoot
+    ? createCodexContinuationAdmission(companionDataRoot) : null;
+  const execute = input => {
+    const result = services.dispatch(input);
+    const admitted = admitCodexContinuation(admission, input, result);
+    return mcpControlContinuation(input, admitted, commandGroups);
+  };
   const executeInspect = services.inspect;
   const protocol = composeMcpProtocolRuntime({ surface, inspected, commandGroups, execute, executeInspect, inputContext, executionContext,
     lookupOriginal: (root, input) => ['material.stage', 'planned_material.stage'].includes(input.command?.kind) ? services.material.originalInput(input)

@@ -83,6 +83,11 @@ export function validateToolDomain(name, result) {
   } else if (name === 'agdf_decision_view') {
     if (!['accepted', 'rejected'].includes(result.outcome) || result.authorizes !== false
       || result.outcome === 'rejected' && typeof result.reason !== 'string') invalid();
+  } else if (name === 'agdf_cockpit_continue') {
+    if (result.authorizes !== false || !['ready', 'pending', 'running', 'stale', 'unavailable'].includes(result.state)
+      || result.state !== 'pending' && (result.reserved !== undefined || result.send !== undefined)
+      || (result.reserved === true || result.send === true)
+        && (typeof result.attempt_id !== 'string' || !/^[a-f0-9-]{36}$/u.test(result.attempt_id))) invalid();
   } else if (name === 'agdf_cockpit' || name === 'agdf_cockpit_read') {
     if (name === 'agdf_cockpit' && result.state === undefined && result.outcome === undefined) {
       const view = result._meta?.agdf_cockpit;

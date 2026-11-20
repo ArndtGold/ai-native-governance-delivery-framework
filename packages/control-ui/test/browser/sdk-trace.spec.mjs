@@ -12,7 +12,9 @@ import { fixture, treeBytes } from '../../../core/test/control-cockpit-fixtures.
 import { buildCompanionFixtures, replaceCompanionPrd } from '../../../core/test/fixtures/companion-fixtures.js';
 import { currentFixture, currentRun } from '../../../core/test/fixtures/current-run.js';
 import { createCockpitSessionService } from '../../../core/lib/control-inspect/cockpit-session.js';
-import { COCKPIT_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, parseCockpitArguments } from '../../../core/lib/control-inspect/cockpit-contract.js';
+import { COCKPIT_RENDER_DEFINITION, COCKPIT_PLUGIN_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, COCKPIT_CONTINUATION_DEFINITION,
+  parseCockpitArguments, parseCockpitContinuationArguments, parsePluginCockpitArguments } from '../../../core/lib/control-inspect/cockpit-contract.js';
+import { createCodexContinuationAdmission } from '../../../core/lib/companion/codex-continuation.js';
 import { readCockpitUiBuild } from '../../../../scripts/cockpit-ui-build.mjs';
 import { evidencePath } from './server-fixture.mjs';
 import { JSDOM } from 'jsdom';
@@ -22,6 +24,88 @@ import { clarifiedUr } from '../../../core/test/planned-fixtures.js';
 // This uses the same Core/SDK/built-UI harness, never another product renderer.
 const referenceDirectory = process.env.AGDF_COMPANION_REFERENCE_DIR;
 const checkBrowserZoom = process.env.AGDF_COMPANION_BROWSER_ZOOM === '1';
+
+test('Companion keyboard click sends one bound request and reopens pending (synthetic SDK host)', async ({ page }) => {
+  const cleanups = [];
+  const fixture = buildCompanionFixtures({ after: fn => cleanups.push(fn) }, ['F04'])[0];
+  const temporary = mkdtempSync(join(tmpdir(), 'agdf-companion-continuation-browser-'));
+  const ui = readCockpitUiBuild();
+  const session = createCockpitSessionService(undefined, { integrationSurface: 'codex', pluginMode: true,
+    continuationQualified: true, companionDataRoot: temporary });
+  const tools = [
+    [COCKPIT_PLUGIN_RENDER_DEFINITION, parsePluginCockpitArguments, session.render],
+    [COCKPIT_READ_DEFINITION, parseCockpitArguments, session.read],
+    [COCKPIT_CONTINUATION_DEFINITION, parseCockpitContinuationArguments, session.continue],
+  ].map(([definition, parse, execute]) => ({ name: definition.name, definition, parse: value => parse(value), execute }));
+  const runtime = { ...createTestRuntime(), mode: 'cockpit', definition: COCKPIT_PLUGIN_RENDER_DEFINITION, tools,
+    uiCapabilityRequired: true, responseLimit: 8 * 1024 ** 2, ui: {
+      uri: ui.manifest.uri, mimeType: ui.manifest.mime_type, limit: 4 * 1024 ** 2, directory: pathToFileURL(ui.root + '/'),
+    }, serialize: JSON.stringify, failure: session.failure, close: session.close };
+  const sdkServer = buildAgdfServer({ runtime });
+  const client = new Client({ name: 'synthetic-continuation-companion', version: '1' },
+    { capabilities: { extensions: { 'io.modelcontextprotocol/ui': { mimeTypes: [ui.manifest.mime_type] } } } });
+  const [a, b] = InMemoryTransport.createLinkedPair();
+  let server, prepared;
+  const sent = [];
+  const open = async () => client.callTool({ name: 'agdf_cockpit', arguments: {
+    working_directory: fixture.root, primary_target: fixture.root, target_source: 'explicit_target', run_id: fixture.runId,
+  } });
+  try {
+    await sdkServer.connect(b);
+    await client.connect(a);
+    prepared = await open();
+    const targetId = prepared.structuredContent.target.target_id;
+    expect(prepared._meta.agdf_cockpit.continuation).toBe(true);
+    await build({ configFile: false, logLevel: 'error', build: { outDir: temporary, emptyOutDir: false,
+      lib: { entry: new URL('./sdk-trace-host.ts', import.meta.url).pathname, formats: ['es'], fileName: () => 'host.js' }, target: 'es2022' } });
+    server = createServer(async (req, res) => {
+      try {
+        if (req.url === '/tool') {
+          const chunks = [];
+          for await (const data of req) chunks.push(data);
+          const input = JSON.parse(Buffer.concat(chunks).toString());
+          const result = await client.callTool(input);
+          if (input.name === 'agdf_cockpit_continue' && result.structuredContent?.send === true) sent.push(result.structuredContent);
+          res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(result)); return;
+        }
+        if (req.url === '/prepared') { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(prepared)); return; }
+        res.setHeader('content-type', req.url === '/host.js' ? 'text/javascript' : 'text/html');
+        res.end(req.url === '/cockpit.html' ? ui.files['cockpit.html'] : req.url === '/host.js' ? readFileSync(join(temporary, 'host.js'))
+          : '<!doctype html><style>body{margin:0}iframe{display:block;width:100%;height:100vh;border:0}</style><iframe title="Synthetic Cockpit"></iframe><script type="module" src="/host.js"></script>');
+      } catch { res.statusCode = 500; res.end('synthetic_tool_failed'); }
+    });
+    await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+    await page.setViewportSize({ width: 360, height: 900 });
+    await page.goto(`http://127.0.0.1:${server.address().port}/?companion=inline&continuation=withhold`);
+    const card = page.frameLocator('iframe').getByRole('article', { name: 'Companion-Statuskarte' });
+    const button = card.getByRole('button', { name: 'Run fortsetzen' });
+    await expect(button).toBeVisible();
+    await expect(card.locator('.companion-turn').getByRole('button', { name: 'Run fortsetzen' })).toHaveCount(1);
+    await expect(button).toHaveAccessibleDescription(await card.locator('.companion-turn > p[id]').innerText());
+    await button.focus();
+    await page.keyboard.press('Enter');
+    await expect(card.getByText('Die Bestätigung von Codex steht noch aus.')).toBeVisible();
+    await expect.poll(() => page.evaluate(() => window.sdkTraceHarness.logs.filter(row => row.kind === 'continuation-message').length)).toBe(1);
+    const context = await page.evaluate(() => window.sdkTraceHarness.logs.find(row => row.kind === 'context-ack' && row.params.structuredContent?.agdf_companion_continuation));
+    expect(sent).toHaveLength(1);
+    expect(context.params.structuredContent.agdf_companion_continuation.call.arguments).toMatchObject({ run_id: fixture.runId,
+      continuation_attempt_id: sent[0].attempt_id });
+    expect(createCodexContinuationAdmission(temporary).inspect({ target_id: targetId, run_id: fixture.runId }).state).toBe('pending');
+    prepared = await open();
+    await page.reload();
+    await expect(card.getByText('Die Bestätigung von Codex steht noch aus.')).toBeVisible();
+    await expect(button).toHaveCount(0);
+    await card.getByRole('button', { name: 'Übergabe prüfen' }).click();
+    await expect(card.getByText('Der Begleiter hat den Status geprüft.', { exact: false })).toBeVisible();
+    expect(await page.evaluate(() => window.sdkTraceHarness.logs.some(row => row.kind === 'continuation-message'))).toBe(false);
+    expect(sent).toHaveLength(1);
+  } finally {
+    await client.close(); await sdkServer.close();
+    if (server) await new Promise(resolve => server.close(resolve));
+    rmSync(temporary, { recursive: true, force: true });
+    for (const cleanup of cleanups.reverse()) cleanup();
+  }
+});
 
 async function launchZoomBrowser(temporary) {
   const extension = join(temporary, 'browser-zoom');
@@ -95,6 +179,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
   let server, zoomContext;
   let page = defaultPage;
   let supersedeBeforeDocument, supersededDocumentCode;
+  let documentRequests = 0, subjectCaptures = 0;
   const before = treeBytes(fixture.root);
   try {
     if (checkBrowserZoom && surface === 'panel') {
@@ -120,6 +205,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
           for await (const data of req) chunks.push(data);
           const request = JSON.parse(Buffer.concat(chunks).toString());
           const { operation, session_id, run_id } = request.arguments ?? {};
+          if (operation === 'document') documentRequests++;
           const supersede = operation === 'document' && session_id === supersedeBeforeDocument && !!session_id;
           if (supersede) {
             supersedeBeforeDocument = undefined;
@@ -127,6 +213,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
             await session.read({ operation: 'snapshot', session_id, run_id });
           }
           const result = await client.callTool(request);
+          if (operation === 'snapshot' && run_id === fixture.runId && result.structuredContent?.data?.run) subjectCaptures++;
           if (supersede) supersededDocumentCode = result.structuredContent?.code;
           res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(result)); return;
         }
@@ -190,7 +277,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
           }
           await expect(frame.getByRole('article', { name: 'Originaldokument' }).getByRole('heading', { name: 'PRD: Entwürfe direkt im Companion lesen' })).toBeVisible();
           await expect(frame.getByRole('region', { name: 'Entwurf lesen' })).toHaveAttribute('aria-busy', 'false');
-          await expect(frame.getByText('Gelesene Fassung · aktueller Stand nicht bestätigt')).toHaveCount(0);
+          await expect(frame.getByText('Aktueller Stand nicht bestätigt.')).toHaveCount(0);
           await expect(frame.getByText('Überarbeitung nötig', { exact: false })).toHaveCount(0);
           await expect(source).toHaveCount(0);
           await frame.locator('.companion-reader-scroll').evaluate(el => { el.scrollTop = 0; });
@@ -215,7 +302,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       return;
     }
     await expect(card.getByText('Du bist dran')).toBeVisible();
-    await expect(card.locator('.companion-figure-block .companion-signal')).toHaveText('Ich warte auf deine Freigabe');
+    await expect(card.locator('.companion-figure-block .companion-signal')).toHaveText('Das Vorhaben ist in der Phase „Produktanforderungen“.');
     await expect(card.locator('.companion-signal')).toBeVisible();
     const section = frame.getByRole('region', { name: 'AGDF Cockpit', exact: true });
     await expect.poll(() => section.evaluate(el => {
@@ -240,19 +327,27 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
     await expect(frame.getByText('Host-Verbindung prüfen', { exact: true })).toHaveCount(0);
     await expect.poll(display).toMatchObject({ state: 'ui_reported_visible', run_id: fixture.runId, presentation: {
       title: await card.getByRole('heading', { level: 2 }).innerText(),
-      status: 'Ich warte auf deine Freigabe', gate: 'PRD', gate_state: 'current',
+      status: 'Das Vorhaben ist in der Phase „Produktanforderungen“.', gate: 'PRD', gate_state: 'current',
     } });
     await expect(frame.getByRole('button', { name: 'Alle Vorhaben', exact: true })).toHaveCount(0);
-    await expect(card.getByRole('list', { name: 'Gate-Fortschritt' }).locator('[aria-current="step"]')).toContainText('PRD');
-    const gateBar = card.locator('.companion-gates-text');
+    const gateSummary = card.getByRole('list', { name: 'Gate-Fortschritt' });
+    const gateSummaryLabels = ['UR Abgeschlossen', 'PRD Aktuell', 'SD Danach'];
+    await expect(gateSummary.locator('[aria-current="step"]')).toContainText('PRD');
     const pitStop = card.getByText('Boxenstopp 2 von 8', { exact: true });
     await expect(pitStop).toBeVisible();
-    await expect(gateBar).toHaveText('✓UR ●PRD ○SD ○TP ○CD+Tests ○QA ○UAT ○OR');
-    await expect(card.getByRole('list', { name: 'Gate-Fortschritt' }).getByRole('listitem')).toHaveCount(8);
+    const readingOrder = await card.evaluate(el => Array.from(el.querySelectorAll(
+      '.companion-signal, h2, .companion-goal, .companion-turn > strong, .companion-turn > .companion-source, .companion-turn > .compact-muted, .companion-pit-stop, .companion-gates, summary',
+    )).map(element => element.className || element.tagName));
+    expect(readingOrder).toEqual(['companion-signal', 'H2', 'companion-goal', 'STRONG', 'companion-source',
+      'compact-muted', 'companion-pit-stop', 'companion-gates', 'SUMMARY']);
+    await expect(gateSummary.getByRole('listitem')).toHaveText(gateSummaryLabels);
+    const fullPath = card.getByRole('list', { name: 'Vollständige Gate-Reihenfolge' });
+    await expect(fullPath).toBeHidden();
     expect(await card.evaluate(el => el.ownerDocument.documentElement.scrollWidth <= el.ownerDocument.defaultView.innerWidth)).toBe(true);
     await page.screenshot({ path: evidencePath(`codex-companion-${surface}-360.png`), fullPage: true });
     const details = card.getByText('ⓘ Details', { exact: true });
     await details.focus(); await details.press('Enter');
+    await expect(fullPath.getByRole('listitem')).toHaveText(['UR Abgeschlossen', 'PRD Aktuell', 'SD Offen', 'TP Offen', 'CD+Tests Offen', 'QA Offen', 'UAT Offen', 'OR Offen']);
     await expect(card.getByText('Wozu dieses Gate da ist')).toBeVisible();
     await expect(card.getByText('Datenstand und Prüfung', { exact: true })).toHaveCount(0);
     await expect(card.getByRole('button', { name: 'Vorhaben öffnen' })).toHaveCount(0);
@@ -332,7 +427,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
     }
     expect(await page.evaluate(() => window.sdkTraceHarness.logs.filter(row => row.kind === 'display-mode-request'))).toEqual([]);
     await expect(frame.getByRole('navigation', { name: 'Aktive Runs' })).toHaveCount(0);
-    currentRun(writer, 'Zweiter Test-Run');
+    const otherRun = currentRun(writer, 'Zweiter Test-Run');
     currentRun(writer, 'Dritter Test-Run');
     await menu.press('Enter');
     await reload.click();
@@ -426,20 +521,30 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       await source.focus();
       await page.setViewportSize({ width: 850, height: 820 });
       await expect(layout).toHaveAttribute('data-wide', 'true');
-      await expect(gateBar).toHaveText('✓UR ●PRD ○SD ○TP ○CD+Tests ○QA ○UAT ○OR');
+      await expect(gateSummary.getByRole('listitem')).toHaveText(gateSummaryLabels);
       await expect(pitStop).toBeVisible();
       const reader = frame.getByRole('region', { name: 'Entwurf lesen' }), content = frame.getByRole('article', { name: 'Originaldokument' });
       const scroll = frame.locator('.companion-reader-scroll'), runHeading = card.locator('[data-focus-id="companion-run-heading"]');
-      const revision = reader.locator('.companion-reader-revision');
+      const readerHeader = reader.locator('header');
+      const readerTitle = readerHeader.getByRole('heading', { name: 'Produktanforderungen · Entwurf' });
+      const sources = reader.locator('details.document-provenance').filter({ has: frame.getByText('Dokumentdetails', { exact: true }) });
+      const revision = sources.locator('dd code').first();
       await expect(content.getByRole('heading', { name: 'FIRST-READER-MARKER' })).toBeAttached();
       expect(await content.evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeCloseTo(14.1, 1);
       await expect(content.getByRole('heading', { name: 'LAST-READER-MARKER' })).toBeAttached();
       await expect(source).toHaveCount(0);
       await expect(card.getByRole('button', { name: 'Zum Entwurf' })).toHaveCount(0);
       await expect(runHeading).toBeFocused();
-      await expect(revision).toBeVisible();
+      await expect(readerTitle).toBeVisible();
+      await expect(readerHeader).not.toContainText('Run-Revision');
+      await expect(readerHeader).not.toContainText(await runHeading.innerText());
+      await expect(sources).not.toHaveAttribute('open');
+      expect(await content.getByRole('heading', { level: 1 }).evaluate(heading => heading.nextElementSibling?.textContent)).toBe('Product Scope');
+      await expect(content).not.toContainText('Traceability contract');
+      await expect(sources.getByText('criteria-chain-v1', { exact: true })).toHaveCount(1);
+      await expect(sources.getByText('criteria-chain-v1', { exact: true })).toBeHidden();
       const capturedRevision = await revision.textContent();
-      await expect(reader.getByRole('button', { name: 'Aktuellen Entwurf öffnen' })).toHaveCount(0);
+      await expect(reader.getByRole('button', { name: 'Aktuelle Fassung öffnen' })).toHaveCount(0);
       expect((await frame.locator('.companion-column').boundingBox()).width).toBeLessThanOrEqual(360);
       await expect.poll(rightInset).toBe(1);
       const original = readFileSync(join(fixture.root, '.agdf/control/runs', fixture.runId, 'documents/PRD.md'), 'utf8');
@@ -460,6 +565,12 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       await expect(content).toHaveCSS('font-size', '16px');
       await expect(content.getByRole('heading', { level: 1 })).toHaveCSS('font-size', '28px');
       await page.screenshot({ path: evidencePath('companion-reading-overview.png'), fullPage: true });
+      const detailsToggle = sources.getByText('Dokumentdetails', { exact: true });
+      await detailsToggle.click();
+      await expect(sources.getByText('criteria-chain-v1', { exact: true })).toBeVisible();
+      await detailsToggle.evaluate(element => element.scrollIntoView({ block: 'start' }));
+      await page.screenshot({ path: evidencePath('companion-document-details.png'), fullPage: true });
+      await detailsToggle.click();
       await scroll.evaluate(el => { el.scrollTop = el.scrollHeight / 2; });
       const offset = await scroll.evaluate(el => el.scrollTop);
       await expect(download).toBeInViewport();
@@ -515,7 +626,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       await expect(content).toHaveCSS('font-size', '16px');
       await scroll.evaluate(el => { el.scrollTop = el.scrollHeight; });
       await expect(content.getByText('Vollständiges Ende.')).toBeVisible();
-      await expect(revision).toBeVisible();
+      await expect(readerTitle).toBeVisible();
       await expect(menu).toBeVisible();
       await menu.click();
       expect((await options.boundingBox()).y).toBeGreaterThanOrEqual(0);
@@ -542,9 +653,22 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       await page.screenshot({ path: evidencePath('companion-reading-narrow.png'), fullPage: true });
       await page.setViewportSize({ width: 1360, height: 820 });
       await scroll.focus();
+      const oldCaptureCount = subjectCaptures, oldDocumentCount = documentRequests;
+      const otherUr = clarifiedUr.replace(/^# UR: .*$/m, '# UR: Zweiter Test-Run');
+      expect(otherRun.step('ur', otherUr, { title: 'Zweiter Test-Run' }).outcome).toBe('accepted');
+      await expect.poll(() => subjectCaptures).toBeGreaterThan(oldCaptureCount);
+      await expect(download).toBeVisible();
+      await expect(reader.locator('.companion-reader-notice')).toHaveCount(0);
+      expect(documentRequests).toBe(oldDocumentCount);
+      expect(await scroll.evaluate(el => el.scrollTop)).toBe(500);
+      await expect(scroll).toBeFocused();
       replaceCompanionPrd(writer, fixture.runId, 'Neue Entscheidung', appendix);
-      const change = reader.getByRole('button', { name: 'Aktuellen Entwurf öffnen' });
+      const change = reader.getByRole('button', { name: 'Aktuelle Fassung öffnen' });
       await expect(change).toBeVisible({ timeout: 12000 });
+      await expect(source).toHaveCount(0);
+      const approvalHint = card.getByText('Approval: PRD', { exact: true });
+      await expect(approvalHint).toHaveCount(0);
+      await expect(reader.locator('.companion-reader-notice')).toHaveCount(1);
       await expect(revision).toHaveText(capturedRevision);
       await expect(scroll).toBeFocused();
       await expect(content.getByRole('heading', { name: 'PRD: Synthetic saved filter Langer Entwurf' })).toBeAttached();
@@ -559,14 +683,17 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       await page.route('**/tool', failSource);
       await expect(change).toBeEnabled(); await change.focus(); await change.press('Enter');
       await expect(reader.getByRole('alert')).toContainText('Die gewählte Fassung konnte nicht bestätigt werden');
+      const retry = reader.getByRole('button', { name: 'Erneut prüfen' });
+      await expect(retry).toBeFocused();
       await expect(content.getByRole('heading', { name: 'PRD: Synthetic saved filter Langer Entwurf' })).toBeAttached();
       expect(await scroll.evaluate(el => el.scrollTop)).toBe(500);
       await expect(download).toHaveCount(0);
       await page.screenshot({ path: evidencePath('companion-reading-failed-switch.png'), fullPage: true });
       await page.unroute('**/tool', failSource);
-      await reader.getByRole('button', { name: 'Run neu lesen' }).click();
+      await retry.press('Enter');
       await expect(change).toBeEnabled(); await change.focus(); await change.press('Enter');
       await expect(content.getByRole('heading', { name: 'PRD: Synthetic saved filter Neue Entscheidung' })).toBeAttached();
+      await expect(approvalHint).toBeVisible();
       await expect(revision).not.toHaveText(capturedRevision);
       await expect(reader.getByRole('heading', { name: 'Produktanforderungen · Entwurf' })).toBeFocused();
       expect(await scroll.evaluate(el => el.scrollTop)).toBe(0);
@@ -618,7 +745,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       await page.setViewportSize({ width: 523, height: 820 });
       await page.goto(`http://127.0.0.1:${server.address().port}/?companion=panel&first-open=1`);
       const reader = frame.getByRole('region', { name: 'Entwurf lesen' });
-      await expect(source).toBeEnabled();
+      await expect(source).toBeEnabled({ timeout: 12000 });
       await expect(reader).toBeHidden();
       await page.setViewportSize({ width: 524, height: 820 });
       await expect(reader.getByRole('heading', { name: 'Produktanforderungen · Entwurf' })).toBeVisible();

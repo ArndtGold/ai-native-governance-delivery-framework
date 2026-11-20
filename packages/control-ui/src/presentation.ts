@@ -24,6 +24,7 @@ const documents: Record<string, [string, string]> = {
 };
 export const documentName = (type?: string) => type ? documents[type]?.[0] ?? type : 'Dokument lesen';
 export const documentPurpose = (type?: string) => type ? documents[type]?.[1] ?? 'Registrierte Quelle zu diesem Vorhaben.' : 'Registrierte Quelle zu diesem Vorhaben.';
+export const gateName = (gate: string) => Object.hasOwn(gateLabels, gate) ? gateLabels[gate] : documentName(gate);
 // Presentation of the existing Core assessment, never a second gate evaluator.
 // The one UI rule for a completed assessment without fulfilled completion: summaries never confirm it.
 export const completionUnconfirmed = (data: Detail) => data.evaluation?.control_assessment?.state === 'completed' && data.evaluation.completion?.fulfilled !== true;

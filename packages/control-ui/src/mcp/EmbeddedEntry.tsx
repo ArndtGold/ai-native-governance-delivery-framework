@@ -13,6 +13,7 @@ import { createViewCloser } from './view-close';
 import { useReviewView } from './review-view';
 import type { CockpitCheckpoint } from '../App';
 import { cockpitHostFromName, type CockpitHost } from '../host-label';
+import { createCompanionContinuation } from './companion-continuation';
 
 export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: CockpitBridge; diagnostics?: boolean }) {
   const trace = useMemo(() => {
@@ -40,6 +41,8 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
   }, [bridge, ready, closeState]);
   const handoff = useMemo(() => new HandoffController(createHandoffPort(bridge, bootstrap?.sessionId ?? '')), [bridge, bootstrap?.sessionId]);
   const transport = useMemo(() => bridge.readForSession(bootstrap?.sessionId ?? ''), [bridge, bootstrap?.sessionId]);
+  const continuation = useMemo(() => bootstrap?.continuation
+    ? createCompanionContinuation(bridge, bootstrap.sessionId, bootstrap.targetId) : undefined, [bridge, bootstrap]);
   const reportDisplay = useCallback(async (snapshotId: string, signal: AbortSignal, presentation?: CompanionDisplay) => {
     if (!bootstrap || current.current?.sessionId !== bootstrap.sessionId) return false;
     const result = await bridge.operation({ operation: 'display_ack', snapshot_id: snapshotId,
@@ -175,7 +178,7 @@ export function EmbeddedEntry({ bridge, diagnostics = false }: { bridge: Cockpit
       ? 'Kontext wird entwertet und die Sitzung wird geschlossen …' : closeState === 'closed'
         ? 'Kontextbereinigung und Sitzungsende sind bestätigt. Der Host kann diese Karte weiter anzeigen.'
         : 'Die Bereinigung ist nicht bestätigt. Die Ansicht bleibt gesperrt; der Host wurde nicht um das Ausblenden gebeten.'}</p></section>
-      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} initialRunId={bootstrap.initialRunId} companionEmpty={bootstrap.companionEmpty} companionFallback={bootstrap.companionFallback} provenance={bootstrap.provenance} host={cockpitHost} companionConstraints={companionConstraints} compact={cockpitHost === 'codex' ? !expanded : review.role === 'card'} handoff={handoff} review={cockpitHost === 'codex' ? undefined : review} checkpoint={checkpoint} onExpand={() => { if (cockpitHost === 'codex') void open(); else void review.show('reader'); }} onReturnToCompact={returnToCompact} onDisplay={bootstrap.displayAck ? reportDisplay : undefined}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
+      : ready && bootstrap ? <App key={`app:${bootstrap.sessionId}`} transport={transport} continuation={cockpitHost === 'codex' ? continuation : undefined} initialRunId={bootstrap.initialRunId} companionEmpty={bootstrap.companionEmpty} companionFallback={bootstrap.companionFallback} provenance={bootstrap.provenance} host={cockpitHost} companionConstraints={companionConstraints} compact={cockpitHost === 'codex' ? !expanded : review.role === 'card'} handoff={handoff} review={cockpitHost === 'codex' ? undefined : review} checkpoint={checkpoint} onExpand={() => { if (cockpitHost === 'codex') void open(); else void review.show('reader'); }} onReturnToCompact={returnToCompact} onDisplay={bootstrap.displayAck ? reportDisplay : undefined}/> : <section className="mcp-connecting" aria-label="AGDF Cockpit"><h1>AGDF Cockpit</h1><p role="status">Verbindung zum lokalen Projekt wird hergestellt …</p></section>}
     {visibleProblem && <p role="alert">{visibleProblem}</p>}
     {trace && closeState === 'open' && expanded && <HostProbe key={`probe:${bootstrap?.sessionId}`} bridge={bridge} trace={trace} onClose={closeFromApp}/>}
   </div>;

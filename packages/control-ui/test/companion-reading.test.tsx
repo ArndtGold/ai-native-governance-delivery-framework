@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { App } from '../src/App';
 import { StrictMode } from 'react';
 import type { ReadTransport } from '../src/api';
+import type { CompanionContinuation } from '../src/mcp/companion-continuation';
 import { documentFixture, fixtureMeta, runData, runScope } from './scoped-fixtures';
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.useRealTimers(); });
@@ -88,6 +89,7 @@ it('keeps the Companion on shrinking and restores the Reader and both offsets on
   const source = await screen.findByRole('button', { name: 'PRD-Entwurf öffnen' });
   const widthHint = 'In einer breiteren Ansicht öffnet sich der Entwurf automatisch daneben.';
   expect(source.getAttribute('aria-describedby')).toBe(screen.getByText(widthHint).id);
+  expect(screen.getByText(widthHint).closest('details')?.open).toBe(false);
   expect(screen.queryByRole('region', { name: 'Entwurf lesen' })).toBeNull();
   source.focus(); resize(850);
   await screen.findByText('Letzter Absatz.');
@@ -158,10 +160,22 @@ it('keeps old bytes and focus on new decisions, switches deliberately, and dismi
       data: { kind: 'document', run: structuredClone(current), document: { ...fixtureA.document, resource, content, content_digest: row.content_digest!, document_state: row } } }
       : runScope(structuredClone(current), 'run-' + current.revision_id);
   }) as unknown as ReadTransport;
-  render(<App host="codex" compact transport={read} initialRunId={current.run_id}/>);
+  const continuation: CompanionContinuation = { status: async () => 'ready', start: async () => 'pending' };
+  render(<App host="codex" compact transport={read} initialRunId={current.run_id} continuation={continuation}/>);
   await screen.findByText('Letzter Absatz.');
-  const capturedRevision = document.querySelector('.companion-reader-revision')!.textContent;
-  const capturedTitle = document.querySelector('.companion-reader-title')!.textContent;
+  const approval = () => screen.queryByText('Approval: PRD', { exact: true });
+  const approvalAction = { name: 'Freigabe prüfen' };
+  expect(approval()).toBeTruthy();
+  await screen.findByRole('button', approvalAction);
+  const header = screen.getByRole('region', { name: 'Entwurf lesen' }).querySelector('header')!;
+  const sources = () => screen.getByText('Dokumentdetails', { selector: 'summary' }).closest('details')!;
+  const revision = () => sources().querySelector('dd code')?.textContent;
+  const capturedRevision = revision();
+  expect(capturedRevision).toBe(current.revision_id);
+  expect(sources().open).toBe(false);
+  expect(header.querySelector('h2')?.textContent).toBe('Produktanforderungen · Entwurf');
+  expect(header.textContent).not.toContain(current.title);
+  expect(header.textContent).not.toContain('Run-Revision');
   const viewport = screen.getByRole('generic', { name: 'Dokumentinhalt' }); viewport.scrollTop = 300; fireEvent.scroll(viewport);
   const next = (version: string) => {
     current = { ...current, title: 'Aktuelles Vorhaben ' + version, revision_id: version, companion: { ...current.companion!, decision_material_version: 'sha256:' + version.repeat(64) },
@@ -169,27 +183,93 @@ it('keeps old bytes and focus on new decisions, switches deliberately, and dismi
     content = '# Neue Fassung ' + version;
   };
   next('b'); reload();
-  await screen.findByRole('button', { name: 'Aktuellen Entwurf öffnen' });
-  expect(document.querySelector('.companion-reader-revision')!.textContent).toBe(capturedRevision);
-  expect(document.querySelector('.companion-reader-title')!.textContent).toBe(capturedTitle);
+  expect(await screen.findAllByRole('button', { name: 'Aktuelle Fassung öffnen' })).toHaveLength(1);
+  expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull();
+  expect(approval()).toBeNull();
+  expect(screen.queryByRole('button', approvalAction)).toBeNull();
+  expect(revision()).toBe(capturedRevision);
   expect(screen.getByText('Letzter Absatz.')).toBeTruthy();
   expect(screen.queryByText('Neue Fassung b')).toBeNull();
   expect(viewport.scrollTop).toBe(300);
   expect(screen.queryByRole('link', { name: 'Originaldatei herunterladen' })).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Aktuellen Entwurf öffnen' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Aktuelle Fassung öffnen' }));
   await screen.findByRole('heading', { name: 'Neue Fassung b' });
-  expect(document.querySelector('.companion-reader-revision')!.textContent).toBe('Run-Revision: b');
-  expect(document.querySelector('.companion-reader-title')!.textContent).toBe('Aktuelles Vorhaben b');
+  expect(approval()).toBeTruthy();
+  await screen.findByRole('button', approvalAction);
+  expect(revision()).toBe('b');
+  expect(header.textContent).not.toContain('Aktuelles Vorhaben b');
   expect(viewport.scrollTop).toBe(0);
   expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Produktanforderungen · Entwurf' }));
-  next('c'); reload(); await screen.findByRole('button', { name: 'Aktuellen Entwurf öffnen' });
+  next('c'); reload(); await screen.findByRole('button', { name: 'Aktuelle Fassung öffnen' });
   close(); await screen.findByRole('button', { name: 'PRD-Entwurf öffnen' });
   reload(); resize(320); resize(1360);
   await waitFor(() => expect(screen.getByText('Du bist dran')).toBeTruthy());
   expect(screen.queryByRole('region', { name: 'Entwurf lesen' })).toBeNull();
   next('d'); reload();
   await screen.findByRole('heading', { name: 'Neue Fassung d' });
-  expect(screen.queryByRole('button', { name: 'Aktuellen Entwurf öffnen' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Aktuelle Fassung öffnen' })).toBeNull();
+});
+
+it('keeps the same decision and reading position through an unrelated background snapshot change', async () => {
+  width(1360);
+  const base = fixture();
+  let refresh = false;
+  let finish!: (value: ReturnType<typeof runScope>) => void;
+  const pending = new Promise<ReturnType<typeof runScope>>(resolve => { finish = resolve; });
+  const read = vi.fn(async (path: string) => {
+    if (path.startsWith('/api/freshness')) return { ...fixtureMeta, code: 'source_changed', data: null };
+    if (path.startsWith('/api/documents/')) return { ...fixtureMeta, snapshot_id: 'document', data: { kind: 'document', run: base.run, document: base.document } };
+    return refresh ? pending : runScope(base.run, 'before-change');
+  }) as unknown as ReadTransport;
+  render(<App host="codex" compact transport={read} initialRunId={base.run.run_id}/>);
+  const body = await screen.findByRole('article', { name: 'Originaldokument' });
+  const viewport = screen.getByRole('generic', { name: 'Dokumentinhalt' });
+  viewport.scrollTop = 310; viewport.scrollLeft = 12; viewport.focus(); fireEvent.scroll(viewport);
+  const notices = () => screen.getByRole('region', { name: 'Entwurf lesen' }).querySelectorAll('.companion-reader-notice');
+  refresh = true;
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(notices()).toHaveLength(0);
+  const refreshed = structuredClone(base.run);
+  const prd = refreshed.resources.find(source => source.type === 'PRD')!;
+  refreshed.document_states!.find(row => row.type === 'PRD')!.resource_id = prd.resource_id = 'new-scope-prd';
+  refreshed.active_run_ids = [refreshed.run_id, 'other-run'];
+  await act(async () => { finish(runScope(refreshed, 'after-change')); });
+  expect(screen.getByRole('navigation', { name: 'Aktive Runs' })).toBeTruthy();
+  expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
+  expect(notices()).toHaveLength(0);
+  expect(sourceReads(read)).toBe(1);
+  expect([viewport.scrollTop, viewport.scrollLeft, document.activeElement]).toEqual([310, 12, viewport]);
+  expect(screen.getByRole('link', { name: 'Originaldatei herunterladen' })).toBeTruthy();
+});
+
+it('keeps an approved draft open for reference and shows the next gate instead of a replacement prompt', async () => {
+  width(1360);
+  const base = fixture();
+  let run = base.run;
+  const read = vi.fn(async (path: string) => path.startsWith('/api/documents/')
+    ? { ...fixtureMeta, snapshot_id: 'document', data: { kind: 'document', run: base.run, document: base.document } }
+    : runScope(run, run === base.run ? 'before' : 'after')) as unknown as ReadTransport;
+  render(<App host="codex" compact transport={read} initialRunId={base.run.run_id}/>);
+  await screen.findByRole('article', { name: 'Originaldokument' });
+  run = structuredClone(base.run);
+  run.persisted!.current_gate = run.evaluation!.current_gate = 'SD';
+  run.evaluation!.missing_approval = 'none';
+  run.evaluation!.control_assessment = { state: 'open', authorizes: false };
+  run.companion!.next_text = 'Lösungsdesign vorbereiten.';
+  delete run.companion!.decision_material_version;
+  const row = run.document_states!.find(document => document.type === 'PRD')!;
+  row.state = row.version_kind = 'approved';
+  row.recorded_approval = { status: 'approved', evidence: 'Approval: PRD' };
+  reload();
+  await screen.findByText('Die Entscheidung für dieses Gate ist abgeschlossen.', { exact: false });
+  expect(screen.getByText('Lösungsdesign vorbereiten.')).toBeTruthy();
+  expect(screen.getByRole('article', { name: 'Originaldokument' })).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Aktuelle Fassung öffnen' })).toBeNull();
+  expect(screen.queryByText('Aktueller Stand nicht bestätigt.')).toBeNull();
+  expect(sourceReads(read)).toBe(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Zum nächsten Schritt' }));
+  await waitFor(() => expect(screen.queryByRole('region', { name: 'Entwurf lesen' })).toBeNull());
+  expect(screen.getByText('Lösungsdesign vorbereiten.')).toBeTruthy();
 });
 
 it.each(['missing material', 'finding', 'unregistered', 'mismatch', 'unavailable'])('does not auto-open %s', async kind => {
@@ -221,18 +301,17 @@ it('ignores a late source reply after closing, without reopening or expanding', 
   expect(expand).not.toHaveBeenCalled();
 });
 
-it('revalidates a same-source refresh once and preserves reading position and download bytes', async () => {
+it('confirms the same-source refresh without fetching the document again and preserves reading position and download bytes', async () => {
   width(1360); const { run, read, document: source } = fixture();
   render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
   await screen.findByText('Letzter Absatz.');
   const viewport = screen.getByRole('generic', { name: 'Dokumentinhalt' }); viewport.scrollTop = 140; fireEvent.scroll(viewport);
   const before = sourceReads(read);
   reload();
-  await waitFor(() => expect(sourceReads(read)).toBe(before + 1));
-  await waitFor(() => expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull());
+  await waitFor(() => expect(screen.getByRole('link', { name: 'Originaldatei herunterladen' })).toBeTruthy());
   expect(viewport.scrollTop).toBe(140);
   expect(decodeURIComponent(screen.getByRole('link', { name: 'Originaldatei herunterladen' }).getAttribute('href')!.split(',')[1])).toBe(source.content);
-  expect(sourceReads(read)).toBe(before + 1);
+  expect(sourceReads(read)).toBe(before);
 });
 
 it('retains per-Run intent and positions, releases inactive bytes, and never substitutes an unavailable remembered version', async () => {
@@ -294,16 +373,17 @@ it('keeps the workspace freshness loop running while the narrow card is hidden a
   run = { ...run, companion: { ...run.companion!, decision_material_version: 'sha256:' + 'b'.repeat(64) } }; changed = true;
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
   expect(vi.mocked(read).mock.calls.some(([path]) => path.startsWith('/api/freshness'))).toBe(true);
-  expect(screen.getByRole('button', { name: 'Aktuellen Entwurf öffnen' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Aktuelle Fassung öffnen' })).toBeTruthy();
   expect(start).not.toHaveBeenCalled();
 });
 
-it('preserves old bytes and offsets after a failed switch, then permits a deliberate retry', async () => {
+it.each([false, true])('recovers after a failed switch (user moved focus: %s)', async focusMoved => {
   width(1360); const base = fixture();
   let run = base.run, fail = false;
+  let rejectDocument!: (error: Error) => void;
   const read = vi.fn(async (path: string) => {
     if (!path.startsWith('/api/documents/')) return runScope(structuredClone(run));
-    if (fail) throw Error('read_failed');
+    if (fail) return new Promise((_, reject) => { rejectDocument = reject; });
     return { ...fixtureMeta, snapshot_id: 'document', data: { kind: 'document', run: structuredClone(run), document: base.document } };
   }) as unknown as ReadTransport;
   render(<App host="codex" compact transport={read} initialRunId="run-a"/>);
@@ -311,25 +391,35 @@ it('preserves old bytes and offsets after a failed switch, then permits a delibe
   const viewport = screen.getByRole('generic', { name: 'Dokumentinhalt' }); viewport.scrollTop = 251; viewport.scrollLeft = 17; fireEvent.scroll(viewport);
   run = { ...run, companion: { ...run.companion!, decision_material_version: 'sha256:' + 'b'.repeat(64) } };
   reload();
-  fireEvent.click(await screen.findByRole('button', { name: 'Aktuellen Entwurf öffnen' }));
+  const sameBytes = await screen.findByRole('button', { name: 'Aktuelle Fassung öffnen' });
+  expect(screen.queryByText('Approval: PRD', { exact: true })).toBeNull();
+  fireEvent.click(sameBytes);
   // This same-byte decision is still an explicit new decision; switch failure must keep the old reading.
   // A second decision creates a controlled failure after the first successful transition.
-  await waitFor(() => expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull());
+  await screen.findByRole('link', { name: 'Originaldatei herunterladen' });
   viewport.scrollTop = 251; viewport.scrollLeft = 17; fireEvent.scroll(viewport);
   run = { ...run, companion: { ...run.companion!, decision_material_version: 'sha256:' + 'c'.repeat(64) } };
-  reload(); await screen.findByRole('button', { name: 'Aktuellen Entwurf öffnen' });
+  reload();
+  const replace = await screen.findByRole('button', { name: 'Aktuelle Fassung öffnen' });
   fail = true;
-  fireEvent.click(screen.getByRole('button', { name: 'Aktuellen Entwurf öffnen' }));
+  replace.focus();
+  fireEvent.click(replace);
+  await screen.findByText('Entwurf wird geladen …');
+  if (focusMoved) viewport.focus();
+  await act(async () => rejectDocument(Error('read_failed')));
   await screen.findByText(/Die gewählte Fassung konnte nicht bestätigt werden/);
+  const retry = screen.getByRole('button', { name: 'Erneut prüfen' });
+  expect(document.activeElement).toBe(focusMoved ? viewport : retry);
+  expect(screen.queryByText('Approval: PRD', { exact: true })).toBeNull();
   expect(screen.getByText('Letzter Absatz.')).toBeTruthy();
   expect([viewport.scrollTop, viewport.scrollLeft]).toEqual([251, 17]);
   const before = sourceReads(read);
   fail = false;
-  fireEvent.click(screen.getByRole('button', { name: 'Run neu lesen' }));
-  await screen.findByRole('button', { name: 'Aktuellen Entwurf öffnen' });
-  await waitFor(() => expect(screen.getByRole('button', { name: 'PRD-Entwurf öffnen' }).getAttribute('aria-disabled')).not.toBe('true'));
-  fireEvent.click(screen.getByRole('button', { name: 'Aktuellen Entwurf öffnen' }));
-  await waitFor(() => expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull());
+  fireEvent.click(retry);
+  const openLatest = await screen.findByRole('button', { name: 'Aktuelle Fassung öffnen' });
+  await waitFor(() => expect((openLatest as HTMLButtonElement).disabled).toBe(false));
+  fireEvent.click(screen.getByRole('button', { name: 'Aktuelle Fassung öffnen' }));
+  await screen.findByRole('link', { name: 'Originaldatei herunterladen' });
   expect(screen.getByText('Letzter Absatz.')).toBeTruthy();
   expect(screen.queryByText(/Die gewählte Fassung konnte nicht bestätigt werden/)).toBeNull();
   expect(sourceReads(read)).toBe(before + 1);
@@ -353,7 +443,7 @@ it('shows confirmed work on the selected Codex card and clears it on freshness w
   expect(screen.queryByText('Einen Augenblick')).toBeNull();
   activity = record;
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
-  expect(screen.getByText('Einen Augenblick')).toBeTruthy();
+  expect(screen.getByText('Das Vorhaben ist in der Phase „Umsetzung und Tests“.', { selector: '.companion-signal' })).toBeTruthy();
   expect(screen.getByText(/Ich arbeite gerade daran/)).toBeTruthy();
   activity = { ...record, expires_at: Date.now() - 1 };
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
@@ -375,8 +465,12 @@ it('says that activity is unknown while the Codex hooks give no sign of life', a
     : { ...runScope(run), ...(observation ? { companion_observation: observation } : {}) }) as never;
   render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
   await screen.findByRole('heading', { name: run.run_id });
-  expect(screen.getByText('Aktivität unbekannt')).toBeTruthy();
-  expect(screen.getByText('Die Companion sieht gerade nicht, ob Codex arbeitet. Prüfe in Codex unter /hooks, ob die AGDF-Hooks freigegeben sind.')).toBeTruthy();
+  expect(screen.getByText('Das Vorhaben ist in der Phase „Umsetzung und Tests“.', { selector: '.companion-signal' })).toBeTruthy();
+  const hint = screen.getByText('Ob Codex gerade an diesem Run arbeitet, ist unklar.');
+  const details = hint.closest('details')!;
+  expect(details.open).toBe(false);
+  fireEvent.click(details.querySelector('summary')!);
+  expect(details.open).toBe(true);
   expect(screen.queryByText('Einen Augenblick')).toBeNull();
   const card = screen.getByRole('article', { name: 'Companion-Statuskarte' });
   expect(card.getAttribute('data-tone')).toBeNull();
@@ -384,12 +478,12 @@ it('says that activity is unknown while the Codex hooks give no sign of life', a
   observation = undefined;
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
   expect(screen.queryByText('Aktivität unbekannt')).toBeNull();
-  expect(screen.queryByText(/AGDF-Hooks freigegeben/)).toBeNull();
+  expect(screen.queryByText(/Ob Codex gerade an diesem Run arbeitet/)).toBeNull();
   expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
   const record = { target_id: fixtureMeta.target.target_id, run_id: run.run_id, revision_id: run.revision_id!, gate, expires_at: Date.now() + 25_000 };
   observation = { activity: record };
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
-  expect(screen.getByText('Einen Augenblick')).toBeTruthy();
+  expect(screen.getByText('Das Vorhaben ist in der Phase „Umsetzung und Tests“.', { selector: '.companion-signal' })).toBeTruthy();
   expect(screen.queryByText('Aktivität unbekannt')).toBeNull();
   expect(card.getAttribute('data-tone')).toBe('working');
 });
@@ -414,4 +508,172 @@ it('polls the Codex card quickly only while the shown step waits for the agent',
   };
   expect(await quickChecks('agent')).toBe(1);
   expect(await quickChecks('human')).toBe(0);
+});
+
+it.each([
+  ['UR', 'Nutzeranforderungen'],
+  ['PRD', 'Produktanforderungen'],
+  ['SD', 'Systemdesign'],
+  ['TP', 'Arbeits- und Testplan'],
+  ['CD+Tests', 'Umsetzung und Tests'],
+  ['QA', 'Qualitätsprüfung'],
+  ['UAT', 'Abnahme'],
+  ['OR', 'Abschlussnachweise'],
+])('names the %s phase in a sentence before the next step', async (gate, phase) => {
+  const run = runData('run-a');
+  run.persisted!.current_gate = gate;
+  run.evaluation!.current_gate = gate;
+  run.evaluation!.next_action_de = 'Nächsten Schritt ausführen.';
+  const read: ReadTransport = async () => ({ ...runScope(run), companion_observation: { liveness: 'unknown' } }) as never;
+  render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+  const status = await screen.findByText(`Das Vorhaben ist in der Phase „${phase}“.`, { selector: '.companion-signal' });
+  const step = screen.getByText('Nächsten Schritt ausführen.');
+  expect(status.compareDocumentPosition(step) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+it('keeps code review within CD+Tests in current and retained views until a new snapshot is confirmed', async () => {
+  width(320);
+  const run = runData('run-a');
+  run.persisted!.current_gate = 'CR';
+  run.evaluation!.current_gate = 'CR';
+  run.companion = {
+    route: 'structured_slice',
+    path: [{ gate: 'TP', status: 'fulfilled' }, { gate: 'QA', status: 'open' }],
+    next_text: 'Code-Review durchführen.',
+    blocking_text: 'none',
+  };
+  const refreshed = structuredClone(run);
+  refreshed.persisted!.current_gate = 'QA';
+  refreshed.evaluation!.current_gate = 'QA';
+  refreshed.companion!.path[1].status = 'current';
+  refreshed.companion!.next_text = 'Qualität prüfen.';
+  let change = false;
+  let fail = true;
+  const read: ReadTransport = async path => {
+    if (path.startsWith('/api/freshness')) return { ...fixtureMeta, code: 'source_changed', data: null } as never;
+    if (change && fail) throw Error('source_changed');
+    return runScope(change ? refreshed : run) as never;
+  };
+  render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+  await screen.findByText('Das Vorhaben ist in der Phase „Umsetzung und Tests“.', { selector: '.companion-signal' });
+  const progress = screen.getByRole('list', { name: 'Gate-Fortschritt' });
+  expect(progress.querySelector('[aria-current="step"]')?.textContent).toBe('CD+Tests Aktuell');
+  expect(screen.getByText('Code-Review durchführen.')).toBeTruthy();
+  change = true;
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(await screen.findByText('Zuletzt war das Vorhaben in der Phase „Umsetzung und Tests“.')).toBeTruthy();
+  expect(progress.querySelector('[aria-current]')).toBeNull();
+  expect(progress.textContent).toContain('CD+Tests Zuletzt aktuell');
+  const reload = () => screen.findByRole('button', { name: 'Neu laden' });
+  fireEvent.click(await reload());
+  expect(await screen.findByText('Aktualisierung fehlgeschlagen')).toBeTruthy();
+  expect(screen.getByText('Zuletzt war das Vorhaben in der Phase „Umsetzung und Tests“.')).toBeTruthy();
+  expect(screen.getByText('Code-Review durchführen.')).toBeTruthy();
+  fail = false;
+  fireEvent.click(await reload());
+  await screen.findByText('Das Vorhaben ist in der Phase „Qualitätsprüfung“.', { selector: '.companion-signal' });
+  expect(screen.getByText('Qualität prüfen.')).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Neu laden' })).toBeNull();
+});
+
+it.each(['freshness rejection', 'snapshot timeout'])('recovers the same Companion Run after a transient %s', async fault => {
+  width(320);
+  const { run } = fixture();
+  const paths: string[] = [];
+  let captures = 0;
+  const read: ReadTransport = async path => {
+    paths.push(path);
+    if (path.startsWith('/api/freshness')) {
+      if (fault === 'freshness rejection') throw Error('read_failed');
+      return { ...fixtureMeta, code: 'source_changed', data: null } as never;
+    }
+    ++captures;
+    if (fault === 'snapshot timeout' && captures === 2) return { ...fixtureMeta, snapshot_id: null,
+      state: 'error', code: 'timeout', data: null, retryable: true } as never;
+    return runScope(run, `capture-${captures}`) as never;
+  };
+  render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+  await screen.findByRole('button', { name: 'PRD-Entwurf öffnen' });
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  const capture = `/api/snapshot?run_id=${run.run_id}`;
+  expect(paths).toEqual([capture, '/api/freshness?snapshot=capture-1', capture, ...(fault === 'snapshot timeout' ? [capture] : [])]);
+  expect(screen.getByRole('button', { name: 'PRD-Entwurf öffnen' }).getAttribute('aria-disabled')).toBeNull();
+  expect(screen.queryByText('Aktueller Stand nicht bestätigt')).toBeNull();
+});
+
+it('keeps the past Companion observation and offers reload when the scoped retry also fails', async () => {
+  width(320);
+  const { run } = fixture();
+  let captures = 0;
+  let unavailable = true;
+  const read: ReadTransport = async path => {
+    if (path.startsWith('/api/freshness')) throw Error('read_failed');
+    if (++captures > 1 && unavailable) throw Error('read_failed');
+    return runScope(run, `capture-${captures}`) as never;
+  };
+  render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+  await screen.findByRole('button', { name: 'PRD-Entwurf öffnen' });
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(await screen.findByText('Aktueller Stand nicht bestätigt')).toBeTruthy();
+  expect(screen.getByText('Der Begleiter zeigt den zuletzt gelesenen Stand.')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'PRD-Entwurf öffnen' }).getAttribute('aria-disabled')).toBe('true');
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(captures).toBe(3);
+  unavailable = false;
+  fireEvent.click(screen.getByRole('button', { name: 'Neu laden' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'PRD-Entwurf öffnen' }).getAttribute('aria-disabled')).toBeNull());
+  expect(screen.queryByText('Aktueller Stand nicht bestätigt')).toBeNull();
+});
+
+it('shows a single recovery notice at the open draft and logs the operation and typed error', async () => {
+  width(1360);
+  const base = fixture();
+  const log = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  let failing = false;
+  const read: ReadTransport = async path => {
+    if (path.startsWith('/api/freshness')) return { ...fixtureMeta, code: 'source_changed', data: null } as never;
+    if (path.startsWith('/api/documents/')) return { ...fixtureMeta, snapshot_id: 'document',
+      data: { kind: 'document', run: base.run, document: base.document } } as never;
+    if (failing) throw Error('timeout');
+    return runScope(base.run, 'named-run') as never;
+  };
+  render(<App host="codex" compact transport={read} initialRunId={base.run.run_id}/>);
+  const body = await screen.findByRole('article', { name: 'Originaldokument' });
+  failing = true;
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  const notices = screen.getByRole('region', { name: 'Entwurf lesen' }).querySelectorAll('.companion-reader-notice');
+  expect(notices).toHaveLength(1);
+  expect(notices[0].textContent).toContain('Aktueller Stand nicht bestätigt.');
+  expect(screen.queryByText('Aktualisierung fehlgeschlagen')).toBeNull();
+  expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
+  expect(log).toHaveBeenCalledWith(`AGDF Companion read ${JSON.stringify({ operation: 'snapshot', code: 'timeout', run_id: base.run.run_id })}`);
+  failing = false;
+  fireEvent.click(screen.getByRole('button', { name: 'Erneut prüfen' }));
+  await screen.findByRole('link', { name: 'Originaldatei herunterladen' });
+  expect(screen.queryByText('Aktueller Stand nicht bestätigt.', { exact: false })).toBeNull();
+});
+
+it.each([
+  { code: 'session_invalid', state: 'ungültig', size: 1360 },
+  { code: 'session_invalid', state: 'ungültig', size: 320 },
+  { code: 'session_expired', state: 'abgelaufen', size: 1360 },
+])('keeps the reading and offers chat reopening for $code at $size px', async ({ code, state, size }) => {
+  width(size);
+  const base = fixture();
+  let rejectSession = false;
+  const read: ReadTransport = async (path, signal, expected) => {
+    if (path.startsWith('/api/freshness')) throw Error(rejectSession ? code : 'cancelled');
+    return base.read(path, signal, expected);
+  };
+  render(<App host="codex" compact transport={read} initialRunId={base.run.run_id}/>);
+  if (size === 320) fireEvent.click(await screen.findByRole('button', { name: 'PRD-Entwurf öffnen' }));
+  const body = await screen.findByRole('article', { name: 'Originaldokument' });
+  rejectSession = true;
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  const reader = screen.getByRole('region', { name: 'Entwurf lesen' });
+  const notice = reader.querySelector('.companion-reader-notice');
+  expect(notice?.textContent).toBe(`Die Sitzung ist ${state}. Öffne den Begleiter im Chat erneut.`);
+  expect(notice?.querySelector('button')).toBeNull();
+  expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
+  expect(screen.queryByRole('link', { name: 'Originaldatei herunterladen' })).toBeNull();
 });

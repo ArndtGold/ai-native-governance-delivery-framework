@@ -4,7 +4,7 @@ import { Overview, type WorkView } from '../Overview';
 import { hasExpiredSession, type ReadingState } from '../state';
 import { ReadState, ReadingFeedback, readingStatus } from '../feedback';
 import { BrandHeader } from '../BrandHeader';
-import { RefreshControl } from '../RefreshControl';
+import { RefreshControl, refreshUnavailable } from '../RefreshControl';
 import { Icon } from './Icon';
 import { WorkStep } from '../WorkStep';
 import { detailHasMismatch } from '../RunDetail';
@@ -16,11 +16,12 @@ import { DocumentView } from '../DocumentView';
 import { CompanionWorkspace, type CompanionConstraints } from './CompanionWorkspace';
 import type { CompanionReader } from '../useCompanionReader';
 import { CompanionCard, CompanionMenu } from './CompanionCard';
+import type { CompanionContinuation } from './companion-continuation';
 import type { CompanionActivity, Resource, PlannedDocument, Envelope, WorkEntry } from '../types';
 import type { ArchiveLoader } from '../ArchiveDetail';
 import type { CockpitHost } from '../host-label';
 
-export function CompactCockpit({ observationNotice, state, headingRef, enabled, visible = true, onSelect, onReload, onOverview, onExpand, onOpen, onOpenCompanion, onBack, onAbout, view, onViewChange, returnNotice, draftCheck, sourcePending, loadArchive, loadPlanned, sourceEntry, host, activity, activityUnknown, motion, onToggleMotion, sound, onToggleSound, activeRunCount, runIndex, onStepRun, onReturnToChatRun, reader, onReaderWidth, companionConstraints, onReaderLink, onReaderClose, companionEmpty }: {
+export function CompactCockpit({ observationNotice, state, headingRef, enabled, visible = true, onSelect, onReload, onOverview, onExpand, onOpen, onOpenCompanion, onBack, onAbout, view, onViewChange, returnNotice, draftCheck, sourcePending, loadArchive, loadPlanned, sourceEntry, host, activity, activityUnknown, motion, onToggleMotion, sound, onToggleSound, activeRunCount, runIndex, onStepRun, onReturnToChatRun, reader, onReaderWidth, companionConstraints, onReaderLink, onReaderClose, companionEmpty, continuation }: {
   reader: CompanionReader; onReaderWidth: (wide: boolean) => void; companionConstraints?: CompanionConstraints; onReaderLink: (id: string) => void; onReaderClose: () => void;
   observationNotice?: ReactNode; state: ReadingState; headingRef: RefObject<HTMLHeadingElement | null>; enabled: boolean; visible?: boolean;
   view: WorkView; onViewChange: (view: WorkView) => void; returnNotice?: string | null;
@@ -30,6 +31,7 @@ export function CompactCockpit({ observationNotice, state, headingRef, enabled, 
   sound: boolean; onToggleSound: () => void;
   activeRunCount: number; runIndex: number; onStepRun: (offset: -1 | 1) => void; onReturnToChatRun?: () => void;
   sourceEntry?: WorkEntry; onAbout: () => void; host?: CockpitHost; activity?: CompanionActivity; activityUnknown?: boolean; companionEmpty?: boolean;
+  continuation?: CompanionContinuation;
 }) {
   const data = state.detail?.data;
   const selected = data ? { run_id: data.run_id, title: data.title ?? data.run_id } : null;
@@ -53,8 +55,9 @@ export function CompactCockpit({ observationNotice, state, headingRef, enabled, 
         <button className="text-link" onClick={onBack} disabled={host === 'codex' ? !enabled || busy || expired : !usable}>Zurück zur Statuskarte</button>
         <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={selected?.title} onOpen={id => { const resource = data?.resources.find(r => r.resource_id === id); if (resource) onOpen?.(resource); }}/>
       </div> : companionRun && data ? <CompanionCard key={data.run_id} state={state} data={data} activity={activity} activityUnknown={activityUnknown} current={current} visible={visible}
-        enabled={enabled} motion={motion} mismatch={mismatch} sourcePending={sourcePending} sourceShown={reader.sourceShown} showWidthHint={reader.showWidthHint}
-        onOpen={onOpenCompanion}/> : selected && data ? <div className="compact-run">
+        enabled={enabled} motion={motion} mismatch={mismatch} sourcePending={sourcePending} sourceInReader={reader.sourceInReader}
+        canOfferApproval={reader.canOfferApproval} showWidthHint={reader.showWidthHint}
+        onOpen={onOpenCompanion} onReload={onReload} continuation={continuation}/> : selected && data ? <div className="compact-run">
         <div className="compact-run-summary">
         <WorkStandLabel data={data} current={current} stale={state.stale && !state.refreshing && state.phase !== 'loading'} reopen={expired || state.problem === 'session_invalid' || state.scope?.code === 'session_invalid'}/>
         <h2>{selected.title}</h2>
@@ -100,7 +103,7 @@ export function CompactCockpit({ observationNotice, state, headingRef, enabled, 
     </nav>}
     {!noActiveRun && state.route.view === 'overview' && state.inventory?.data && <><div className="compact-overview-heading"><div><h2>Arbeit am Projekt</h2><p className="overview-repository"><span>Repository</span> <code>{target ?? 'Noch nicht verfügbar'}</code></p></div><OverviewFigure visible={visible}/></div>{returnNotice && <p role="status">{returnNotice}</p>}<Overview compact loadPlanned={loadPlanned} loadArchive={loadArchive} result={state.inventory} onSelect={onSelect} current={usable} view={view} onViewChange={onViewChange}/></>}
     {!enabled && <ReadState state="blocked" code="session_invalid"/>}
-    <ReadingFeedback state={state} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>
+    {!reader.open && <ReadingFeedback state={state} companion={companionRun} onReload={companionView && state.problem !== 'session_invalid' && state.scope?.code !== 'session_invalid' && !refreshUnavailable(state, enabled) ? onReload : undefined} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>}
     {observationNotice}
     {companionView ? <CompanionWorkspace reader={reader} onWidth={onReaderWidth} constraints={companionConstraints} onLink={onReaderLink} onClose={onReaderClose} onReload={onReload} footer={footer}>{content}</CompanionWorkspace> : <>{content}{footer}</>}
 

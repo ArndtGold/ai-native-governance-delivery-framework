@@ -16,9 +16,24 @@ export const HOST_RUNTIME_MARKER_DIRECTORIES = Object.freeze([".in_use"]);
 // gesture credential. Native observations must precede recording this tuple.
 export const DECISION_APP_OBSERVATIONS = Object.freeze(['initialize', 'app_only_visibility', 'model_call_denied',
   'deliberate_approve', 'deliberate_change', 'deliberate_reject', 'permission_denial', 'document_return', 'teardown']);
+export const CODEX_CONTINUATION_OBSERVATIONS = Object.freeze(['matched_dispatch_and_companion', 'app_only_visibility', 'model_call_denied', 'click_to_bound_turn',
+  'competing_companions', 'competing_normal_continuation', 'pending_across_reopen', 'native_terminal', 'predecessor_excluded']);
 // The boolean and read-only diagnosis deliberately share one validator. Host/candidate
 // values are owner supplied, never caller credentials or qualification writes.
 export function inspectDecisionAppQualification(root, record, expected = {}) {
+  return inspectCodexAppQualification(root, record, expected, DECISION_APP_OBSERVATIONS);
+}
+
+// The verified server digest also covers the packaged Companion resource.
+export function inspectCodexContinuationQualification(root, record, candidate) {
+  return inspectCodexAppQualification(root, record, candidate, CODEX_CONTINUATION_OBSERVATIONS, {
+    candidateFields: ['server_digest', 'dispatcher_digest', 'sdk_digest'], matchClient: false,
+  });
+}
+
+function inspectCodexAppQualification(root, record, expected, observations, {
+  candidateFields = ['server_digest', 'dispatcher_digest', 'sdk_digest', 'resource_digest'], matchClient = true,
+} = {}) {
   const fail = (reason, detail = {}) => Object.freeze({ qualified: false, reason, ...detail, authorizes: false });
   const exact = (value, keys) => value && typeof value === 'object' && !Array.isArray(value)
     && Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key));
@@ -28,18 +43,18 @@ export function inspectDecisionAppQualification(root, record, expected = {}) {
     if (!exact(record, ['schema_version', 'result', 'surface', 'host', 'candidate', 'observations', 'evidence', 'assurance', 'authorizes'])
       || record.schema_version !== 1 || record.result !== 'qualified' || record.surface !== 'codex'
       || record.assurance !== 'cooperative_local' || record.authorizes !== false) return fail('qualification_record_invalid');
-    if (!expected.client) return fail('host_context_unavailable');
+    if (matchClient && !expected.client) return fail('host_context_unavailable');
     if (!exact(record.host, ['name', 'version', 'os', 'arch'])
       || typeof record.host.name !== 'string' || !record.host.name || typeof record.host.version !== 'string' || !record.host.version)
       return fail('qualification_host_invalid');
-    if (record.host.name !== expected.client.name || record.host.version !== expected.client.version
-      || record.host.os !== process.platform || record.host.arch !== process.arch) return fail('qualification_host_mismatch');
-    if (!exact(record.candidate, ['server_digest', 'dispatcher_digest', 'sdk_digest', 'resource_digest'])) return fail('qualification_candidate_invalid');
+    if (record.host.os !== process.platform || record.host.arch !== process.arch
+      || matchClient && (record.host.name !== expected.client.name || record.host.version !== expected.client.version)) return fail('qualification_host_mismatch');
+    if (!exact(record.candidate, candidateFields)) return fail('qualification_candidate_invalid');
     const mismatches = Object.keys(record.candidate).filter(key => !hex(record.candidate[key]) || record.candidate[key] !== expected[key]);
     if (mismatches.length) return fail('qualification_candidate_mismatch', { fields: mismatches });
-    if (!Array.isArray(record.observations) || record.observations.length !== DECISION_APP_OBSERVATIONS.length
-      || new Set(record.observations).size !== record.observations.length || !DECISION_APP_OBSERVATIONS.every(key => record.observations.includes(key)))
-      return fail('qualification_observations_incomplete', { missing_observations: DECISION_APP_OBSERVATIONS.filter(key => !Array.isArray(record.observations) || !record.observations.includes(key)) });
+    if (!Array.isArray(record.observations) || record.observations.length !== observations.length
+      || new Set(record.observations).size !== record.observations.length || !observations.every(key => record.observations.includes(key)))
+      return fail('qualification_observations_incomplete', { missing_observations: observations.filter(key => !Array.isArray(record.observations) || !record.observations.includes(key)) });
     if (!Array.isArray(record.evidence) || !record.evidence.length || record.evidence.length > 16) return fail('qualification_evidence_missing_or_invalid');
     const paths = new Set();
     for (const item of record.evidence) {

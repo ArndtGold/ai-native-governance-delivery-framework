@@ -255,7 +255,10 @@ export function validateData(path: string, value: Envelope<unknown>) {
     const run = data.run;
     if (run.companion !== undefined) {
       if (!validCompanion(run.companion, run)) delete run.companion;
-      else if (object(run.companion) && !sha(run.companion.decision_material_version)) delete run.companion.decision_material_version;
+      else if (object(run.companion)) {
+        if (!sha(run.companion.decision_material_version)) delete run.companion.decision_material_version;
+        if (typeof run.companion.goal !== 'string' || run.companion.goal.length > 500 || !run.companion.goal.trim()) delete run.companion.goal;
+      }
     }
     const ids = run.active_run_ids;
     if (ids !== undefined && (!Array.isArray(ids) || !ids.every(id => typeof id === 'string' && RUN_ID_PATTERN.test(id))

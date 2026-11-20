@@ -40,27 +40,23 @@ function draftRead(run = companionDraft()) {
 describe('Codex Companion status card', () => {
   const primary = () => screen.getByRole('button', { name: 'PRD-Entwurf öffnen' });
 
-  it('switches the shared gate bar with available space while preserving every accessible step', () => {
-    let available = 240;
-    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(() => available);
-    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 200, height: 19, top: 0, left: 0, bottom: 19, right: 200, x: 0, y: 0, toJSON() {} });
-    const marks = [{ gate: 'UR', mark: 'done' as const }, { gate: 'PRD', mark: 'current' as const }, { gate: 'SD', mark: 'open' as const }];
+  it('summarizes the nearest gates and marks retained progress as previous', () => {
+    const marks = [{ gate: 'UR', mark: 'done' as const }, { gate: 'PRD', mark: 'done' as const },
+      { gate: 'SD', mark: 'current' as const }, { gate: 'TP', mark: 'open' as const }, { gate: 'QA', mark: 'open' as const }];
     const view = render(<CompanionProgress marks={marks} previous={false}/>);
-    const visible = () => view.container.querySelector('.companion-gates-text')?.textContent;
-    expect(visible()).toBe('✓UR ●PRD ○SD');
-    available = 180; fireEvent(window, new Event('resize'));
-    expect(visible()).toBe('✓●○ PRD');
     const list = screen.getByRole('list', { name: 'Gate-Fortschritt' });
-    expect(list.querySelectorAll('li')).toHaveLength(3);
-    expect(list.textContent).toBe('UR, ErledigtPRD, AktuellSD, Offen');
-    expect(list.querySelector('[aria-current="step"]')?.textContent).toBe('PRD, Aktuell');
+    const labels = () => screen.getAllByRole('listitem').map(item => item.textContent);
+    expect(labels()).toEqual(['PRD Abgeschlossen', 'SD Aktuell', 'TP Danach']);
+    expect(list.querySelector('[aria-current="step"]')?.textContent).toBe('SD Aktuell');
     view.rerender(<CompanionProgress marks={marks} previous/>);
+    expect(labels()).toEqual(['PRD Abgeschlossen', 'SD Zuletzt aktuell', 'TP Danach']);
     expect(list.querySelector('[aria-current]')).toBeNull();
-    available = 240; fireEvent(window, new Event('resize'));
-    expect(visible()).toBe('✓UR ●PRD ○SD');
-    available = 180; fireEvent(window, new Event('resize'));
+    view.rerender(<CompanionProgress marks={marks.map((item, index) => ({ ...item, mark: index === 0 ? 'current' : 'open' }))} previous={false}/>);
+    expect(labels()).toEqual(['UR Aktuell', 'PRD Danach']);
+    view.rerender(<CompanionProgress marks={marks.map((item, index) => ({ ...item, mark: index === 4 ? 'current' : 'done' }))} previous={false}/>);
+    expect(labels()).toEqual(['TP Abgeschlossen', 'QA Aktuell']);
     view.rerender(<CompanionProgress marks={marks.map(item => ({ ...item, mark: 'done' }))} previous={false}/>);
-    expect(visible()).toBe('✓✓✓');
+    expect(labels()).toEqual(['QA Abgeschlossen']);
     expect(list.querySelector('[aria-current]')).toBeNull();
   });
 
@@ -122,7 +118,7 @@ describe('Codex Companion status card', () => {
     run.companion = { route: 'structured_slice', path: [{ gate: 'OR', status: 'fulfilled' }], next_text: '', blocking_text: '' };
     const read = vi.fn(async () => runScope(run)) as unknown as ReadTransport;
     render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
-    await screen.findByText('Abgeschlossen');
+    await screen.findByText('Das Vorhaben ist abgeschlossen.', { selector: '.companion-signal' });
     const card = screen.getByRole('article', { name: 'Companion-Statuskarte' });
     expect(card.getAttribute('data-display-gate')).toBe('OR');
     expect(card.getAttribute('data-display-gate-state')).toBe('done');
@@ -200,7 +196,7 @@ describe('Codex Companion status card', () => {
     previous = true;
     await reread();
     expect(start).toHaveBeenCalledTimes(1);
-    expect(document.querySelector('.companion-signal')?.textContent).toBe('Stand nicht bestätigt');
+    expect(document.querySelector('.companion-signal')?.textContent).toBe('Der aktuelle Stand konnte nicht bestätigt werden.');
     previous = false;
     await reread();
     expect(start).toHaveBeenCalledTimes(2);
@@ -208,7 +204,7 @@ describe('Codex Companion status card', () => {
     mismatch = true;
     await reread();
     expect(start).toHaveBeenCalledTimes(2);
-    expect(document.querySelector('.companion-signal')?.textContent).toBe('Stand nicht bestätigt');
+    expect(document.querySelector('.companion-signal')?.textContent).toBe('Der aktuelle Stand konnte nicht bestätigt werden.');
     const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
     material = 'f';
     mismatch = false;
@@ -217,7 +213,7 @@ describe('Codex Companion status card', () => {
     hidden.mockRestore();
     readProblem = 'read_failed';
     await reread();
-    expect(document.querySelector('.companion-signal')?.textContent).toBe('Zuletzt beobachteter Stand');
+    expect(document.querySelector('.companion-signal')?.textContent).toBe('Zuletzt war das Vorhaben in der Phase „Produktanforderungen“.');
     expect(start).toHaveBeenCalledTimes(2);
     readProblem = 'session_expired';
     await reread();
@@ -282,27 +278,35 @@ describe('Codex Companion status card', () => {
   });
 
   it('opens the observed source in the existing reader and restores focus after the selector is reissued', async () => {
-    const run = companionDraft(), reply = draftRead(run);
+    const run = companionDraft();
+    run.title = 'Open registered decision documents';
+    run.objective = 'Registrierte Entscheidungsdokumente öffnen';
+    run.companion!.goal = 'Entscheider können den passenden Entwurf direkt aus der Karte lesen.';
+    const reply = draftRead(run);
     const read = vi.fn(async (path: string) => path.startsWith('/api/documents/') ? reply : path.startsWith('/api/runs/')
       ? runScope(reply.data.run, 'returned-snapshot') : runScope(run)) as unknown as ReadTransport;
     render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
     await screen.findByText('Du bist dran');
     expect(screen.getByRole('heading', { name: 'AGDF Companion für Codex', level: 1 })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Alle Vorhaben' })).toBeNull();
-    expect(screen.getByText('Passende Quelle direkt lesen')).toBeTruthy();
+    expect(screen.queryByText(run.objective)).toBeNull();
     const card = screen.getByRole('article', { name: 'Companion-Statuskarte' });
     expect(card.querySelectorAll('[role="status"]')).toHaveLength(1);
     expect(card.querySelector('[role="status"]')?.textContent).toBe('Du bist dran');
-    const caption = screen.getByText('Ich warte auf deine Freigabe');
+    const caption = screen.getByText('Das Vorhaben ist in der Phase „Produktanforderungen“.', { selector: '.companion-signal' });
     expect(caption.closest('.companion-figure-block')).toBeTruthy();
-    expect(caption.compareDocumentPosition(screen.getByRole('heading', { name: run.title })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByText('Ich warte auf deine Entscheidung')).toBeNull();
     const approval = screen.getByText('Approval: PRD', { selector: 'code' });
-    expect(approval.closest('.companion-turn')).toBe(screen.getByText('Du bist dran').parentElement);
-    const progress = screen.getByRole('list', { name: 'Gate-Fortschritt' });
-    expect(primary().compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(progress.compareDocumentPosition(card.querySelector('summary')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(card.querySelector('details')?.open).toBe(false);
+    const readingOrder = [caption, screen.getByRole('heading', { name: run.title }), screen.getByText(run.companion!.goal!),
+      screen.getByText('Du bist dran'), screen.getByText('Lies den Entwurf und prüfe, ob er zu deinem Auftrag passt.'),
+      primary(), approval, screen.getByText('Boxenstopp 2 von 4'), screen.getByRole('list', { name: 'Gate-Fortschritt' }), card.querySelector('summary')!];
+    for (const [index, element] of readingOrder.slice(1).entries()) {
+      expect(readingOrder[index].compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+    const gatePath = screen.getByRole('list', { name: 'Vollständige Gate-Reihenfolge' });
+    expect(gatePath.closest('details')).toBe(card.querySelector('details'));
+    expect(gatePath.closest('details')?.open).toBe(false);
+    expect(Array.from(gatePath.children, item => item.textContent)).toEqual(['UR Abgeschlossen', 'PRD Aktuell', 'CD+Tests Offen', 'QA Offen']);
     fireEvent.click(primary());
     await screen.findByRole('button', { name: 'Zurück zum Companion' });
     expect(screen.getByRole('heading', { name: 'AGDF Companion für Codex', level: 1 })).toBeTruthy();
@@ -372,12 +376,12 @@ describe('Codex Companion status card', () => {
   });
 
   it.each([
-    ['Brownfield Review', 'Bestandsanalyse steht an'],
-    ['Brownfield Analysis', 'Bestandsanalyse steht an'],
-    ['PRD', 'PRD-Entwurf steht an'],
-    ['QA', 'Qualitätsprüfung steht an'],
-    ['Neuer Schritt', 'Neuer Schritt steht an'],
-  ])('names pending %s work below the figure without claiming a live activity', async (gate, caption) => {
+    ['Brownfield Review', 'Einordnung des Vorhabens'],
+    ['Brownfield Analysis', 'Umsetzung und Tests'],
+    ['PRD', 'Produktanforderungen'],
+    ['QA', 'Qualitätsprüfung'],
+    ['Neuer Schritt', 'Neuer Schritt'],
+  ])('names the pending %s gate as %s below the figure', async (gate, heading) => {
     const run = companionDraft();
     run.persisted!.current_gate = gate;
     run.evaluation = { ...run.evaluation!, current_gate: gate, missing_approval: 'none',
@@ -385,7 +389,7 @@ describe('Codex Companion status card', () => {
     run.figure = { mood: 'laeuft', reason: { key: 'working', gate } };
     const read = vi.fn(async () => runScope(run)) as unknown as ReadTransport;
     render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
-    const signal = await screen.findByText(caption);
+    const signal = await screen.findByText(`Das Vorhaben ist in der Phase „${heading}“.`, { selector: '.companion-signal' });
     expect(signal.closest('.companion-figure-block')).toBeTruthy();
     expect(signal.getAttribute('role')).toBe('status');
     expect(screen.queryByText('Du bist dran')).toBeNull();
@@ -397,7 +401,7 @@ describe('Codex Companion status card', () => {
     run.figure = { mood: 'wartet', reason: { key: 'waitingDecision', gate: 'PRD' } };
     const read = vi.fn(async () => runScope(run)) as unknown as ReadTransport;
     render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
-    const caption = await screen.findByText('Ich warte auf deine Entscheidung');
+    const caption = await screen.findByText('Das Vorhaben ist in der Phase „Produktanforderungen“.', { selector: '.companion-signal' });
     expect(caption.closest('.companion-figure-block')).toBeTruthy();
     expect(screen.getByText('Du bist dran')).toBeTruthy();
     expect(screen.queryByText('Approval: PRD')).toBeNull();
@@ -414,7 +418,7 @@ describe('Codex Companion status card', () => {
     let value: Detail = pending;
     const read = vi.fn(async () => runScope(value)) as unknown as ReadTransport;
     render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
-    await screen.findByText('Umsetzung steht an');
+    await screen.findByText('Das Vorhaben ist in der Phase „Umsetzung und Tests“.', { selector: '.companion-signal' });
     expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
     const figure = document.querySelector('.companion-card .run-figure')!;
     const pose = decodeURIComponent(figure.getAttribute('src')!);
@@ -426,7 +430,7 @@ describe('Codex Companion status card', () => {
     fireEvent.click(screen.getByRole('button', { name: 'AGDF Companion' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Neu lesen' }));
     await screen.findByText('Kontrollquelle muss geprüft werden.');
-    expect(document.querySelector('.companion-signal')?.textContent).toBe('Blockiert');
+    expect(document.querySelector('.companion-signal')?.textContent).toBe('Das Vorhaben ist in der Phase „Produktanforderungen“.');
     expect(screen.getByText('Kein passender registrierter Befund verfügbar.')).toBeTruthy();
   });
 
@@ -444,7 +448,7 @@ describe('Codex Companion status card', () => {
     expired = true;
     fireEvent.click(screen.getByRole('menuitem', { name: 'Neu lesen' }));
     await screen.findByText(/Öffne das Cockpit im Chat erneut/);
-    expect(document.querySelector('.companion-signal')?.textContent).toBe('Sitzung abgelaufen');
+    expect(document.querySelector('.companion-signal')?.textContent).toBe('Zuletzt war das Vorhaben in der Phase „Produktanforderungen“.');
     expect(screen.getByRole('heading', { name: run.title })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull();
     fireEvent.click(menu);

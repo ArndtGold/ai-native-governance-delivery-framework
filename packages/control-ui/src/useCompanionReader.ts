@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Detail, DocumentData, Envelope } from './types';
-import { hasExpiredSession, type ReadingState } from './state';
+import { hasExpiredSession, hasInvalidSession, type ReadingState } from './state';
 import { detailHasMismatch } from './RunDetail';
 import { companionSource, resolveSource, type CompanionSource } from './companion-source';
 
@@ -162,13 +162,17 @@ export function useCompanionReader({ state, enabled, visible, wide, sourcePendin
     && (knownDecision !== offered.decision || shown?.decision && shown.key !== offered.key));
   const checking = state.refreshing || state.phase === 'loading' || sourcePending;
   const expired = hasExpiredSession(state);
-  const sessionInvalid = state.problem === 'session_invalid' || state.scope?.code === 'session_invalid';
+  const sessionInvalid = hasInvalidSession(state);
+  const requested = state.requestedRoute;
+  const failedSwitch = state.phase === 'error' && requested?.view === 'detail' && requested.runId
+    && data && requested.runId !== data.run_id
+    ? { requested: requested.runId, retained: data.title || data.run_id } : null;
   const canReload = !expired && !sessionInvalid && !checking;
   const showingOffered = verified && !!offered && offered.key === shown?.key;
   const sourceInReader = readerVisible && (pendingDecision || showingOffered || !!shown?.decision && !current);
   return { ...view, retry, checking, canOpen: current && !sourcePending && !view.loading, canReload, expired, sessionInvalid, open: readerVisible, retained, capture, current: verified,
     offered, canOfferApproval: !readerVisible || showingOffered, showWidthHint: !wide && !readerVisible && autoOpen,
-    pendingDecision, decisionClosed, sourceInReader,
+    pendingDecision, decisionClosed, sourceInReader, failedSwitch,
     openSource: open, close, savePosition, viewport, readerHeading };
 }
 export type CompanionReader = ReturnType<typeof useCompanionReader>;

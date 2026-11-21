@@ -1,11 +1,11 @@
 import type { ReadingState } from './state';
-import { hasExpiredSession } from './state';
+import { hasExpiredSession, hasInvalidSession } from './state';
 import { Icon } from './mcp/Icon';
 import { readingStatus } from './feedback';
 import './refresh.css';
 
 export function refreshUnavailable(state: ReadingState, enabled: boolean) {
-  return !enabled || hasExpiredSession(state) || readingStatus(state).busy;
+  return !enabled || hasExpiredSession(state) || hasInvalidSession(state) || readingStatus(state).busy;
 }
 
 export function RefreshControl({ state, enabled, onReload }: {

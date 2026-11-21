@@ -390,7 +390,9 @@
   .companion-workspace[data-wide='true'] > .companion-reader:has(:focus-visible) { opacity: 1; }
 }
 .companion-reader-header { display: flex; align-items: center; flex: none; gap: .5rem; min-height: 58px; padding: .4375rem 1.5rem; border-bottom: 1px solid var(--cockpit-line); }
-.companion-reader-header h2 { margin: 0; flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: .8125rem; line-height: 1.5; font-weight: 600; }
+.companion-reader-header h2 { display: flex; gap: .375rem; margin: 0; flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: .8125rem; line-height: 1.5; font-weight: 600; }
+.companion-reader-header h2 > .cockpit-icon { width: 1rem; height: 1rem; margin-block-start: .1rem; color: var(--companion-accent); }
+.reader-draft-label { white-space: nowrap; color: var(--cockpit-muted); font-weight: 400; }
 .companion-reader-header .companion-reader-action { position: relative; display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--agdf-radius-lg); background: transparent; color: var(--cockpit-muted); }
 .companion-reader-header .companion-reader-action:hover { background: var(--cockpit-soft); color: var(--cockpit-text); }
 .companion-reader-action .cockpit-icon { width: 20px; height: 20px; }
@@ -406,12 +408,13 @@
 .companion-reader-scroll .document {
   margin-block: 0; padding-block: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none;
   color: var(--companion-text); font: .9375rem/1.7 var(--companion-font);
-  /* Reach 13.5px at about 400px of Reader width and 16px at about 760px. */
-  font-size: clamp(.84375rem, .67rem + .695cqi, 1rem);
+  /* Between 400px and 760px of reading width, body text grows from 15px to 16px
+     and the document title from 24px to 28px (at the default root size). */
+  font-size: clamp(.9375rem, .9375rem + (100cqi - 25rem) / 360, 1rem);
 }
-.companion-reader-scroll .document h1 { color: var(--companion-accent); font-size: 1.75em; line-height: 1.25; font-weight: 650; letter-spacing: -.040625rem; margin: 0 0 1.125rem; padding-bottom: 1.125rem; border-bottom: 1px solid var(--companion-line); }
-.companion-reader-scroll .document h2 { color: var(--companion-accent); font-size: 1.3125em; line-height: 1.3; font-weight: 600; letter-spacing: -.01875rem; margin: 1.75rem 0 .75rem; padding-bottom: .5rem; border-bottom: 1px solid var(--companion-line); }
-.companion-reader-scroll .document h3 { color: var(--companion-accent); font-size: 1.125em; line-height: 1.4; font-weight: 600; margin: 1.5rem 0 .75rem; }
+.companion-reader-scroll .document h1 { color: var(--companion-accent); font-size: clamp(1.5rem, 1.5rem + (100cqi - 25rem) / 90, 1.75rem); line-height: 1.25; font-weight: 650; letter-spacing: -.040625rem; margin: 0 0 1.125rem; padding-bottom: 1.125rem; border-bottom: 1px solid var(--companion-line); }
+.companion-reader-scroll .document h2 { color: inherit; font-size: 1.3125em; line-height: 1.3; font-weight: 600; letter-spacing: -.01875rem; margin: 1.75rem 0 .75rem; }
+.companion-reader-scroll .document h3 { color: inherit; font-size: 1.125em; line-height: 1.4; font-weight: 600; margin: 1.5rem 0 .75rem; }
 .companion-reader-scroll .document p { margin: 0 0 .75rem; }
 .companion-reader-scroll .document :is(ul, ol) { padding-left: 1.375rem; margin: .625rem 0 0; }
 .companion-reader-scroll .document li + li { margin-top: .5625rem; }
@@ -420,7 +423,12 @@
 .companion-reader-scroll .document :is(p, li) { max-width: none; }
 .companion-reader-scroll .document pre { max-width: 100%; overflow: auto; font-size: .8125em; background: var(--companion-soft); color: var(--companion-text); }
 .companion-reader-scroll .document pre code { font-size: inherit; }
-.companion-reader-scroll .document table { display: block; max-width: 100%; overflow: auto; }
+.reader-table-frame { position: relative; margin-block: var(--agdf-space-5); }
+.reader-table-frame[data-edge='more']::after {
+  content: ''; position: absolute; inset-block: 0; right: 0; width: .875rem; pointer-events: none;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--companion-text) 24%, transparent));
+}
+.companion-reader-scroll .reader-table-frame table { display: table; overflow: visible; margin: 0; }
 .companion-reader-notice { padding: var(--agdf-space-2) var(--agdf-space-3); margin: 0; font-size: var(--agdf-text-sm); background: var(--cockpit-soft); }
 .companion-reader-notice button { margin-inline-start: var(--agdf-space-2); min-height: 44px; }
 .companion-reader-scroll .companion-document-details { margin-block-start: 2rem; font-size: .8125rem; color: var(--companion-text); }
@@ -439,8 +447,13 @@
 }
 .companion-workspace[data-wide='false'] .companion-reader-header { padding-inline: 1rem; }
 .companion-workspace[data-wide='false'] .companion-reader-scroll { padding-block: 1.5625rem 2.5rem; }
+@container companion-reader (max-width: 21rem) {
+  .reader-draft-label { display: block; }
+  .reader-label-divider { display: none; }
+}
 @container companion-reader (max-width: 260px) {
   .companion-reader-header { padding-inline: .75rem; }
+  .companion-reader-header h2 > .cockpit-icon { display: none; }
   .companion-reader-notice button { max-inline-size: 100%; margin: .25rem 0 0; overflow-wrap: anywhere; }
 }
 @container companion-column (max-width: 320px) {

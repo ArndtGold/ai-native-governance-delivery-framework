@@ -1,7 +1,7 @@
 import { type ReactNode, type RefObject } from 'react';
 import { COCKPIT_WORK_SECTIONS, projectCockpitList } from '../../../core/lib/control-inspect/cockpit-list.js';
 import { Overview, type WorkView } from '../Overview';
-import { hasExpiredSession, type ReadingState } from '../state';
+import { hasExpiredSession, hasInvalidSession, type ReadingState } from '../state';
 import { ReadState, ReadingFeedback, readingStatus } from '../feedback';
 import { BrandHeader } from '../BrandHeader';
 import { RefreshControl, refreshUnavailable } from '../RefreshControl';
@@ -59,7 +59,7 @@ export function CompactCockpit({ observationNotice, state, headingRef, enabled, 
         canOfferApproval={reader.canOfferApproval} showWidthHint={reader.showWidthHint}
         onOpen={onOpenCompanion} onReload={onReload} continuation={continuation}/> : selected && data ? <div className="compact-run">
         <div className="compact-run-summary">
-        <WorkStandLabel data={data} current={current} stale={state.stale && !state.refreshing && state.phase !== 'loading'} reopen={expired || state.problem === 'session_invalid' || state.scope?.code === 'session_invalid'}/>
+        <WorkStandLabel data={data} current={current} stale={state.stale && !state.refreshing && state.phase !== 'loading'} reopen={expired || hasInvalidSession(state)}/>
         <h2>{selected.title}</h2>
         {state.detail?.code && <ReadState state={state.detail.state} code={state.detail.code}/>}
         {mismatch && <ReadState state="partial" code="persisted_mismatch"/>}
@@ -103,7 +103,7 @@ export function CompactCockpit({ observationNotice, state, headingRef, enabled, 
     </nav>}
     {!noActiveRun && state.route.view === 'overview' && state.inventory?.data && <><div className="compact-overview-heading"><div><h2>Arbeit am Projekt</h2><p className="overview-repository"><span>Repository</span> <code>{target ?? 'Noch nicht verfügbar'}</code></p></div><OverviewFigure visible={visible}/></div>{returnNotice && <p role="status">{returnNotice}</p>}<Overview compact loadPlanned={loadPlanned} loadArchive={loadArchive} result={state.inventory} onSelect={onSelect} current={usable} view={view} onViewChange={onViewChange}/></>}
     {!enabled && <ReadState state="blocked" code="session_invalid"/>}
-    {!reader.open && <ReadingFeedback state={state} companion={companionRun} onReload={companionView && state.problem !== 'session_invalid' && state.scope?.code !== 'session_invalid' && !refreshUnavailable(state, enabled) ? onReload : undefined} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>}
+    {!reader.open && <ReadingFeedback state={state} companion={companionRun} onReload={companionView && !refreshUnavailable(state, enabled) ? onReload : undefined} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>}
     {observationNotice}
     {companionView ? <CompanionWorkspace reader={reader} onWidth={onReaderWidth} constraints={companionConstraints} onLink={onReaderLink} onClose={onReaderClose} onReload={onReload} footer={footer}>{content}</CompanionWorkspace> : <>{content}{footer}</>}
 

@@ -116,6 +116,7 @@ export function CompanionWorkspace({ reader, children, footer, onWidth, constrai
   const shown = reader.capture;
   const shownDocument = shown?.document.data;
   const documentType = shownDocument?.resource.type ?? reader.source?.type;
+  const typeLabel = documentType ? documentName(documentType) : 'Dokument';
   const isDraft = shownDocument ? shownDocument.document_state?.version_kind === 'draft' : reader.source?.draft;
   const recheck = () => { reader.retry(); onReload(); };
   const offered = reader.offered;
@@ -124,6 +125,7 @@ export function CompanionWorkspace({ reader, children, footer, onWidth, constrai
     void reader.openSource(offered);
   }}>Aktuelle Fassung öffnen</button>;
   const sessionMessage = reader.expired ? 'Die Sitzung ist abgelaufen.' : reader.sessionInvalid ? 'Die Sitzung ist ungültig.' : null;
+  const reopen = sessionMessage && `${sessionMessage} Öffne den Begleiter im Chat erneut.`;
   const closeLabel = wide ? 'Entwurf schließen' : 'Zurück zum Companion';
   const closeButton = <button key="reader-close" type="button" className="companion-reader-action" aria-label={closeLabel} title={closeLabel} onClick={onClose}>
     <Icon name={wide ? 'close' : 'back'}/>
@@ -140,14 +142,22 @@ export function CompanionWorkspace({ reader, children, footer, onWidth, constrai
     {reader.retained && <section ref={readerPanel} className="companion-reader" aria-label="Entwurf lesen" aria-busy={reader.loading} hidden={!reader.open}>
       <header className="companion-reader-header">
         {!wide && closeButton}
-        <h2 ref={reader.readerHeading} tabIndex={-1} data-focus-id="companion-reader-heading">{documentType ? documentName(documentType) : 'Dokument'}{isDraft && ' · Entwurf'}</h2>
+        <h2 ref={reader.readerHeading} tabIndex={-1} data-focus-id="companion-reader-heading"
+          aria-label={isDraft ? `${typeLabel} · Entwurf` : typeLabel}>
+          <Icon name="document"/>
+          <span>{typeLabel}{isDraft && <span className="reader-draft-label"><span className="reader-label-divider"> · </span>Entwurf</span>}</span>
+        </h2>
         {shown && <OriginalDocumentDownload className="companion-reader-action" result={shown.document} detail={shown.detail} current={reader.current}>
           <Icon name="download"/>
           <span className="companion-reader-download-hint" aria-hidden="true">Download</span>
         </OriginalDocumentDownload>}
         {wide && closeButton}
       </header>
-      {sessionMessage ? <p className="companion-reader-notice" role="status">{sessionMessage} Öffne den Begleiter im Chat erneut.</p>
+      {reader.failedSwitch ? <div className="companion-reader-notice" role="status">
+          Run „{reader.failedSwitch.requested}“ konnte nicht geöffnet werden. Geöffnet bleibt „{reader.failedSwitch.retained}“.{' '}
+          {reopen ?? <button type="button" disabled={!reader.canReload} onClick={onReload}>Wechsel erneut versuchen</button>}
+        </div>
+        : reopen ? <p className="companion-reader-notice" role="status">{reopen}</p>
         : reader.loading ? <p className="companion-reader-notice" role="status">{reader.source?.draft ? 'Entwurf wird geladen …' : 'Quelle wird gelesen …'}</p>
         : reader.problem ? <div className="companion-reader-notice" role="alert">{reader.problem}
           <button ref={retryButton} type="button" disabled={!reader.canReload} onClick={recheck}>Erneut prüfen</button>

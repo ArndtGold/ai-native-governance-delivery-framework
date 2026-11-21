@@ -1,4 +1,4 @@
-import { isTemporaryReadFailure, type ReadingState } from './state';
+import { hasExpiredSession, hasInvalidSession, isTemporaryReadFailure, type ReadingState } from './state';
 
 export const messages: Record<string, string> = {
   control_layout_unsupported: 'Dieser Kontrollbestand verwendet ein nicht unterstütztes Format. Er bleibt unverändert. Altbestände können einmalig in das Cockpit-Archiv übernommen werden. Anschließend bewusst neu laden.',
@@ -32,8 +32,8 @@ export function readingStatus(state: ReadingState) {
   const busy = state.phase === 'loading' || state.refreshing;
   const previous = !!state.scope?.data && (state.stale || busy);
   const changed = !!state.scope?.data && state.sourceChanged;
-  const expired = state.problem === 'session_expired' || state.scope?.code === 'session_expired';
-  const invalid = state.problem === 'session_invalid' || state.scope?.code === 'session_invalid';
+  const expired = hasExpiredSession(state);
+  const invalid = hasInvalidSession(state);
   const failed = !!state.problem && (state.problem !== 'source_changed' || state.phase === 'error');
   const title = busy ? 'Stand wird aktualisiert …' : expired ? 'Sitzung abgelaufen' : invalid ? 'Sitzung ungültig'
     : failed ? previous ? 'Aktualisierung fehlgeschlagen' : 'Lesefehler'

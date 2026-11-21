@@ -1,13 +1,41 @@
 import Markdown from 'react-markdown';
-import type { ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import remarkGfm from 'remark-gfm';
 import type { Envelope, DocumentData, Detail } from './types';
 import { ReadState, label } from './feedback';
 import { documentPurpose, phaseName, observedAssessment, sourceSummary } from './presentation';
 import { documentPresentation, DocumentStateLabel } from './document-state';
 import { sameJson } from './api';
-export function PassiveMarkdown({ content, links, onOpen, preserveHtmlText = false }: { content: string; links: Record<string, string>; onOpen: (id: string) => void; preserveHtmlText?: boolean }) {
+function ReaderTable({ children }: { children?: ReactNode }) {
+  const viewport = useRef<HTMLDivElement>(null);
+  const table = useRef<HTMLTableElement>(null);
+  const [edge, setEdge] = useState<'fits' | 'more' | 'end'>('fits');
+  useLayoutEffect(() => {
+    const element = viewport.current;
+    if (!element || !table.current) return;
+    const measure = () => {
+      const limit = element.scrollWidth - element.clientWidth;
+      setEdge(limit <= 1 ? 'fits' : element.scrollLeft < limit - 1 ? 'more' : 'end');
+    };
+    measure();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(element);
+    observer?.observe(table.current);
+    element.addEventListener('scroll', measure, { passive: true });
+    return () => { observer?.disconnect(); element.removeEventListener('scroll', measure); };
+  }, []);
+  const scrollable = edge !== 'fits';
+  return <div className="reader-table-frame" data-edge={edge}>
+    <div className="table-scroll" ref={viewport} tabIndex={scrollable ? 0 : undefined}
+      role={scrollable ? 'region' : undefined} aria-label={scrollable ? 'Horizontal scrollbare Tabelle' : undefined}>
+      <table ref={table}>{children}</table>
+    </div>
+  </div>;
+}
+
+export function PassiveMarkdown({ content, links, onOpen, preserveHtmlText = false, readerTables = false }: { content: string; links: Record<string, string>; onOpen: (id: string) => void; preserveHtmlText?: boolean; readerTables?: boolean }) {
   return <Markdown remarkPlugins={[remarkGfm]} skipHtml={!preserveHtmlText} components={{
+    table: readerTables ? ReaderTable : 'table',
     a: ({ href, children }) => href && Object.hasOwn(links, href) ? <button className="text-link" onClick={() => onOpen(links[href])}>{children}</button> : <span>{children}{href ? <span className="muted"> ({href})</span> : null}</span>,
     img: ({ alt }) => <span className="muted">[Bild: {alt || 'ohne Beschreibung'}]</span>,
     input: ({ checked }) => <span>{checked ? '☑' : '☐'}</span>,
@@ -123,7 +151,7 @@ export function DocumentView({ result, onOpen, runTitle, detail, current = true,
       </div>}
       {result.state !== 'available' ? <ReadState state={result.state} code={result.code}/> : data?.content !== undefined
         ? <article className="document document-original-text" aria-label="Originaldokument">{data.format === 'markdown'
-          ? <PassiveMarkdown content={artifact?.content ?? data.content} links={links} onOpen={onOpen} preserveHtmlText/>
+          ? <PassiveMarkdown content={artifact?.content ?? data.content} links={links} onOpen={onOpen} preserveHtmlText readerTables={companion}/>
           : <pre>{data.content}</pre>}</article>
         : <ReadState state="error" code="dto_invalid"/>}
       {companion ? <details className="document-provenance companion-document-details">

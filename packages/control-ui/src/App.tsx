@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useCallback, useState, type RefObject } from 'react';
 import { createApi, type ReadTransport } from './api';
-import { initialState, readingReducer, hasExpiredSession, isTemporaryReadFailure } from './state';
+import { initialState, readingReducer, hasExpiredSession, hasInvalidSession, isTemporaryReadFailure } from './state';
 import type { CompanionActivity, Inventory, OverviewInventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
 import { ReadState, ReadingFeedback, readingStatus, label } from './feedback';
 import { Overview, type WorkView } from './Overview';
@@ -19,7 +19,7 @@ import type { CompanionConstraints } from './mcp/CompanionWorkspace';
 import { useCompanionSound } from './mcp/useCompanionSound';
 import { BrandMark } from './BrandMark';
 import { BrandHeader } from './BrandHeader';
-import { RefreshControl } from './RefreshControl';
+import { RefreshControl, refreshUnavailable } from './RefreshControl';
 import { useCardVisibility } from './useCardVisibility';
 import { documentName, observedAssessment, reviewBlocker, reviewTask } from './presentation';
 import { projectWorkSituation } from '../../core/lib/control-inspect/work-situation.js';
@@ -164,7 +164,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
         ...(resource && focus ? { resource: { type: resource.type, reference: resource.registered_reference, prefix: focus.slice(0, -resource.resource_id.length) } } : {}) };
   };
   const navigate = useCallback(async (requested: Route, reload = false, background = false, observed?: ObservedSource, companionRead = false) => {
-    if (hasExpiredSession(live.current)) return;
+    if (hasExpiredSession(live.current) || hasInvalidSession(live.current)) return;
     draftPending.current?.abort();
     void handoff?.invalidate();
     // A cancelled title response may already have replaced the server capture.
@@ -198,14 +198,21 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
         // A cancelled navigation may already have been superseded by another selection.
         if (retry && (!scope || (!scope.data && retryableCapture(scope.code)))
           && !controller.signal.aborted && generation === sequence.current) scope = await capture();
-        if (retry) for (const delay of [200, 600, 1400, 3000]) {
-          // Keep the captured draft while the writer finalizes its journal.
-          // Another immediate read would see the same unfinished transaction.
-          if (scope?.code !== 'run_step_pending' || !scope.retryable
-            || controller.signal.aborted || generation !== sequence.current) break;
-          await waitForRunStep(delay, controller.signal);
-          if (controller.signal.aborted || generation !== sequence.current) return;
-          scope = await capture();
+        if (retry && scope?.code === 'run_step_pending' && scope.retryable) {
+          // Committing the journal can invalidate an in-flight capture of this Run.
+          const delays = [200, 600, 1400, 3000];
+          for (const [attempt, delay] of delays.entries()) {
+            if (controller.signal.aborted) return;
+            await waitForRunStep(delay, controller.signal);
+            if (controller.signal.aborted || generation !== sequence.current) return;
+            try {
+              scope = await capture();
+            } catch (error) {
+              if (attempt === delays.length - 1 || !retryableCapture(readFailureCode(error))) throw error;
+              continue;
+            }
+            if (scope.data || !scope.retryable || (scope.code !== 'run_step_pending' && !retryableCapture(scope.code))) break;
+          }
         }
       } else if (requested.view === 'detail') {
         operation = 'run';
@@ -550,10 +557,11 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
   const status = readingStatus(state);
   const renderedGeneration = state.generation;
   const expired = hasExpiredSession(state), reloadRoute = state.requestedRoute ?? state.route;
+  const canReload = !refreshUnavailable(state, enabled);
   const pinnedDocument = state.route.view === 'document' && !!state.document && state.document.snapshot_id !== state.scope?.snapshot_id;
   const observationNotice = unavailableObservation && state.scope?.snapshot_id === unavailableObservation ? <>
     <p role="status">Live-Status nicht verfügbar. Der zuletzt gelesene Stand bleibt sichtbar.</p>
-    <button type="button" onClick={() => void navigate(reloadRoute, true, true)}>Live-Status erneut prüfen</button>
+    <button type="button" disabled={!canReload} onClick={() => void navigate(reloadRoute, true, true)}>Live-Status erneut prüfen</button>
   </> : null;
   const runTitle = state.detail?.data?.title ?? state.route.runId;
   const pageTitle = state.route.view === 'overview' ? 'Arbeit am Projekt' : runTitle ?? (documentVisible ? documentName(state.document?.data?.resource.type) : 'Run verstehen');
@@ -661,7 +669,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       {!enabled && <ReadState state="blocked" code="session_invalid"/>}
       {state.route.view === 'overview' && backlogReturnNotice && <p role="status">{backlogReturnNotice}</p>}
       <ReadingFeedback state={state} backlogHintsInView={state.route.view === 'overview' && !!state.inventory?.data}/>
-      {(state.phase === 'error' || state.scope?.retryable && !state.scope.data) && enabled && !expired && <button className="retry" onClick={() => void navigate(reloadRoute, true)}>Wiederholen</button>}
+      {(state.phase === 'error' || state.scope?.retryable && !state.scope.data) && canReload && <button className="retry" onClick={() => void navigate(reloadRoute, true)}>Wiederholen</button>}
       <div className={`reading-results${state.phase === 'loading' ? ' previous-content' : ''}`} aria-busy={state.phase === 'loading'}>
         {state.inventory?.data && state.route.view === 'overview' && <Overview result={state.inventory} current={state.phase === 'ready' && !state.stale && !state.problem} view={backlogView} onViewChange={setWorkView} onSelect={id => void navigate({ view: 'detail', runId: id })}
           loadArchive={loadArchive} loadPlanned={(rowId, signal) => read(`/api/planned/${rowId}?snapshot=${state.inventory!.snapshot_id}`, signal, { target: state.inventory!.target.target_id, snapshot: state.inventory!.snapshot_id! })}/>}
@@ -710,7 +718,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
         {observationNotice}
         {reviewNotice && <p role="status">{reviewNotice}</p>}
         {ready ? <button type="button" className="primary" onClick={openReview}>{!blocker && (source || document) ? 'Prüfung öffnen' : 'Arbeitsstand ansehen'}</button>
-          : !expired && <button type="button" disabled={state.phase === 'loading'} onClick={() => void navigate(reloadRoute, true)}>Daten erneut prüfen</button>}
+          : !expired && <button type="button" disabled={!canReload} onClick={() => void navigate(reloadRoute, true)}>Daten erneut prüfen</button>}
       </div>
       <details><summary>Weitere Optionen</summary><button type="button" onClick={showOverview} disabled={expired}>Alle Vorhaben</button>
         <RefreshControl state={state} enabled={enabled} onReload={() => void navigate(reloadRoute, true)}/>
@@ -737,7 +745,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
           }}/> : <pre>{document.content}</pre>}</article>
       </> : ready && source ? <button type="button" className="primary" onClick={() => open(source)}>{reviewNotice ? 'Aktuelle Quelle öffnen' : documentName(source.type) + ' öffnen'}</button>
         : ready && !source ? <p role="status">Für diesen Schritt liegt kein registriertes Dokument zur Prüfung vor.</p>
-        : !expired && state.phase !== 'loading' && <button type="button" onClick={() => void navigate(reloadRoute, true)}>Wiederholen</button>}
+        : canReload && <button type="button" onClick={() => void navigate(reloadRoute, true)}>Wiederholen</button>}
       </>}
       <div hidden={review.role !== 'workspace'}>
         <details><summary>Nachweise</summary><FlowEvidence data={selected} current={ready} onOpen={open}/></details>

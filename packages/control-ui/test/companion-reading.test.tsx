@@ -601,21 +601,22 @@ it.each(['freshness rejection', 'snapshot timeout'])('recovers the same Companio
   expect(screen.queryByText('Aktueller Stand nicht bestätigt')).toBeNull();
 });
 
-it('automatically offers a new draft once its pending Run transaction has settled', async () => {
+it.each(['pending', 'changed response', 'changed rejection'])('automatically offers the new draft after a pending write and a %s retry', async retry => {
   vi.useFakeTimers();
   width(1360);
   const { run, document: original } = fixture();
   const next = { ...run, revision_id: 'revision-b',
     companion: { ...run.companion!, decision_material_version: 'sha256:' + 'b'.repeat(64) },
     document_states: run.document_states!.map(row => ({ ...row, revision_id: 'revision-b', content_digest: 'b'.repeat(64) })) };
-  let writing = false;
-  let changed = false;
+  let stage: 'before' | 'writing' | 'retry' | 'after' = 'before';
   const capture = '/api/snapshot?run_id=' + run.run_id;
   const read = vi.fn(async (path: string) => {
     if (path.startsWith('/api/freshness')) return { ...fixtureMeta, state: 'blocked', code: 'source_changed', data: null };
     if (path.startsWith('/api/documents/')) return { ...fixtureMeta, snapshot_id: 'document', data: { kind: 'document', run, document: original } };
-    if (writing) return { ...fixtureMeta, state: 'blocked', code: 'run_step_pending', data: null, retryable: true };
-    return runScope(changed ? next : run, changed ? 'after-write' : 'before-write');
+    if (stage === 'retry' && retry === 'changed rejection') throw Error('source_changed');
+    if (stage === 'retry' && retry === 'changed response') return { ...fixtureMeta, state: 'stale', code: 'source_changed', data: null, retryable: true };
+    if (stage === 'writing' || stage === 'retry') return { ...fixtureMeta, state: 'blocked', code: 'run_step_pending', data: null, retryable: true };
+    return stage === 'after' ? runScope(next, 'after-write') : runScope(run, 'before-write');
   }) as unknown as ReadTransport;
   await act(async () => { render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>); });
   const body = screen.getByRole('article', { name: 'Originaldokument' });
@@ -625,17 +626,17 @@ it('automatically offers a new draft once its pending Run transaction has settle
   const captures = () => vi.mocked(read).mock.calls.filter(([path]) => path === capture).length;
   expect(captures()).toBe(1);
 
-  writing = true;
+  stage = 'writing';
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
   expect(captures()).toBe(2);
   expect(screen.queryByText('Approval: PRD', { exact: true })).toBeNull();
   expect(screen.queryByText('Aktueller Stand nicht bestätigt.')).toBeNull();
+  stage = 'retry';
   await act(async () => { await vi.advanceTimersByTimeAsync(200); });
   expect(captures()).toBe(3);
   expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
 
-  writing = false;
-  changed = true;
+  stage = 'after';
   await act(async () => { await vi.advanceTimersByTimeAsync(600); });
   expect(captures()).toBe(4);
   expect(screen.getAllByRole('button', { name: 'Aktuelle Fassung öffnen' })).toHaveLength(1);
@@ -643,6 +644,75 @@ it('automatically offers a new draft once its pending Run transaction has settle
   expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
   expect(viewport.scrollTop).toBe(250);
   expect(sourceReads(read)).toBe(1);
+});
+
+it.each(['timeout', 'session_invalid'])('identifies both Runs and offers the applicable recovery after a switch fails with %s', async failure => {
+  width(1360);
+  const base = fixture();
+  base.run.title = 'Projekt Alpha';
+  base.run.active_run_ids = [base.run.run_id, 'run-b'];
+  const target = runData('run-b', 'Projekt Beta');
+  const requests: string[] = [];
+  const read: ReadTransport = async (path, signal, expected) => {
+    if (path === '/api/snapshot?run_id=run-b') {
+      requests.push(path);
+      if (requests.length === 1) throw Error(failure);
+      return runScope(target, 'snapshot-b') as never;
+    }
+    return base.read(path, signal, expected);
+  };
+  render(<App host="codex" compact transport={read} initialRunId={base.run.run_id}/>);
+  const original = await screen.findByRole('article', { name: 'Originaldokument' });
+  fireEvent.click(screen.getByRole('button', { name: 'Nächster Run' }));
+  const notice = await screen.findByText(/Run „run-b“ konnte nicht geöffnet werden/);
+  expect(notice?.textContent).toContain('run-b');
+  expect(notice?.textContent).toContain('Projekt Alpha');
+  expect(screen.queryByRole('button', { name: 'Erneut prüfen' })).toBeNull();
+  expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(original);
+  if (failure === 'session_invalid') {
+    expect(notice.textContent).toContain('Öffne den Begleiter im Chat erneut.');
+    expect(screen.queryByRole('button', { name: 'Wechsel erneut versuchen' })).toBeNull();
+    return;
+  }
+  fireEvent.click(screen.getByRole('button', { name: 'Wechsel erneut versuchen' }));
+  await screen.findByRole('heading', { name: target.title! });
+  expect(requests).toEqual(['/api/snapshot?run_id=run-b', '/api/snapshot?run_id=run-b']);
+  expect(screen.queryByText('Letzter Absatz.')).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Wechsel erneut versuchen' })).toBeNull();
+});
+
+it.each(['session_invalid', 'budget exhausted', 'unmount'])('stops the scoped write retries on %s', async stop => {
+  vi.useFakeTimers();
+  width(1360);
+  const base = fixture();
+  let writeStarted = false;
+  let captures = 0;
+  const read: ReadTransport = async (path, signal, expected) => {
+    if (path.startsWith('/api/freshness')) return { ...fixtureMeta, code: 'source_changed', data: null } as never;
+    if (writeStarted && path.startsWith('/api/snapshot')) {
+      expect(path).toBe('/api/snapshot?run_id=' + base.run.run_id);
+      captures++;
+      if (captures === 1) return { ...fixtureMeta, state: 'blocked', code: 'run_step_pending', retryable: true, data: null } as never;
+      throw Error(stop === 'session_invalid' ? stop : 'source_changed');
+    }
+    return base.read(path, signal, expected);
+  };
+  await act(async () => { render(<App host="codex" compact transport={read} initialRunId={base.run.run_id}/>); });
+  writeStarted = true;
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  if (stop === 'unmount') cleanup();
+  await act(async () => { await vi.advanceTimersByTimeAsync(15_000); });
+  if (stop === 'unmount') {
+    expect(captures).toBe(1);
+  } else if (stop === 'session_invalid') {
+    expect(captures).toBe(2);
+    expect(screen.getByText(/Die Sitzung ist ungültig/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Erneut prüfen' })).toBeNull();
+  } else {
+    expect(captures).toBe(5);
+    expect(screen.getByRole('button', { name: 'Erneut prüfen' })).toBeTruthy();
+    expect(screen.getByText('Letzter Absatz.')).toBeTruthy();
+  }
 });
 
 it('keeps the past Companion observation and offers reload when the scoped retry also fails', async () => {
@@ -720,4 +790,11 @@ it.each([
   expect(notice?.querySelector('button')).toBeNull();
   expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
   expect(screen.queryByRole('link', { name: 'Originaldatei herunterladen' })).toBeNull();
+  const readsBefore = vi.mocked(base.read).mock.calls.length;
+  if (size === 320) await act(async () => { close(); });
+  fireEvent.click(screen.getByRole('button', { name: 'AGDF Companion' }));
+  const reloadItem = screen.getByRole('menuitem', { name: 'Neu lesen' });
+  expect(reloadItem.hasAttribute('disabled')).toBe(true);
+  await act(async () => { fireEvent.click(reloadItem); });
+  expect(vi.mocked(base.read).mock.calls.length).toBe(readsBefore);
 });

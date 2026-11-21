@@ -601,6 +601,50 @@ it.each(['freshness rejection', 'snapshot timeout'])('recovers the same Companio
   expect(screen.queryByText('Aktueller Stand nicht bestätigt')).toBeNull();
 });
 
+it('automatically offers a new draft once its pending Run transaction has settled', async () => {
+  vi.useFakeTimers();
+  width(1360);
+  const { run, document: original } = fixture();
+  const next = { ...run, revision_id: 'revision-b',
+    companion: { ...run.companion!, decision_material_version: 'sha256:' + 'b'.repeat(64) },
+    document_states: run.document_states!.map(row => ({ ...row, revision_id: 'revision-b', content_digest: 'b'.repeat(64) })) };
+  let writing = false;
+  let changed = false;
+  const capture = '/api/snapshot?run_id=' + run.run_id;
+  const read = vi.fn(async (path: string) => {
+    if (path.startsWith('/api/freshness')) return { ...fixtureMeta, state: 'blocked', code: 'source_changed', data: null };
+    if (path.startsWith('/api/documents/')) return { ...fixtureMeta, snapshot_id: 'document', data: { kind: 'document', run, document: original } };
+    if (writing) return { ...fixtureMeta, state: 'blocked', code: 'run_step_pending', data: null, retryable: true };
+    return runScope(changed ? next : run, changed ? 'after-write' : 'before-write');
+  }) as unknown as ReadTransport;
+  await act(async () => { render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>); });
+  const body = screen.getByRole('article', { name: 'Originaldokument' });
+  const viewport = screen.getByRole('generic', { name: 'Dokumentinhalt' });
+  viewport.scrollTop = 250;
+  fireEvent.scroll(viewport);
+  const captures = () => vi.mocked(read).mock.calls.filter(([path]) => path === capture).length;
+  expect(captures()).toBe(1);
+
+  writing = true;
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(captures()).toBe(2);
+  expect(screen.queryByText('Approval: PRD', { exact: true })).toBeNull();
+  expect(screen.queryByText('Aktueller Stand nicht bestätigt.')).toBeNull();
+  await act(async () => { await vi.advanceTimersByTimeAsync(200); });
+  expect(captures()).toBe(3);
+  expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
+
+  writing = false;
+  changed = true;
+  await act(async () => { await vi.advanceTimersByTimeAsync(600); });
+  expect(captures()).toBe(4);
+  expect(screen.getAllByRole('button', { name: 'Aktuelle Fassung öffnen' })).toHaveLength(1);
+  expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull();
+  expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
+  expect(viewport.scrollTop).toBe(250);
+  expect(sourceReads(read)).toBe(1);
+});
+
 it('keeps the past Companion observation and offers reload when the scoped retry also fails', async () => {
   width(320);
   const { run } = fixture();

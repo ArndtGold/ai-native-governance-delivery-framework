@@ -282,6 +282,11 @@ export function createCockpitReader(root, options = {}) {
     const runs = discoverRuns(root);
     const run = runs.find(row => row.run_id === runId);
     if (!run) { checkedDraft = null; return { state: 'missing', code: 'run_missing', data: { kind: 'run', requested_run_id: runId, run: null } }; }
+    // An open transaction journal fences all document reads until its Run has settled.
+    if (!run.valid && run.findings.some(row => row.code === 'AGDF_RUN_STEP_RECOVERY_REQUIRED')) {
+      checkedDraft = null;
+      return { state: 'blocked', code: 'run_step_pending', data: null };
+    }
     if (!run.valid) { checkedDraft = null; return { state: run.findings.some(row => row.classification === 'unsupported_version') ? 'unsupported' : 'invalid', code: run.findings.some(row => row.classification === 'unsupported_version') ? 'run_version_unsupported' : 'invalid_run', data: { kind: 'run', requested_run_id: runId,
       run: { run_id: runId, revision_id: null, lifecycle: null, resources: [], diagnostics: run.findings } } };
     }

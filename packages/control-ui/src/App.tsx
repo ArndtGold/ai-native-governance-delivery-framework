@@ -198,6 +198,15 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
         // A cancelled navigation may already have been superseded by another selection.
         if (retry && (!scope || (!scope.data && retryableCapture(scope.code)))
           && !controller.signal.aborted && generation === sequence.current) scope = await capture();
+        if (retry) for (const delay of [200, 600, 1400, 3000]) {
+          // Keep the captured draft while the writer finalizes its journal.
+          // Another immediate read would see the same unfinished transaction.
+          if (scope?.code !== 'run_step_pending' || !scope.retryable
+            || controller.signal.aborted || generation !== sequence.current) break;
+          await waitForRunStep(delay, controller.signal);
+          if (controller.signal.aborted || generation !== sequence.current) return;
+          scope = await capture();
+        }
       } else if (requested.view === 'detail') {
         operation = 'run';
         scope = await read<ReadingScope>(`/api/runs/${requested.runId}?snapshot=${scope!.snapshot_id}`, controller.signal, expected);
@@ -801,9 +810,20 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       <footer className="cockpit-footer"><span>Lokale Beobachtung · {status.title}{status.previous && ' · Vorheriger Datenstand bleibt sichtbar'} · Das Cockpit verändert keine Kontrolldateien.</span></footer>
     </main></div>{aboutOpen && <AboutCockpit onClose={closeAbout} provenance={provenance} host={host}/>}</div>;
 }
-const knownErrors: Record<string, boolean> = Object.fromEntries(['source_changed', 'session_invalid', 'session_expired', 'resource_denied', 'document_missing', 'document_removed', 'document_unsupported', 'read_failed', 'busy', 'timeout', 'cancelled', 'resource_limit', 'control_absent', 'dto_invalid', 'control_layout_unsupported', 'run_version_unsupported', 'control_invalid', 'run_missing', 'invalid_run'].map(c => [c, true]));
+const knownErrors: Record<string, boolean> = Object.fromEntries(['source_changed', 'session_invalid', 'session_expired', 'resource_denied', 'document_missing', 'document_removed', 'document_unsupported', 'read_failed', 'busy', 'timeout', 'cancelled', 'resource_limit', 'control_absent', 'dto_invalid', 'control_layout_unsupported', 'run_version_unsupported', 'control_invalid', 'run_missing', 'invalid_run', 'run_step_pending'].map(c => [c, true]));
 const readFailureCode = (error: unknown) => error instanceof Error && Object.hasOwn(knownErrors, error.message) ? error.message : 'read_failed';
 const retryableCapture = (code: string | null) => code === 'source_changed' || isTemporaryReadFailure(code);
+function waitForRunStep(delay: number, signal: AbortSignal) {
+  return new Promise<void>(resolve => {
+    const done = () => {
+      window.clearTimeout(timer);
+      signal.removeEventListener('abort', done);
+      resolve();
+    };
+    const timer = window.setTimeout(done, delay);
+    signal.addEventListener('abort', done, { once: true });
+  });
+}
 function logCompanionRead(operation: string, code: string, runId: string) {
   if (!/^[a-z0-9][a-z0-9._-]{0,127}$/.test(runId) || !/^[a-z][a-z0-9_]{0,127}$/.test(code)) return;
   console.warn(`AGDF Companion read ${JSON.stringify({ operation, code, run_id: runId })}`);

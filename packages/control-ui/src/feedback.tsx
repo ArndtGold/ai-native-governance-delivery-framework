@@ -11,6 +11,7 @@ export const messages: Record<string, string> = {
   run_missing: 'Der angefragte Run wurde nicht gefunden. Die Run-ID bleibt erhalten; bewusst erneut laden.',
   inventory_partial: 'Die Übersicht enthält ungültige oder nicht auswertbare Einträge. Betroffene Quellen außerhalb des Cockpits prüfen.',
   invalid_run: 'Dieser Run ist ungültig. Die Quelldaten außerhalb des Cockpits prüfen.',
+  run_step_pending: 'Die Aktualisierung des Runs ist noch offen. Prüfe den Stand erneut, sobald der Schreibvorgang abgeschlossen ist.',
   run_removed: 'Der ausgewählte Run ist nicht mehr vorhanden. Einen anderen Run auswählen.',
   document_missing: 'Das registrierte Dokument fehlt. Quelle prüfen und erneut laden.',
   document_removed: 'Die Quelle gehört nicht mehr zu den registrierten Dokumenten dieses Runs. Lies den Run neu.',

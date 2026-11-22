@@ -490,6 +490,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       // The same built UI/session now exercises the composed reader, never a mock.
       await menu.click(); await sound.click();
       const appendix = '\n\n## FIRST-READER-MARKER\n\n'
+        + '| Gate | Ergebnis |\n| --- | --- |\n| QA | Pass |\n\n'
         + Array.from({ length: 30 }, (_, i) => `### Abschnitt ${i + 1}\n\n` + 'Lesetext zur Quelle und Entscheidung.\n\n'.repeat(5)).join('\n\n')
         + '\n\n- Ebene eins\n  - Ebene zwei\n\n| Sehr breite Tabelle | Wert |\n| --- | --- |\n| ' + 'Zelle'.repeat(90) + ' | Ende |\n\n```text\n' + 'original-code-'.repeat(120) + '\n```\n\n'
         + '[Externe Quelle](https://example.invalid/passiv)\n\n![Passives Bild](https://example.invalid/image.png)\n\n<div>Passives HTML</div>\n\n## LAST-READER-MARKER\n\nVollständiges Ende.\n';
@@ -581,6 +582,22 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       await expect(content).toHaveCSS('font-size', '16px');
       await expect(content.getByRole('heading', { level: 1 })).toHaveCSS('font-size', '28px');
       const decisionTable = content.locator('.reader-table-frame').filter({ has: frame.getByRole('columnheader', { name: 'Decision', exact: true }) });
+      const compactTable = content.getByRole('table').filter({ has: frame.getByRole('columnheader', { name: 'Ergebnis', exact: true }) });
+      const wideTable = content.locator('.reader-table-frame').filter({ has: frame.getByRole('columnheader', { name: 'Sehr breite Tabelle' }) });
+      const titleBounds = await content.getByRole('heading', { level: 1 }).boundingBox();
+      const compactBounds = await compactTable.boundingBox();
+      expect(compactBounds.x).toBeCloseTo(titleBounds.x, 0);
+      expect(compactBounds.width).toBeCloseTo(titleBounds.width, 0);
+      const wideBounds = await wideTable.boundingBox();
+      const readerBounds = await scroll.boundingBox();
+      expect(wideBounds.x).toBeCloseTo(titleBounds.x, 0);
+      const followingHeading = content.getByRole('heading', { name: 'LAST-READER-MARKER' });
+      expect((await followingHeading.boundingBox()).x).toBeCloseTo(wideBounds.x, 0);
+      expect((await content.getByText('Vollständiges Ende.', { exact: true }).boundingBox()).x).toBeCloseTo(wideBounds.x, 0);
+      expect(wideBounds.width).toBeGreaterThan(titleBounds.width);
+      expect(wideBounds.x).toBeGreaterThan(readerBounds.x);
+      expect(wideBounds.x + wideBounds.width).toBeLessThan(readerBounds.x + readerBounds.width);
+      expect(await scroll.evaluate(el => el.scrollWidth - el.clientWidth)).toBe(0);
       const tableShadow = () => decisionTable.evaluate(el => getComputedStyle(el, '::after').backgroundImage);
       await expect(decisionTable).toHaveAttribute('data-edge', 'fits');
       await expect.poll(tableShadow).toBe('none');
@@ -671,6 +688,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       expect(await scroll.evaluate(el => el.scrollTop)).toBe(500);
       expect(await reader.evaluate(el => el.ownerDocument.documentElement.scrollWidth <= innerWidth)).toBe(true);
       const tableViewport = decisionTable.getByRole('region', { name: 'Horizontal scrollbare Tabelle' });
+      expect((await decisionTable.boundingBox()).x).toBeCloseTo((await followingHeading.boundingBox()).x, 0);
       expect(await tableViewport.evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
       await expect.poll(tableShadow).toContain('linear-gradient');
       await tableViewport.evaluate(el => { el.scrollLeft = el.scrollWidth; });

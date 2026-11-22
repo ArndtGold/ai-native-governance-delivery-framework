@@ -14,6 +14,7 @@ import { currentFixture, currentRun } from '../../../core/test/fixtures/current-
 import { createCockpitSessionService } from '../../../core/lib/control-inspect/cockpit-session.js';
 import { COCKPIT_RENDER_DEFINITION, COCKPIT_PLUGIN_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, COCKPIT_CONTINUATION_DEFINITION,
   parseCockpitArguments, parseCockpitContinuationArguments, parsePluginCockpitArguments } from '../../../core/lib/control-inspect/cockpit-contract.js';
+import { createCompanionJournal, journalPath } from '../../../core/lib/companion/journal.js';
 import { createCodexContinuationAdmission } from '../../../core/lib/companion/codex-continuation.js';
 import { readCockpitUiBuild } from '../../../../scripts/cockpit-ui-build.mjs';
 import { evidencePath } from './server-fixture.mjs';
@@ -165,7 +166,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
   const fixture = surface === 'reference' ? referenceFixture(cleanups) : buildCompanionFixtures({ after: callback => cleanups.push(callback) }, ['F03'])[0];
   const writer = currentFixture({ after: callback => cleanups.push(callback) }, { root: fixture.root, initialize: false });
   const temporary = mkdtempSync(join(tmpdir(), 'agdf-companion-browser-'));
-  const ui = readCockpitUiBuild(), session = createCockpitSessionService(fixture.root, { integrationSurface: 'codex' });
+  const ui = readCockpitUiBuild(), session = createCockpitSessionService(fixture.root, { integrationSurface: 'codex', companionDataRoot: temporary });
   const tools = [COCKPIT_RENDER_DEFINITION, COCKPIT_READ_DEFINITION].map((definition, i) => ({ name: definition.name, definition,
     parse: value => parseCockpitArguments(value, i === 0), execute: (value, signal) => i === 0 ? session.render(value) : session.read(value, signal) }));
   const runtime = { ...createTestRuntime(), mode: 'cockpit', definition: COCKPIT_RENDER_DEFINITION, tools, uiCapabilityRequired: true, responseLimit: 8 * 1024 ** 2,
@@ -560,6 +561,32 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       await expect(content).not.toContainText('Traceability contract');
       await expect(sources.getByText('criteria-chain-v1', { exact: true })).toHaveCount(1);
       await expect(sources.getByText('criteria-chain-v1', { exact: true })).toBeHidden();
+      const events = card.getByRole('region', { name: 'Ereignisse' });
+      await expect(events).toHaveCount(0);
+      const journal = createCompanionJournal({ dataRoot: temporary });
+      const recordApproval = run_id => journal.observe('agdf_approve', {
+        primary_target: fixture.root, run_id, command: { kind: 'approval.record', payload: { gate: 'PRD' } },
+      }, { outcome: 'accepted' });
+      expect(recordApproval(otherRun.id)).toBe(true);
+      expect(recordApproval(fixture.runId)).toBe(true);
+      const refreshEvents = () => frame.locator('body').evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+      await refreshEvents();
+      await expect(events.getByRole('listitem')).toHaveCount(1);
+      await expect(events.getByRole('listitem')).toContainText('Freigabe erfasst für Produktanforderungen');
+      await expect(events.locator('time')).toBeVisible();
+      const journalFile = journalPath(temporary);
+      const recorded = readFileSync(journalFile);
+      rmSync(journalFile);
+      mkdirSync(journalFile);
+      await refreshEvents();
+      await expect(events).toContainText('Ereignisse nicht verfügbar');
+      await expect(readerTitle).toBeVisible();
+      rmSync(journalFile, { recursive: true });
+      writeFileSync(journalFile, recorded);
+      await refreshEvents();
+      await expect(events.getByRole('listitem')).toHaveCount(1);
+      await expect(runHeading).toBeFocused();
+      await expect(readerTitle).toBeVisible();
       const capturedRevision = await revision.textContent();
       await expect(reader.getByRole('button', { name: 'Aktuelle Fassung öffnen' })).toHaveCount(0);
       expect((await frame.locator('.companion-column').boundingBox()).width).toBeLessThanOrEqual(360);

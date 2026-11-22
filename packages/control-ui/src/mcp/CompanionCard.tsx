@@ -1,15 +1,16 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { BUILD_MARK, gateMarks } from '../../../../plugins/agdf/host-templates/claude/companion/gate-bar.mjs';
 import { matchesActivity } from '../../../core/lib/companion/activity.js';
-import { activityOf } from '../../../../plugins/agdf/host-templates/claude/companion/view.mjs';
-import { companionLabels, label } from '../../../../plugins/agdf/host-templates/claude/companion/localization.mjs';
+import { activityOf, clockText } from '../../../../plugins/agdf/host-templates/claude/companion/view.mjs';
+import { EVENT_KINDS, eventText } from '../../../../plugins/agdf/host-templates/claude/companion/events.mjs';
+import { companionLabels, gateTitle, label } from '../../../../plugins/agdf/host-templates/claude/companion/localization.mjs';
 import registry from '../../../../plugins/agdf/meta/agdf-interaction-locales.json';
 import { RunFigure, useReducedFigureMotion } from '../RunFigure';
 import { gateName, phaseName } from '../presentation';
 import { ReadState, readingStatus } from '../feedback';
 import { refreshUnavailable } from '../RefreshControl';
 import { hasExpiredSession, type ReadingState } from '../state';
-import type { CompanionActivity, Detail, Resource } from '../types';
+import type { CompanionObservation, Detail, Resource } from '../types';
 
 import { companionDecision, companionSource } from '../companion-source';
 import { Icon } from './Icon';
@@ -17,6 +18,7 @@ import { CompanionGatePath, CompanionProgress } from './CompanionProgress';
 import { CompanionContinuationAction } from './CompanionContinuationAction';
 import type { CompanionContinuation } from './companion-continuation';
 
+const eventGateTitle = (gate: string) => gateTitle(registry, 'de', gate);
 const gateRationales = registry.locales.de.gateRationale;
 type PurposeGate = keyof typeof gateRationales;
 const purposeHeadings: Record<PurposeGate, string> = {
@@ -43,8 +45,8 @@ const purposeTexts = {
 const labels = companionLabels(registry);
 const companionLabel = (path: string, params?: Record<string, string>) => label(labels, 'de', path, params);
 
-export function CompanionCard({ state, data, activity, activityUnknown, current, confirmedGate, visible, enabled, motion, mismatch, sourcePending, sourceInReader, canOfferApproval, showWidthHint, onOpen, onReload, continuation }: {
-  state: ReadingState; data: Detail; activity?: CompanionActivity; activityUnknown?: boolean; current: boolean; confirmedGate: boolean; visible: boolean; enabled: boolean; motion: boolean; mismatch: boolean;
+export function CompanionCard({ state, data, observation, current, confirmedGate, visible, enabled, motion, mismatch, sourcePending, sourceInReader, canOfferApproval, showWidthHint, onOpen, onReload, continuation }: {
+  state: ReadingState; data: Detail; observation?: CompanionObservation; current: boolean; confirmedGate: boolean; visible: boolean; enabled: boolean; motion: boolean; mismatch: boolean;
   sourcePending: boolean; sourceInReader: boolean; canOfferApproval: boolean; showWidthHint?: boolean; onOpen: (resource: Resource, digest: string) => void;
   onReload: () => void; continuation?: CompanionContinuation;
 }) {
@@ -59,6 +61,13 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
   const blocked = assessment === 'blocked' && !waiting;
   const pending = assessment === 'open' && !human;
   const [, setActivityTime] = useState(0);
+  const activity = observation?.activity;
+  const eventHistory = !state.requestedRoute && observation?.run_id === data.run_id && observation.revision_id === data.revision_id
+    ? observation.events : undefined;
+  const events = eventHistory?.state === 'available' && Array.isArray(eventHistory.items)
+    ? eventHistory.items.slice(0, 5).filter(event => typeof event?.id === 'string' && EVENT_KINDS.includes(event.kind)
+      && (event.at === null || typeof event.at === 'string' && Number.isFinite(Date.parse(event.at)))
+      && (event.gate === null || typeof event.gate === 'string') && (event.reason === null || typeof event.reason === 'string')) : [];
   const active = current && visible !== false && !state.refreshing && !previous && !expired && pending
     && evaluation?.next_operation?.actor === 'agent' && matchesActivity(activity, {
       target_id: state.scope?.target.target_id, run_id: data.run_id, revision_id: data.revision_id ?? undefined, gate,
@@ -70,7 +79,7 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
     return () => clearTimeout(timer);
   }, [activeUntil]);
   const work = active && gate ? activityOf({ reason: { key: 'working', gate } }, { gate }, true, companionLabel, phaseName) : null;
-  const unknown = activityUnknown === true && current && visible !== false && !state.refreshing;
+  const unknown = observation?.liveness === 'unknown' && current && visible !== false && !state.refreshing;
   const marks = companion && (assessment !== 'unconfirmed' || differentNextStep) ? gateMarks({ path: companion.path, gate, route: companion.route, lifecycle: data.lifecycle }) : [];
   const gateMark = completed ? marks.filter(mark => mark.mark === 'done').at(-1)
     : marks.find(mark => mark.mark === 'current' && (mark.gate === BUILD_MARK || mark.gate === gate));
@@ -101,6 +110,8 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
     : review ? 'Lies den Entwurf und prüfe, ob er zu deinem Auftrag passt.' : blocked
     ? companion?.blocking_text || 'Die Kontrollauswertung meldet ein Hindernis.'
     : nextStep;
+  const turnText = work?.turn.what || reason;
+  const separateNextStep = work && reason !== turnText ? reason : null;
   const offerApproval = waiting && canOfferApproval && (!acceptance || !!resource);
   const approval = current && offerApproval ? evaluation?.missing_approval : null;
   const title = data.title ?? data.run_id;
@@ -133,8 +144,7 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
     {(blocked || human || pending || reason || resource) && <div className="companion-turn">
       <strong role={human && !previous && !expired ? 'status' : undefined}>{previous || expired ? 'Zuletzt beobachteter Schritt' : human ? 'Du bist dran' : blocked ? 'Klärung nötig'
         : work ? work.turn.who : evaluation?.next_operation?.actor === 'agent' ? 'Codex ist als Nächstes dran' : 'Als Nächstes'}</strong>
-      {reason && <p id={stepId}>{reason}</p>}
-      {work && work.turn.what !== reason && <p>{work.turn.what}</p>}
+      {turnText && <p id={reason && !separateNextStep ? stepId : undefined}>{turnText}</p>}
       {blocked && companion?.next_text && companion.next_text !== reason && <p>{companion.next_text}</p>}
       {resource && source && !expired && !sourceInReader &&
         <button type="button" className="companion-source" aria-disabled={!current || sourcePending || undefined}
@@ -153,6 +163,10 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
       {currentStep > 0 && <p className="companion-pit-stop">Boxenstopp {currentStep} von {marks.length}</p>}
       <CompanionProgress marks={marks} previous={!confirmedGate}/>
     </div>}
+    {separateNextStep && <div className="companion-next-step">
+      <strong>Nächster Schritt</strong>
+      <p id={stepId}>{separateNextStep}</p>
+    </div>}
     {(differentNextStep || goal && goalClipped || purposeGate || unknown || showSourceHint || marks.length > 0) && <details className="companion-details"><summary>ⓘ Details</summary>
       <dl>
         {differentNextStep && <><dt>Nächster Schritt</dt><dd>Die Karte zeigt den aktuell ermittelten nächsten Schritt. Der gespeicherte Schritt weicht davon ab.</dd></>}
@@ -163,6 +177,13 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
         {marks.length > 0 && <><dt>Vollständige Gate-Reihenfolge</dt><dd><CompanionGatePath marks={marks} previous={!confirmedGate}/></dd></>}
       </dl>
     </details>}
+    {(events.length > 0 || eventHistory?.state === 'unavailable') && <section className="companion-events" aria-label={companionLabel('fields.events')}>
+      <h3>{companionLabel('fields.events')}</h3>
+      {eventHistory?.state === 'unavailable' ? <p>{companionLabel('messages.eventsUnavailable')}</p> : <ul>{events.map(event => <li key={event.id}>
+        {event.at && <><time dateTime={event.at}>{clockText(Date.parse(event.at))}</time>{' '}</>}
+        {eventText(event, companionLabel, { gateTitle: eventGateTitle })}
+      </li>)}</ul>}
+    </section>}
   </article>;
 }
 

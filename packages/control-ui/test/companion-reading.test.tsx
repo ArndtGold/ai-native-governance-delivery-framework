@@ -520,6 +520,7 @@ it('shows confirmed work on the selected Codex card and clears it on freshness w
   width(650);
   const gate = 'CD+Tests';
   const run = runData('run-a');
+  run.companion = { route: 'structured_slice', path: [{ gate: 'TP', status: 'fulfilled' }], next_text: run.evaluation!.next_action_de!, blocking_text: 'none' };
   run.evaluation!.next_operation = { actor: 'agent', type: 'implement_approved_plan', operation_key: 'delivery.implementation.complete',
     effect: 'preparation', gate };
   const record = { target_id: fixtureMeta.target.target_id, run_id: run.run_id, revision_id: run.revision_id!, gate,
@@ -534,11 +535,19 @@ it('shows confirmed work on the selected Codex card and clears it on freshness w
   activity = record;
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
   expect(screen.getByText('Das Vorhaben ist in der Phase „Umsetzung und Tests“.', { selector: '.companion-signal' })).toBeTruthy();
-  expect(screen.getByText(/Ich arbeite gerade daran/)).toBeTruthy();
+  const work = screen.getByText(/Ich arbeite gerade daran/);
+  expect(screen.getByText('Einen Augenblick').nextElementSibling).toBe(work);
+  const next = screen.getByText('Nächster Schritt');
+  expect(next.nextElementSibling).toBe(screen.getByText(run.evaluation!.next_action_de!));
+  const progress = screen.getByRole('list', { name: 'Gate-Fortschritt' });
+  expect(work.compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(progress.compareDocumentPosition(next) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   activity = { ...record, expires_at: Date.now() - 1 };
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
   expect(screen.queryByText('Einen Augenblick')).toBeNull();
   expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
+  expect(screen.queryByText(/Ich arbeite gerade daran/)).toBeNull();
+  expect(screen.queryByText('Nächster Schritt')).toBeNull();
 });
 
 // SCN-005 and SCN-023 (AC-003, AC-017): without a sign of life of the Codex hooks the card says that activity is

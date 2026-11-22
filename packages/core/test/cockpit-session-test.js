@@ -7,6 +7,7 @@ import { createCockpitSessionService } from '../lib/control-inspect/cockpit-sess
 import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
 import { parseCockpitArguments, COCKPIT_LIMITS, COCKPIT_RENDER_DEFINITION } from '../lib/control-inspect/cockpit-contract.js';
 import { fixture, treeBytes } from './control-cockpit-fixtures.js';
+import { createCompanionJournal, journalPath } from '../lib/companion/journal.js';
 import { observeCodexActivity } from '../lib/companion/codex-activity.js';
 import { tmpdir } from 'node:os';
 import { createRun } from '../lib/control-state/run-state-repository.js';
@@ -428,10 +429,11 @@ test('Codex freshness attaches current Companion activity or unknown liveness on
     const run = await call({ operation: 'snapshot', run_id });
     assert.equal(run.data.run.evaluation.current_gate, gate);
     // SCN-004: without a sign of life of the Codex Companion hooks, activity is unknown, not idle.
-    assert.deepEqual(run.companion_observation, { liveness: 'unknown' });
+    assert.equal(run.companion_observation.liveness, 'unknown');
     assert.equal(observeCodexActivity(data, { session_id: 'chat-1', hook_event_name: 'SessionStart', source: 'startup' }), true);
-    assert.equal((await call({ operation: 'freshness', snapshot_id: run.snapshot_id })).companion_observation, undefined,
-      'a resting step with live hooks attaches nothing');
+    const resting = (await call({ operation: 'freshness', snapshot_id: run.snapshot_id })).companion_observation;
+    assert.equal(resting.liveness, undefined);
+    assert.equal(resting.activity, undefined);
     const observation = { session_id: 'chat-1', turn_id: 'turn-1', tool_use_id: 'tool-1',
       hook_event_name: 'PostToolUse', tool_name: 'mcp__agdf__agdf_dispatch',
       tool_input: { continue_delivery: true, run_id },
@@ -447,7 +449,7 @@ test('Codex freshness attaches current Companion activity or unknown liveness on
     const active = await read(run.snapshot_id);
     assert.deepEqual(active, { target_id: run.target.target_id, run_id, revision_id, gate, expires_at: active?.expires_at });
     const other = await call({ operation: 'snapshot', run_id: 'fixture-completed' });
-    assert.equal(other.companion_observation, undefined, 'a Run the agent does not act on gets no observation');
+    assert.equal(other.companion_observation.liveness, undefined, 'a completed Run has no live activity status');
     assert.equal(await read(other.snapshot_id), undefined);
     assert.equal(await read(run.snapshot_id), undefined, 'an obsolete snapshot cannot attach evidence');
     const returned = await call({ operation: 'snapshot', run_id });
@@ -455,11 +457,57 @@ test('Codex freshness attaches current Companion activity or unknown liveness on
     assert.equal(observeCodexActivity(data, { ...observation, hook_event_name: 'Interrupt' }), true);
     assert.equal(await read(returned.snapshot_id), undefined);
     fs.writeFileSync(join(data, 'companion', 'codex-activity.json'), '{"broken"');
-    assert.deepEqual((await call({ operation: 'freshness', snapshot_id: returned.snapshot_id })).companion_observation, { liveness: 'unknown' },
+    assert.equal((await call({ operation: 'freshness', snapshot_id: returned.snapshot_id })).companion_observation.liveness, 'unknown',
       'an unreadable store leaves activity unknown');
   } finally {
     await service.close();
     fs.rmSync(data, { recursive: true, force: true });
     f.close();
   }
+});
+
+test('Codex updates selected Run events without invalidating the current snapshot or document', async t => {
+  const f = fixture();
+  const dataRoot = fs.mkdtempSync(join(tmpdir(), 'cockpit-companion-events-'));
+  const service = createCockpitSessionService(f.root, { integrationSurface: 'codex', companionDataRoot: dataRoot });
+  t.after(async () => {
+    await service.close();
+    f.close();
+    fs.rmSync(dataRoot, { recursive: true, force: true });
+  });
+  const { _meta } = await service.render({ run_id: 'fixture-a' });
+  const call = args => service.read({ session_id: _meta.agdf_cockpit.session_id, ...args });
+  const snapshot = await call({ operation: 'snapshot', run_id: 'fixture-a' });
+  const refresh = () => call({ operation: 'freshness', snapshot_id: snapshot.snapshot_id });
+  assert.equal(snapshot.companion_observation.run_id, 'fixture-a');
+  assert.equal(snapshot.companion_observation.revision_id, snapshot.data.run.revision_id);
+  assert.deepEqual(snapshot.companion_observation.events, { state: 'available', items: [] });
+  const journal = createCompanionJournal({ dataRoot, now: () => new Date('2026-11-16T11:13:00Z') });
+  const record = (run_id, root = f.root) => journal.observe('agdf_approve', {
+    primary_target: root, run_id, command: { kind: 'approval.record', payload: { gate: 'UR' } },
+  }, { outcome: 'accepted' });
+  assert.equal(record('fixture-a'), true);
+  assert.equal(record('fixture-completed'), true);
+  assert.equal(record('fixture-a', dataRoot), true);
+  const refreshed = await refresh();
+  assert.equal(refreshed.snapshot_id, snapshot.snapshot_id);
+  assert.deepEqual(refreshed.companion_observation.events.items.map(({ kind, gate, at }) => ({ kind, gate, at })),
+    [{ kind: 'approval_recorded', gate: 'UR', at: '2026-11-16T11:13:00.000Z' }]);
+  fs.copyFileSync(journalPath(dataRoot), join(dataRoot, 'companion', 'events.1.jsonl'));
+  assert.equal((await refresh()).companion_observation.events.items.length, 1);
+  const entries = Array.from({ length: 6 }, (_, index) => ({
+    schema_version: 'companion-event/1', id: 'event-' + index, at: new Date(Date.UTC(2026, 10, 17, index)).toISOString(),
+    kind: 'document_recorded', gate: 'UR', root: f.root, run_id: 'fixture-a',
+  }));
+  fs.appendFileSync(journalPath(dataRoot), ['incomplete', ...entries.map(event => JSON.stringify(event)), ''].join('\n'));
+  assert.deepEqual((await refresh()).companion_observation.events.items.map(event => event.id),
+    ['event-5', 'event-4', 'event-3', 'event-2', 'event-1']);
+  fs.rmSync(journalPath(dataRoot));
+  fs.mkdirSync(journalPath(dataRoot));
+  const failure = await refresh();
+  assert.equal(failure.data.unchanged, true);
+  assert.deepEqual(failure.companion_observation.events, { state: 'unavailable', items: [] });
+  const resource = snapshot.data.run.resources.find(row => row.type === 'UR');
+  assert.equal((await call({ operation: 'document', snapshot_id: snapshot.snapshot_id,
+    run_id: 'fixture-a', resource_id: resource.resource_id })).state, 'available');
 });

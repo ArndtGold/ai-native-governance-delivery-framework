@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useCallback, useState, type RefObject } from 'react';
 import { createApi, type ReadTransport } from './api';
 import { initialState, readingReducer, hasExpiredSession, hasInvalidSession, isTemporaryReadFailure } from './state';
-import type { CompanionActivity, Inventory, OverviewInventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
+import type { CompanionObservation, Inventory, OverviewInventory, Detail, DocumentData, Route, Resource, ReadingScope, Envelope } from './types';
 import { ReadState, ReadingFeedback, readingStatus, label } from './feedback';
 import { Overview, type WorkView } from './Overview';
 import { RunDetail, detailHasMismatch, focusSituation } from './RunDetail';
@@ -38,9 +38,7 @@ export interface CockpitCheckpoint {
 }
 
 type ObservedSource = { target: string; snapshot: string; revision: string; resource: Resource; digest: string; decision?: string | null; recoverBinding?: boolean };
-type CompanionRefresh = { snapshot: string; generation: number; activity?: CompanionActivity; unknown: boolean };
-const sameActivity = (a?: CompanionActivity, b?: CompanionActivity) => a === b || (!!a && !!b && a.target_id === b.target_id
-  && a.run_id === b.run_id && a.revision_id === b.revision_id && a.gate === b.gate && a.expires_at === b.expires_at);
+type CompanionRefresh = { snapshot: string; generation: number; observation?: CompanionObservation };
 export type CompanionDisplay = { status: string; gate?: string; gate_state?: 'current' | 'done' };
 
 export function App({ secret = '', transport, compact: hostCompact = false, onExpand, initialRunId, companionEmpty = false, companionFallback, handoff, provenance, host = 'unknown', onDisplay, companionConstraints, review, checkpoint, continuation }: {
@@ -455,10 +453,9 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
         if (result.code) updateAfterFailure(result.code);
         else if (host === 'codex' && compact) {
           // An unchanged observation keeps its state, so a quiet poll does not redraw the Cockpit.
-          const activity = result.companion_observation?.activity;
-          const unknown = result.companion_observation?.liveness === 'unknown';
+          const observation = result.companion_observation;
           setCompanionRefresh(previous => previous?.snapshot === snapshot && previous.generation === generation
-            && sameActivity(previous.activity, activity) && previous.unknown === unknown ? previous : { snapshot, generation, activity, unknown });
+            && JSON.stringify(previous.observation) === JSON.stringify(observation) ? previous : { snapshot, generation, observation });
         }
       } catch (error) {
         if (!controller.signal.aborted && generation === sequence.current && !document.hidden) {
@@ -766,8 +763,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
   const refreshed = companionRefresh?.snapshot === state.scope?.snapshot_id && companionRefresh?.generation === state.generation
     ? companionRefresh : null;
   if (compact) return <><CompactCockpit observationNotice={observationNotice} host={host} continuation={continuation}
-    activity={refreshed ? refreshed.activity : state.scope?.companion_observation?.activity}
-    activityUnknown={refreshed ? refreshed.unknown : state.scope?.companion_observation?.liveness === 'unknown'} companionEmpty={companionEmpty} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={companionVisible} reader={reader} onReaderClose={() => {
+    observation={refreshed ? refreshed.observation : state.scope?.companion_observation} companionEmpty={companionEmpty} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={companionVisible} reader={reader} onReaderClose={() => {
       reader.close();
       // A confirmed document capture already carries the selected Run detail.
       if (reader.current && checkCompanionFreshness.current) void checkCompanionFreshness.current();

@@ -97,7 +97,7 @@ for (const excluded of [
 // The Claude UI ships in the shared runtime plugin. Core modules ship per runtime profile.
 const CORE_COMPANION = /(^|\/)runtime\/core\/lib\/companion\/[^/]+$/u;
 const CORE_COMPANION_FILES = ["codex-continuation-binding.js", "codex-continuation.js", "events.js", "figure-state.js", "journal.js", "run-view.js"];
-const COCKPIT_COMPANION_FILES = ["activity.js", "codex-activity.js", ...CORE_COMPANION_FILES].sort();
+const COCKPIT_COMPANION_FILES = ["activity.js", "codex-activity.js", "read-cockpit-events.js", ...CORE_COMPANION_FILES].sort();
 assert.deepEqual(files.filter((path) => path.includes("/companion/") && !path.startsWith("generated/plugins/agdf/companion/") && !CORE_COMPANION.test(path)), [],
   "package must carry the Claude companion only under generated/plugins/agdf/companion/");
 for (const [runtimeRoot, expected] of [

@@ -36,6 +36,7 @@ declare module '*core/lib/companion/activity.js' {
 }
 
 declare module '*claude/companion/view.mjs' {
+  export function clockText(ms: number): string;
   export function activityOf(derived: { reason: { key: 'building' | 'working'; gate: string } }, run: { gate: string },
     isTurnActive: boolean, t: (path: string, params?: Record<string, string>) => string, title: (gate: string) => string):
     { label: string; turn: { who: string; what: string } } | null;
@@ -45,6 +46,13 @@ declare module '*claude/companion/view.mjs' {
 
 declare module '*claude/companion/localization.mjs' {
   interface CompanionLabels { fallbackLocale: string; locales: Record<string, unknown> }
+  export function gateTitle(registry: { locales: Record<string, unknown> }, locale: string, gate: string): string;
   export function companionLabels(registry: { fallbackLocale: string; locales: Record<string, { companion?: unknown }> }): CompanionLabels;
   export function label(labels: CompanionLabels, locale: string, path: string, params?: Record<string, string>): string;
+}
+
+declare module '*claude/companion/events.mjs' {
+  export const EVENT_KINDS: ReadonlyArray<string>;
+  export function eventText(event: import('./types').CompanionEvent,
+    t: (path: string, params: Record<string, string>) => string, options: { gateTitle: (gate: string) => string }): string;
 }

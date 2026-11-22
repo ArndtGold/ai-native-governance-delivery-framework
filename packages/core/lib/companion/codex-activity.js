@@ -96,8 +96,8 @@ function mutate(dataRoot, create, now, change) {
 function observeContinuation(dataRoot, input, now) {
   const turn = { session: input.session_id, id: input.turn_id };
   const admission = createCodexContinuationAdmission(dataRoot);
-  if (input.hook_event_name === 'Stop') {
-    admission.settleTurn(turn);
+  if (input.hook_event_name === 'Stop' || input.hook_event_name === 'Interrupt') {
+    admission.settleTurn(turn, input.hook_event_name);
     return;
   }
   if (input.hook_event_name !== 'PostToolUse' || !isAgdfDispatchTool(input.tool_name) || input.tool_response?.isError === true) return;
@@ -109,8 +109,9 @@ function observeContinuation(dataRoot, input, now) {
   if (resolveControlCommandTarget(root).target_id !== work.target_id) return;
   if (!admission.associateTurn(work, work.attempt_id, work.owner, turn).matched) return;
   const records = load(directory(dataRoot));
-  if (records.some(row => row.session === turn.session && row.turn === turn.id && row.terminal === true
-    && row.kind === 'ended' && row.until > now)) admission.settleRunning(work, work.attempt_id, turn);
+  const prior = records.find(row => row.session === turn.session && row.turn === turn.id && row.terminal === true && row.until > now);
+  if (prior?.kind === 'ended') admission.observeRunning(work, work.attempt_id, turn, 'Stop');
+  if (prior?.kind === 'interrupted') admission.observeRunning(work, work.attempt_id, turn, 'Interrupt');
 }
 
 export function observeCodexActivity(dataRoot, input, now = Date.now()) {
@@ -129,20 +130,24 @@ export function observeCodexActivity(dataRoot, input, now = Date.now()) {
       || input.tool_input?.continue_delivery !== true || !isActivityId(tool))) return false;
     const binding = terminal || input.tool_response?.isError === true
       ? null : workBinding(input.tool_input, input.tool_response?.structuredContent);
-    // Admission evidence is correlated even for a continuation phase with no
-    // visual activity projection. Display failures never settle an attempt.
-    try { observeContinuation(dataRoot, input, now); } catch { /* Preserve admission on uncertainty. */ }
     if (binding) binding.target_id = resolveControlCommandTarget(binding.target_id).target_id;
     const kind = terminal ? (event === 'Stop' ? 'ended' : 'interrupted') : (binding ? 'work' : 'lost');
-    return mutate(dataRoot, terminal || Boolean(binding), now, (activity, liveness) => {
-      // A turn that ends after its tool results needs no marker unless it observed work: nothing of it
-      // can arrive later. An interruption keeps its marker, since a running tool may still answer.
-      if (event === 'Stop' && !activity.some(row => row.session === session && row.turn === turn)) return null;
-      // Codex has no timer to renew a running turn: its work lasts until the turn ends, a later prompt
-      // retires it, or the bound passes after its last confirmed dispatch.
-      const next = updateActivity(activity, { kind, session, turn, tool, binding }, now, { lifetime: codexTurnBound });
-      return next && { activity: next, liveness };
-    });
+    try {
+      return mutate(dataRoot, terminal || Boolean(binding), now, (activity, liveness) => {
+        // A turn that ends after its tool results needs no marker unless it observed work: nothing of it
+        // can arrive later. An interruption keeps its marker, since a running tool may still answer.
+        if (event === 'Stop' && !activity.some(row => row.session === session && row.turn === turn)) return null;
+        if (event === 'Interrupt' && activity.some(row => row.session === session && row.turn === turn && row.kind === 'ended')) return null;
+        // Codex has no timer to renew a running turn: its work lasts until the turn ends, a later prompt
+        // retires it, or the bound passes after its last confirmed dispatch.
+        const next = updateActivity(activity, { kind, session, turn, tool, binding }, now, { lifetime: codexTurnBound });
+        return next && { activity: next, liveness };
+      });
+    } finally {
+      // Publish the turn event before matching claims. A concurrently arriving claim
+      // can then recover an earlier event, even across independent hook processes.
+      try { observeContinuation(dataRoot, input, now); } catch { /* Preserve admission on uncertainty. */ }
+    }
   } catch { return false; }
 }
 

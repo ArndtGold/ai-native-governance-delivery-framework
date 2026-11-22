@@ -1,0 +1,2512 @@
+{
+  "consumer_run": "run-4e2a3b9c-81a9-42e6-8d2f-00cf93c956b3",
+  "cases": [
+    {
+      "status": "passed",
+      "scenario": "SCN-001 rejects foreign Run binding",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-57b5fbf8-1a77-49e3-adb4-ba9d78299cda",
+      "marker": "case-a7ee3dbf-1486-45eb-80ca-ab7efaeafb7a",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Fortsetzung ist gerade nicht verfügbar. Lade den Run neu, um den aktuellen Stand zu prüfen.\n\nRun neu laden"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 0,
+          "permit": 0,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "selection-refused",
+          "source": "test fixture",
+          "view": 1
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 2,
+          "state": "stale"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 2,
+          "state": "ready"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 2,
+          "name": "pointer"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 2,
+          "state": "stale"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-001 rejects stale Run binding",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-94a291bc-a708-49e3-98c9-310069b09a2a",
+      "marker": "case-0259b24c-92f3-4799-a2ab-1b6255a9be7b",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Fortsetzung ist gerade nicht verfügbar. Lade den Run neu, um den aktuellen Stand zu prüfen.\n\nRun neu laden"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 0,
+          "permit": 0,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-002 identifies the current fixture and restores the focused action after stale recovery at 360 px",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-3b1ab9ba-0dda-4e7f-a897-e64bff3550bc",
+      "marker": "case-ffa22299-1151-4d89-bc96-5cd0caa0aa44",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nRun fortsetzen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 0,
+          "permit": 0,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "keyboard"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-003 one request from pointer",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-a5dafe45-df78-428c-8bdc-745543e77733",
+      "marker": "case-c39a0cfd-1d0c-498f-88d4-36eeb9212d87",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter prüft die Übergabe automatisch. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "48bc1e7e-d96b-4320-9e20-5669e661c32f"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "48bc1e7e-d96b-4320-9e20-5669e661c32f"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "48bc1e7e-d96b-4320-9e20-5669e661c32f",
+          "revision": "521a6405-1a43-4971-94fd-2e2741a0a426"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-003 one request from keyboard",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-4ba06d75-11f2-46c0-b90c-2e96affc038e",
+      "marker": "case-3891e2a9-669e-4632-91a0-b65706b8c80a",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter prüft die Übergabe automatisch. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "keyboard"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "6085d094-fe58-4fce-98b7-306adc3d0fbc"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "6085d094-fe58-4fce-98b7-306adc3d0fbc"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "6085d094-fe58-4fce-98b7-306adc3d0fbc",
+          "revision": "77688df1-9425-4f95-9ce8-db790c79ab06"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-004 the receiving dispatch reads the original fixture and replies once on replay",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-6cafa969-96a8-47f8-baf6-24ebf56d43db",
+      "marker": "case-de89d617-b0fa-4526-9c7f-7afbf591ec67",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter prüft die Übergabe automatisch. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 1,
+          "read": 1,
+          "reply": 1
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "ae241e79-b56a-43b8-9e54-3aace412c936"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "ae241e79-b56a-43b8-9e54-3aace412c936"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "ae241e79-b56a-43b8-9e54-3aace412c936",
+          "revision": "2f3d6fd4-8453-4cca-a8d7-2877dee8ce89"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "grant",
+          "source": "fixture dispatch",
+          "route": "companion",
+          "attempt": "ae241e79-b56a-43b8-9e54-3aace412c936"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "read",
+          "source": "fixture reader",
+          "attempt": "ae241e79-b56a-43b8-9e54-3aace412c936",
+          "run_id": "run-6cafa969-96a8-47f8-baf6-24ebf56d43db",
+          "gate": "Brownfield Review"
+        },
+        {
+          "seq": 9,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "reply",
+          "source": "simulated receiver",
+          "attempt": "ae241e79-b56a-43b8-9e54-3aace412c936",
+          "marker": "case-de89d617-b0fa-4526-9c7f-7afbf591ec67"
+        },
+        {
+          "seq": 10,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "dispatch-refused",
+          "source": "test fixture",
+          "route": "companion",
+          "disposition": "Codex is already working on this Run."
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-005 two ready cards share one handoff",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-384ab8b8-c251-4325-9a2c-b15c5058de52",
+      "marker": "case-408d0bc8-f3f3-45aa-8127-f45dbcb617df",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nCodex arbeitet bereits an diesem Run."
+        ],
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nCodex arbeitet bereits an diesem Run."
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 2,
+          "message": 1,
+          "permit": 1,
+          "grant": 1,
+          "read": 1,
+          "reply": 1
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 2,
+          "state": "stale"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 2,
+          "state": "ready"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 2,
+          "name": "pointer"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "e34ab747-6c40-4399-85bf-7580f4480b9f"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 2,
+          "state": "pending"
+        },
+        {
+          "seq": 9,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "e34ab747-6c40-4399-85bf-7580f4480b9f"
+        },
+        {
+          "seq": 10,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "e34ab747-6c40-4399-85bf-7580f4480b9f",
+          "revision": "6819019f-89d0-42d7-9c6a-a8bf7c9280e4"
+        },
+        {
+          "seq": 11,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "grant",
+          "source": "fixture dispatch",
+          "route": "companion",
+          "attempt": "e34ab747-6c40-4399-85bf-7580f4480b9f"
+        },
+        {
+          "seq": 12,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "read",
+          "source": "fixture reader",
+          "attempt": "e34ab747-6c40-4399-85bf-7580f4480b9f",
+          "run_id": "run-384ab8b8-c251-4325-9a2c-b15c5058de52",
+          "gate": "Brownfield Review"
+        },
+        {
+          "seq": 13,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "reply",
+          "source": "simulated receiver",
+          "attempt": "e34ab747-6c40-4399-85bf-7580f4480b9f",
+          "marker": "case-408d0bc8-f3f3-45aa-8127-f45dbcb617df"
+        },
+        {
+          "seq": 14,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "running"
+        },
+        {
+          "seq": 15,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 2,
+          "state": "running"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-006 mixed continuation race, first companion",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-dfafc0a7-b5c3-4697-82f8-2ad544585b6a",
+      "marker": "case-927616c5-6824-4bfb-bcac-b9fe0ae7d570",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nCodex arbeitet bereits an diesem Run."
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 1,
+          "read": 1,
+          "reply": 1
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "3ef764f1-e062-4d77-b358-1e6ea8204567"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "3ef764f1-e062-4d77-b358-1e6ea8204567"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "3ef764f1-e062-4d77-b358-1e6ea8204567",
+          "revision": "b64c3f6e-b410-4ed4-8787-423630e7b682"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "dispatch-refused",
+          "source": "test fixture",
+          "route": "ordinary",
+          "disposition": "Codex has not confirmed the original handoff yet."
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "grant",
+          "source": "fixture dispatch",
+          "route": "companion",
+          "attempt": "3ef764f1-e062-4d77-b358-1e6ea8204567"
+        },
+        {
+          "seq": 9,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "read",
+          "source": "fixture reader",
+          "attempt": "3ef764f1-e062-4d77-b358-1e6ea8204567",
+          "run_id": "run-dfafc0a7-b5c3-4697-82f8-2ad544585b6a",
+          "gate": "Brownfield Review"
+        },
+        {
+          "seq": 10,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "reply",
+          "source": "simulated receiver",
+          "attempt": "3ef764f1-e062-4d77-b358-1e6ea8204567",
+          "marker": "case-927616c5-6824-4bfb-bcac-b9fe0ae7d570"
+        },
+        {
+          "seq": 11,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "running"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-006 mixed continuation race, first ordinary",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-1f2be7cb-fe75-480f-ae30-591c69cf4ab7",
+      "marker": "case-2deb212e-0e59-4d52-9044-05c272c5f5bb",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nCodex arbeitet bereits an diesem Run."
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 0,
+          "permit": 0,
+          "grant": 1,
+          "read": 1,
+          "reply": 1
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "grant",
+          "source": "fixture dispatch",
+          "route": "ordinary",
+          "attempt": "65490204-dc86-4c34-ae4b-a3d2e2bd21d6"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "read",
+          "source": "fixture reader",
+          "attempt": "65490204-dc86-4c34-ae4b-a3d2e2bd21d6",
+          "run_id": "run-1f2be7cb-fe75-480f-ae30-591c69cf4ab7",
+          "gate": "Brownfield Review"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "reply",
+          "source": "simulated receiver",
+          "attempt": "65490204-dc86-4c34-ae4b-a3d2e2bd21d6",
+          "marker": "case-2deb212e-0e59-4d52-9044-05c272c5f5bb"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "running"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-007 reopening and checking pending cannot resend the original request",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-030389d3-dacb-4827-ac92-5133bb70a501",
+      "marker": "case-81d4cf4c-9b75-4733-989d-b88b68622fa5",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter hat den Status geprüft. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 1,
+          "read": 1,
+          "reply": 1
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "06f00f0d-2c83-4a97-b0c1-cebc316df5ca"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "06f00f0d-2c83-4a97-b0c1-cebc316df5ca"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "06f00f0d-2c83-4a97-b0c1-cebc316df5ca",
+          "revision": "53e2e10d-0162-44c8-bd55-2d921df6764c"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending"
+        },
+        {
+          "seq": 9,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending"
+        },
+        {
+          "seq": 10,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "grant",
+          "source": "fixture dispatch",
+          "route": "companion",
+          "attempt": "06f00f0d-2c83-4a97-b0c1-cebc316df5ca"
+        },
+        {
+          "seq": 11,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "read",
+          "source": "fixture reader",
+          "attempt": "06f00f0d-2c83-4a97-b0c1-cebc316df5ca",
+          "run_id": "run-030389d3-dacb-4827-ac92-5133bb70a501",
+          "gate": "Brownfield Review"
+        },
+        {
+          "seq": 12,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "reply",
+          "source": "simulated receiver",
+          "attempt": "06f00f0d-2c83-4a97-b0c1-cebc316df5ca",
+          "marker": "case-81d4cf4c-9b75-4733-989d-b88b68622fa5"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-008 recovery after cancel",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-59edc26e-740e-4175-a77c-853f0f1b0dc3",
+      "marker": "case-0fdb400c-19fe-48dd-bb3d-5e5c02b89e60",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter prüft die Übergabe automatisch. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 2,
+          "message": 1,
+          "permit": 1,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "8dc80474-9a5c-48bb-82d6-f5f20bfb652b"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-cancel",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "f0445a6b-f3b7-47c5-a0ad-d848ae6f301e"
+        },
+        {
+          "seq": 9,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "f0445a6b-f3b7-47c5-a0ad-d848ae6f301e"
+        },
+        {
+          "seq": 10,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "f0445a6b-f3b7-47c5-a0ad-d848ae6f301e",
+          "revision": "bcc6bf8e-639c-418c-95bf-989951c86360"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-008 recovery after lost-publication",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-5418aa8a-3cf1-48f1-b00a-f83d868f4063",
+      "marker": "case-52b27c3a-f8dc-4769-99ac-d2e0740267a5",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter hat den Status geprüft. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 0,
+          "permit": 1,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "6d7b3a8d-791a-42a9-9721-d4f864b11972"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "6d7b3a8d-791a-42a9-9721-d4f864b11972"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-008 recovery after stale",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-dbea70b7-7c83-45aa-b6cf-2daa18a12ee1",
+      "marker": "case-0bd34bb1-68d0-41df-a70b-919efe174a84",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nRun fortsetzen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 0,
+          "permit": 0,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-009 only matching terminal evidence settles the active attempt, Stop",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-af42c8d0-5f26-4af0-9d06-b329146a57ae",
+      "marker": "case-a4dc9e9f-1b3d-4c5a-bd28-7fb5ab73fb0f",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nRun fortsetzen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 1,
+          "read": 1,
+          "reply": 1
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "9f0326a2-0d05-425e-b1b3-7f95b922ba65"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "9f0326a2-0d05-425e-b1b3-7f95b922ba65"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "9f0326a2-0d05-425e-b1b3-7f95b922ba65",
+          "revision": "6b70fa0f-a250-47d7-8823-66d0218d474f"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "grant",
+          "source": "fixture dispatch",
+          "route": "companion",
+          "attempt": "9f0326a2-0d05-425e-b1b3-7f95b922ba65"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "read",
+          "source": "fixture reader",
+          "attempt": "9f0326a2-0d05-425e-b1b3-7f95b922ba65",
+          "run_id": "run-af42c8d0-5f26-4af0-9d06-b329146a57ae",
+          "gate": "Brownfield Review"
+        },
+        {
+          "seq": 9,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "reply",
+          "source": "simulated receiver",
+          "attempt": "9f0326a2-0d05-425e-b1b3-7f95b922ba65",
+          "marker": "case-a4dc9e9f-1b3d-4c5a-bd28-7fb5ab73fb0f"
+        },
+        {
+          "seq": 10,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "UserPromptSubmit",
+          "session": "fixture-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 11,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "PostToolUse",
+          "session": "fixture-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 12,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "running"
+        },
+        {
+          "seq": 13,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "Stop",
+          "session": "unrelated-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 14,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 15,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "running"
+        },
+        {
+          "seq": 16,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "Stop",
+          "session": "fixture-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 17,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 18,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        }
+      ]
+    },
+    {
+      "status": "failed",
+      "scenario": "SCN-009 only matching terminal evidence settles the active attempt, Interrupt",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-daf47a69-2763-4c5d-b51c-e696033879f1",
+      "marker": "case-aa334ae7-f221-4c41-b51a-d11107b501f5",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nRun fortsetzen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 1,
+          "read": 1,
+          "reply": 1
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "c60cf541-1c9b-4ba8-bf8f-b90055121e72"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "c60cf541-1c9b-4ba8-bf8f-b90055121e72"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "c60cf541-1c9b-4ba8-bf8f-b90055121e72",
+          "revision": "ffeec586-b7a0-4122-899a-898fe61b9497"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "grant",
+          "source": "fixture dispatch",
+          "route": "companion",
+          "attempt": "c60cf541-1c9b-4ba8-bf8f-b90055121e72"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "read",
+          "source": "fixture reader",
+          "attempt": "c60cf541-1c9b-4ba8-bf8f-b90055121e72",
+          "run_id": "run-daf47a69-2763-4c5d-b51c-e696033879f1",
+          "gate": "Brownfield Review"
+        },
+        {
+          "seq": 9,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "reply",
+          "source": "simulated receiver",
+          "attempt": "c60cf541-1c9b-4ba8-bf8f-b90055121e72",
+          "marker": "case-aa334ae7-f221-4c41-b51a-d11107b501f5"
+        },
+        {
+          "seq": 10,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "UserPromptSubmit",
+          "session": "fixture-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 11,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "PostToolUse",
+          "session": "fixture-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 12,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "running"
+        },
+        {
+          "seq": 13,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "Interrupt",
+          "session": "unrelated-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 14,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 15,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "running"
+        },
+        {
+          "seq": 16,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "Interrupt",
+          "session": "fixture-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 17,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 18,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "running"
+        },
+        {
+          "seq": 19,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "Stop",
+          "session": "fixture-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 20,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 21,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-010 simulated candidate change with pending predecessor",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-ffbba135-b8da-4607-abac-c8d3d5c1eeb0",
+      "marker": "case-8d5d4f1b-42c5-4f04-97a2-f0091e2cf3bb",
+      "visible": [
+        [
+          "Zuletzt beobachteter Schritt\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren."
+        ],
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter prüft die Übergabe automatisch. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        },
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "gesture": 0,
+          "message": 0,
+          "permit": 0,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "24641cab-264c-4b84-a3ce-b38035c53464"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "24641cab-264c-4b84-a3ce-b38035c53464"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "24641cab-264c-4b84-a3ce-b38035c53464",
+          "revision": "bef0dd78-7187-44e6-8bd9-db1a270b8964"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-candidate-change",
+          "source": "test fixture",
+          "predecessor": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 2,
+          "state": "stale"
+        },
+        {
+          "seq": 9,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 2,
+          "state": "pending"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-010 simulated candidate change with settled predecessor",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-c34bcd77-5093-482f-bd42-3c74a1f763cb",
+      "marker": "case-53e503ff-1075-4a41-8b22-26742dc680ec",
+      "visible": [
+        [
+          "Zuletzt beobachteter Schritt\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren."
+        ],
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter prüft die Übergabe automatisch. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 2,
+          "message": 1,
+          "permit": 1,
+          "grant": 1,
+          "read": 1,
+          "reply": 1
+        },
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "beb4d312-6627-4c43-a41b-aeaa2adcac75"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "beb4d312-6627-4c43-a41b-aeaa2adcac75"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "beb4d312-6627-4c43-a41b-aeaa2adcac75",
+          "revision": "8d876948-626e-492e-bfa5-e7c9cf7137aa"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "grant",
+          "source": "fixture dispatch",
+          "route": "companion",
+          "attempt": "beb4d312-6627-4c43-a41b-aeaa2adcac75"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "read",
+          "source": "fixture reader",
+          "attempt": "beb4d312-6627-4c43-a41b-aeaa2adcac75",
+          "run_id": "run-c34bcd77-5093-482f-bd42-3c74a1f763cb",
+          "gate": "Brownfield Review"
+        },
+        {
+          "seq": 9,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "reply",
+          "source": "simulated receiver",
+          "attempt": "beb4d312-6627-4c43-a41b-aeaa2adcac75",
+          "marker": "case-53e503ff-1075-4a41-8b22-26742dc680ec"
+        },
+        {
+          "seq": 10,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "UserPromptSubmit",
+          "session": "fixture-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 11,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "PostToolUse",
+          "session": "fixture-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 12,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-hook",
+          "source": "test fixture",
+          "name": "Stop",
+          "session": "fixture-chat",
+          "turn": "fixture-turn"
+        },
+        {
+          "seq": 13,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 14,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-candidate-change",
+          "source": "test fixture",
+          "predecessor": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d"
+        },
+        {
+          "seq": 15,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 16,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "unavailable"
+        },
+        {
+          "seq": 17,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 2,
+          "state": "stale"
+        },
+        {
+          "seq": 18,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 2,
+          "state": "ready"
+        },
+        {
+          "seq": 19,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 2,
+          "name": "pointer"
+        },
+        {
+          "seq": 20,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 2,
+          "state": "pending",
+          "attempt": "425ae469-c21a-47e4-8a8c-a832215fb9b1"
+        },
+        {
+          "seq": 21,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 2,
+          "state": "pending",
+          "attempt": "425ae469-c21a-47e4-8a8c-a832215fb9b1"
+        },
+        {
+          "seq": 22,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 2,
+          "attempt": "425ae469-c21a-47e4-8a8c-a832215fb9b1",
+          "revision": "8d876948-626e-492e-bfa5-e7c9cf7137aa"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-010 simulated candidate change with unreadable predecessor",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-e2dfdc78-280e-40f7-9768-ba572a3e5616",
+      "marker": "case-dad3be96-5329-49f8-8b69-2ba2bdc69026",
+      "visible": [
+        [
+          "Zuletzt beobachteter Schritt\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren."
+        ],
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Fortsetzung ist gerade nicht verfügbar. Lade den Run neu, um den aktuellen Stand zu prüfen.\n\nRun neu laden"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        },
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "gesture": 0,
+          "message": 0,
+          "permit": 0,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "bfcb8171-005a-424e-8e71-9822d349e48a"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "bfcb8171-005a-424e-8e71-9822d349e48a"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "bfcb8171-005a-424e-8e71-9822d349e48a",
+          "revision": "0a1ae8f7-48c0-4c35-85f3-c70698f159c0"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "simulated-candidate-change",
+          "source": "test fixture",
+          "predecessor": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d/simulated-restart",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 2,
+          "state": "stale"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-011 evidence distinguishes a measured zero, a duplicate send and a missing source",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-6141ea96-fd8b-436d-8e27-9c79c548bd47",
+      "marker": "case-9bdbb686-908e-4767-a78c-07c063237296",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter prüft die Übergabe automatisch. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 0,
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "5bcfc853-97dc-46e3-99a5-6dc46826401f"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "5bcfc853-97dc-46e3-99a5-6dc46826401f"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "5bcfc853-97dc-46e3-99a5-6dc46826401f",
+          "revision": "55d02979-1a95-4063-ac6f-7f1b82292ccd"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-012 evidence reconstructs a complete fixture handoff",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-19e71b84-28c2-4242-8863-658e82c2f2de",
+      "marker": "case-b8615c9a-5e29-48ff-a205-955f1282c2a9",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter prüft die Übergabe automatisch. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "grant",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": 1,
+          "read": 1,
+          "reply": 1
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "32b398a3-f817-499f-84ce-047bf40be37c"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "32b398a3-f817-499f-84ce-047bf40be37c"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "32b398a3-f817-499f-84ce-047bf40be37c",
+          "revision": "adff5724-5b9a-4293-a384-a95538fb7d53"
+        },
+        {
+          "seq": 7,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "grant",
+          "source": "fixture dispatch",
+          "route": "companion",
+          "attempt": "32b398a3-f817-499f-84ce-047bf40be37c"
+        },
+        {
+          "seq": 8,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "read",
+          "source": "fixture reader",
+          "attempt": "32b398a3-f817-499f-84ce-047bf40be37c",
+          "run_id": "run-19e71b84-28c2-4242-8863-658e82c2f2de",
+          "gate": "Brownfield Review"
+        },
+        {
+          "seq": 9,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "reply",
+          "source": "simulated receiver",
+          "attempt": "32b398a3-f817-499f-84ce-047bf40be37c",
+          "marker": "case-b8615c9a-5e29-48ff-a205-955f1282c2a9"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "scenario": "SCN-012 evidence reconstructs a partial fixture handoff",
+      "commit": "aa73dfbad75d367d42c635dfdd24317ecac9df72",
+      "ui_digest": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+      "fixture_digest": "79d83722b0a42642b369a55eb43c5f233991f048414a963c2b6086e912254a11",
+      "fixture": "run-8a546264-d4f8-4da4-9ac1-5a216198f2ad",
+      "marker": "case-425e51f1-6ac9-4521-9183-4ada5e03ce4b",
+      "visible": [
+        [
+          "Codex ist als Nächstes dran\n\nBrownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.\n\nDie Bestätigung von Codex steht noch aus. Der Begleiter prüft die Übergabe automatisch. Du musst gerade nichts tun.\n\nÜbergabe prüfen"
+        ]
+      ],
+      "simulation": "Chromium, local SDK host, fixture receiver and injected lifecycle events",
+      "native_qualified": false,
+      "observed_sources": [
+        "gesture",
+        "message",
+        "permit",
+        "read",
+        "reply"
+      ],
+      "counts": [
+        {
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "gesture": 1,
+          "message": 1,
+          "permit": 1,
+          "grant": "unknown",
+          "read": 0,
+          "reply": 0
+        }
+      ],
+      "events": [
+        {
+          "seq": 1,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "stale"
+        },
+        {
+          "seq": 2,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-status",
+          "source": "test fixture",
+          "view": 1,
+          "state": "ready"
+        },
+        {
+          "seq": 3,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "gesture",
+          "source": "Chromium",
+          "view": 1,
+          "name": "pointer"
+        },
+        {
+          "seq": 4,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "service-reserve",
+          "source": "test fixture",
+          "view": 1,
+          "state": "pending",
+          "attempt": "0f6291b2-f626-4704-b282-c78211e88fcd"
+        },
+        {
+          "seq": 5,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "permit",
+          "source": "Cockpit publication",
+          "view": 1,
+          "state": "pending",
+          "attempt": "0f6291b2-f626-4704-b282-c78211e88fcd"
+        },
+        {
+          "seq": 6,
+          "candidate": "sha256:86149f4f644de5cddb3311aa101398e757527c25bc88691426b306530c79263d",
+          "kind": "message",
+          "source": "SDK bridge",
+          "view": 1,
+          "attempt": "0f6291b2-f626-4704-b282-c78211e88fcd",
+          "revision": "9394e567-1d9c-4e8d-85a4-34e79c29668b"
+        }
+      ]
+    }
+  ]
+}

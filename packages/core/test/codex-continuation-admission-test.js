@@ -139,12 +139,16 @@ test('a matching native turn and a clean mutation check are required to settle w
   hook('PostToolUse', post);
   hook('Stop', { session_id: 'foreign-chat' });
   hook('Interrupt');
-  assert.equal(admission.inspect(scope).state, 'running');
+  const stopping = { state: 'running', interrupt_requested: true };
+  assert.deepEqual(createCodexContinuationAdmission(root).inspect(scope), stopping);
+  assert.deepEqual(admission.reserve(scope, randomUUID(), eligible), stopping);
+  assert.deepEqual(admission.claim(scope, {}, eligible), stopping);
+  assert.deepEqual(admission.claim({ ...scope, revision_id: randomUUID() }, { owner: claim.owner }, eligible), stopping);
   const pendingPath = pendingRunStepPath(root, scope.run_id);
   mkdirSync(dirname(pendingPath), { recursive: true });
   writeFileSync(pendingPath, '{}');
   hook('Stop');
-  assert.equal(admission.inspect(scope).state, 'running');
+  assert.deepEqual(admission.inspect(scope), stopping);
   rmSync(pendingPath);
   assert.equal(admission.inspect(scope).state, 'ready');
   const newAttempt = admission.claim(scope, {}, eligible);
@@ -154,16 +158,21 @@ test('a matching native turn and a clean mutation check are required to settle w
   assert.equal(admission.inspect(scope).state, 'running');
 });
 
-test('Stop arriving before the matching tool result settles only its actual claim', t => {
+for (const first of ['Stop', 'Interrupt']) test(first + ' before the tool result is matched to its actual claim', t => {
   const { root, scope, admission } = fixture(t);
   const claim = admission.claim(scope, {}, eligible);
   const identity = { session_id: 'chat', turn_id: 'turn' };
   observeCodexActivity(root, { ...identity, hook_event_name: 'UserPromptSubmit' }, 1000);
-  observeCodexActivity(root, { ...identity, hook_event_name: 'Stop' }, 1001);
+  observeCodexActivity(root, { ...identity, hook_event_name: first }, 1001);
+  observeCodexActivity(root, { ...identity, hook_event_name: 'Interrupt' }, 1002);
   assert.equal(admission.inspect(scope).state, 'running');
   observeCodexActivity(root, { ...identity, hook_event_name: 'PostToolUse', tool_use_id: 'tool',
     tool_name: 'mcp__agdf__agdf_dispatch', tool_input: { continue_delivery: true, run_id: scope.run_id },
     tool_response: { structuredContent: { authorizes: false, terminal: false, target: { governance_target: root },
-      continuation: { run_id: scope.run_id, work_admission: { target_id: scope.target_id, run_id: scope.run_id, ...claim } } } } }, 1002);
+      continuation: { run_id: scope.run_id, work_admission: { target_id: scope.target_id, run_id: scope.run_id, ...claim } } } } }, 1003);
+  if (first === 'Interrupt') {
+    assert.deepEqual(admission.inspect(scope), { state: 'running', interrupt_requested: true });
+    observeCodexActivity(root, { ...identity, hook_event_name: 'Stop' }, 1004);
+  }
   assert.equal(admission.inspect(scope).state, 'ready');
 });

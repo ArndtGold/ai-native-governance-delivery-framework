@@ -1,0 +1,91 @@
+# SD: Isolated AGDF test mode for native Codex Desktop click tests
+
+Status: draft
+Gate: SD
+Gate approval: open
+Based on: PRD
+Date: 2026-11-22
+Owner: AGDF Core and Codex integration maintainers
+Traceability contract: criteria-chain-v1
+Design Decisions contract: sd-decisions-v1
+
+## 1. Solution Overview
+
+A maintainer prepares a disposable project in the isolated Desktop profile and explicitly enables one fixture case for a particular installed candidate. In two chats the tester can select the same fixture. A manual click uses the installed Companion's normal message path. The receiving turn claims the same attempt through the normal AGDF dispatcher. Its entire fixture task is to read back the bound fixture status and report the case marker in chat. A reply without a matching admitted claim is recorded as an incomplete observation.
+
+## 2. Ownership And Source Of Truth
+
+The approved [PRD](PRD.md) defines the six acceptance criteria. The [Brownfield Review](BROWNFIELD_REVIEW.md) identifies installed generation provenance, Core admission and the Codex lifecycle hooks as the existing owners. The [UX analysis](UX_INTENT_DEFINITION.md) maps the card to the AGDF maintainer's brand source, registered in `.agdf/control/SOT_REGISTRY.md`. The consumed `.agdf/control/BRAND.md` has SHA-256 `960aeb2f12e3e17fea2fb8309045c76fb7b4c6d037f6cd62d59ecbbcf204d6f9`. The relevant passages are Decision clarity, Source visibility, Permitted next action, Calm information hierarchy and Visible uncertainty.
+
+The isolated-profile setup owns the opt-in and fixture inventory. Core owns the current target, Run, revision, permissible operation and durable attempt. Codex Desktop supplies the click surface and the actual receiving turn. The [continuation test plan](../../run-4e2a3b9c-81a9-42e6-8d2f-00cf93c956b3/documents/TP.md) owns the eventual qualification decision.
+
+## 3. Architecture Decisions
+
+- SDD-001: Provision fixtures only in a dedicated test workspace under a separately launched isolated profile, with a private profile marker and a local activation record created by deliberate maintainer setup; rationale: a Run name, repository file, chat message or UI toggle alone cannot establish the profile or the disposable origin; consequence: setup must create the fixture itself and bind its canonical workspace path, target, Run, revision, agent operation, case marker and installed generation before it becomes selectable.
+- SDD-002: Resolve fixture eligibility once through a shared server-side policy used by both Cockpit and ordinary continuation, and recheck the binding at reservation, publication and claim; rationale: both paths can initiate work and separate UI or process decisions would diverge; consequence: missing profile identity, stale fixture facts or disagreement between the two installed routes withhold test starts and return a reason that can be displayed.
+- SDD-003: Reuse the existing durable admission record and lock per target and Run for every competing test start; rationale: the lock arbitrates across chats and views while the published attempt preserves identity across a lost response; consequence: a loser sees the original pending or running attempt, and refresh, reopen and repeated status checks are read-only.
+- SDD-004: Have the admitted fixture turn read the selected fixture's status and print its case marker through a fixed read-only continuation result; rationale: this exercises the real click, host send and receiving dispatch while providing a small observable completion criterion; consequence: the test path offers only fixture status and the bounded reply, with no returned work plan, mutation or approval operation.
+- SDD-005: Keep the profile's admission store across candidate upgrades and close the old scope to new work before reactivation; rationale: losing the predecessor record could make an outstanding send look like a fresh start; consequence: enable the successor only after both routes report its verified generation and the prior disposition is demonstrably settled or had no outstanding attempt.
+- SDD-006: Project the shared state through the existing Companion action and export a minimal case record from matched observations; rationale: the tester needs one permitted action and reviewers need to distinguish the gesture, send, claim and terminal event; consequence: missing observations are named in the result and only the linked Run can use that evidence for qualification.
+
+## 4. Integration Points
+
+**Setup and runtime.** The maintainer creates a test scope in the isolated profile's private AGDF data directory. The setup records an explicit profile identity, canonical isolated data and workspace roots, an activation identity and the candidate identity from the owned installation. It provisions disposable Run IDs in the fixture workspace and binds each to its exact allowed operation and case. Both installed services must independently resolve their actual profile roots and candidate from trusted local launcher and package evidence. Each registers its observed identity for the current activation. Activation requires agreement, including the common admission root. Reject linked or out-of-root paths, copied records pointing elsewhere, an unavailable identity, a changed revision or a non-designated Run. Enabling or refreshing a case is a maintainer action outside the card.
+
+**Both entry points.** Build on `packages/cli/lib/mcp-protocol-runtime.js` and installed provenance for generation identity. Consult the shared scope evaluator from `packages/core/lib/control-inspect/cockpit-session.js` and `packages/cli/lib/mcp-dispatch-runtime.js`. Preserve canonical eligibility through `codex-continuation-binding.js`. An eligible fixture yields a test-only context for that exact call. Ordinary use retains the installed native-qualification policy. An ordinary chat working on a deliberately designated fixture in the isolated profile competes through the same `codex-continuation.js` store. A failed fixture check cannot fall through into unrestricted fixture work.
+
+**Send and receive.** Persist the pending attempt before permitting a Companion send. The receiving dispatch claims the published attempt once with its original identity. A competing chat continuation uses the existing atomic claim for the same Run. Only the winner receives the bounded fixture task. Use the existing Codex hook association from successful dispatch to session and turn, then an exact Stop or Interrupt for that pair. Count admitted work separately from clicks, outgoing messages and chat turns. A losing chat can already have a user turn. Its denied dispatch must produce zero additional admitted fixture actions.
+
+**Reader-facing states.** Keep the current phase and next step at the top of the Companion. Near the action, state “Du testest mit dem Wegwerf-Run …” and give the fixture's display name. A ready fixture offers “Run fortsetzen”. Once a send is published, show “Die Übergabe an Codex ist offen.” and “Übergabe prüfen”. A matched claim shows “Codex bearbeitet den Testauftrag.” An outdated view offers a fresh read. A positive non-start finding and a freshly ready scope can offer an explicit retry. Reuse the existing action typography, spacing, focus treatment and live status. Scope and state must be understandable from the text. Candidate identity and case references belong in the details. A profile or upgrade mismatch identifies the specific check the maintainer needs to repeat.
+
+**Deactivation.** Close admission to new work on profile exit or explicit deactivation. Retain the record and permit observation or settlement of the original attempt. Reopening the view, elapsed time or a missing callback cannot release it. Key the scope activation to the observed generation, while keeping admission keyed to the Run across generations. Serialize deactivation and any check that grants new work against scope changes. A successful pre-publication cancellation can prove a non-start. After publication, an unexplained loss of contact stays unresolved. Only remove a disposable workspace after all its attempts have a known disposition and its requested evidence has been retained.
+
+## 5. Constraints And Compatibility
+
+The feature is local to Codex Desktop and preserves existing production qualification records, host permissions and gate decisions. No repository migration or new external dependency is needed. The maintainer works under the supported permissions of the isolated profile, using a disposable workspace that contains no delivery project. The fixture result restricts what AGDF grants and returns. Isolation of the host itself remains the responsibility of the actual test profile and its permission settings. If those settings or the actual root cannot be verified, the pre-qualification test path is unavailable. Old or mixed server generations cannot establish a fresh case. Ordinary users see their existing Companion.
+
+Reuse the product's existing status and action styles for the five brand priorities identified above. Keep one visible primary action where the state permits it. A pending handoff has a status check. Details expose the candidate and any missing native observation. Preserve the handoff and keyboard focus across a status poll.
+
+## 6. Test And Evidence Strategy
+
+Before the manual exercise, extend the existing Core admission and MCP continuation tests to cover positive and denied cases at both entry points. Check wrong profile, regular project, stale Run revision, old activation, missing peer identity, changed root, concurrent attempts and mixing generations. Assert grant and send counts and verify the fixture output cannot lead to a gate change. Retain SDK browser coverage for pending, reopening and focus. Include the narrow Companion layout, the test-scope sentence, the ineligible reason and recovery action in the existing UI checks. Run applicable suites in CI. A nightly repeat can detect drift if available. The native cases still need direct observation.
+
+For the linked plan use fresh disposable fixtures for SCN-002 (one actual click), SCN-009 (reopen while pending), SCN-011 (both two-chat races) and SCN-012 (settled and unresolved predecessor across upgrade). A maintainer clicks the actual Desktop control. Correlate profile-scoped candidate and route identities with the selected fixture, original attempt and the receiving turn's successful claim. Observe sender and receiver separately, including a terminal event where applicable. Preserve per-case counts for gestures, sends, admitted fixture actions and matching receiving turns. For the chat-versus-Companion race also identify which path won. Exercise a second independent fixture to detect accidental cross-Run blocking.
+
+Retain a redacted case record with case ID, candidate and host version, scoped fixture and attempt aliases, observation sources, event order and counts, and a final observed or unresolved disposition. Use case-local aliases consistently for session and turn. Keep only the bounded fixture response or a cropped observation when needed. Omit credentials, unrelated chats and external workspaces. A missing gesture, turn, race outcome or predecessor observation is a named evidence gap. The linked Run evaluates these records before any production activation.
+
+## 7. Acceptance Traceability
+
+| criterion_id | design_response | source_of_truth | design_decision_ids | compatibility_risk |
+|---|---|---|---|---|
+| AC-001 | Verify live profile and generation at both services and confirm the fixture binding before granting the visible action. | Isolated setup, Codex dispatcher and Core continuation binding | SDD-001, SDD-002, SDD-006 | An old activation or copied workspace could select the wrong Run. Compare current canonical roots and identity. |
+| AC-002 | Correlate the manual gesture, single send, accepted original claim and bounded reply of the native turn. | Core admission, Codex receiving chat and correlated hook observations | SDD-003, SDD-004, SDD-006 | A successful send alone leaves the receiving turn unresolved. |
+| AC-003 | Make both native races contend on one Run record and report the winning attempt in the losing view. | Core admission lock shared by Cockpit and ordinary dispatch | SDD-002, SDD-003 | Separate process roots could split admission. Require matching roots before testing. |
+| AC-004 | Reopen or poll the original attempt, observe a matching terminal event and offer retry only after proven non-start and fresh readiness. | Core admission, Codex lifecycle hooks and Companion action state | SDD-003, SDD-006 | Missing lifecycle evidence keeps the original handoff pending. |
+| AC-005 | Invalidate the old scope on upgrade, verify both routes and retain predecessor records across generation changes. | Installed provenance, isolated setup and persistent admission state | SDD-002, SDD-005 | A reset data root or missing predecessor evidence blocks reactivation. |
+| AC-006 | Collect a redacted native record per candidate and scenario with distinct source observations and explicit gaps. | Test operator and reviewer of the linked continuation TP | SDD-004, SDD-006 | Synthetic evidence and records for another candidate cannot close a native case. |
+
+## 8. Risks And Open Questions
+
+The native host may expose too little information to pair a particular click and receiving turn. Both chats may be visible while only one grants work. Count those effects independently and leave any missing correlation open. In each race the test operator needs a reproducible opportunity to observe contention before the first turn settles. The task plan owns the setup and capture sequence for these cases. These are verification risks, with no outstanding product or architecture decision.
+
+## Design Decisions
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| Isolation and bounded effect | before_sd | resolved | Use a deliberately provisioned private profile and generated disposable Run. Match the two installed surfaces and grant only the fixed status readback and reply. | AGDF Core and Codex integration maintainers |
+| Contention and predecessor recovery | before_sd | resolved | Keep one durable attempt per target and Run across both routes and upgrades. Preserve unresolved work through deactivation. | AGDF Core maintainers |
+| Native observation and review ownership | before_sd | resolved | Attribute manual gesture, send, admitted claim and receiving turn separately. The linked Run judges the case record. | Codex integration and linked Run reviewer |
+| Timing and capture procedure | later_tp | deferred | Select reproducible fixture preparation, timing and redaction steps for each native case when planning the manual test. | AGDF integration and QA |
+
+## 9. Next Step
+
+The maintainer reviews this design. SD approval permits drafting the task and test plan.
+
+## AGDF Approval Summary (de; source=en)
+
+- Der manuelle Klick wird im isolierten Codex-Desktop-Profil an einem eigens angelegten Wegwerf-Run geprüft. Der Testauftrag liest dessen Status und meldet die Fallkennung im Chat zurück.
+- Begleiter und Chat prüfen dasselbe Profil, dieselbe installierte Fassung und denselben Run. Fordern zwei Chats gleichzeitig Arbeit an, kann genau einer den Testauftrag übernehmen.
+- Nach dem Schließen und erneuten Öffnen zeigt der Begleiter die ursprüngliche Übergabe. Bei einem Update bleibt ein weiterer Start gesperrt, solange der Ausgang des vorigen Auftrags offen ist.
+- Der Testnachweis ordnet Klick, gesendete Nachricht und empfangenden Codex-Turn einander zu. Fehlende Beobachtungen bleiben sichtbar. Der verknüpfte Begleiter-Run entscheidet über die Freischaltung im regulären Betrieb.
+- Mit deiner Freigabe kann der Aufgaben- und Testplan für den manuellen Desktop-Test entstehen.

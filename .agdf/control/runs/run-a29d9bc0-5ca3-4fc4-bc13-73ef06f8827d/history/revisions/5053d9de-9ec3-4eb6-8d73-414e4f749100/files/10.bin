@@ -1,0 +1,154 @@
+# PRD: Isolated AGDF test mode for native Codex Desktop click tests
+
+Status: draft
+Gate: PRD
+Gate approval: open
+Based on: UR
+Date: 2026-11-20
+Owner: AGDF maintainers
+Traceability contract: criteria-chain-v1
+
+## 1. Product Scope
+
+Provide a deliberate, local test mode in the isolated Codex Desktop profile for explicitly designated disposable Runs with a bounded fixture action. A maintainer can use the actual Companion and chat paths to exercise the existing continuation behavior and collect evidence for the linked qualification. The same scope and admission decision apply to both paths. In ordinary use, the existing native qualification remains the authority to enable the action. [Approved UR](UR.md) [Linked continuation test plan](../../run-4e2a3b9c-81a9-42e6-8d2f-00cf93c956b3/documents/TP.md)
+
+## 2. UX Intent And Success
+
+- ui_ux_impact: high
+- ux_intent_definition: Ready analysis in `UX_INTENT_DEFINITION.md`.
+- primary_user_intent: A maintainer wants to exercise the real click on a disposable Run and obtain reviewable evidence of the corresponding Codex turn.
+- success_signal: The maintainer recognizes the test context and selected fixture, identifies the action or its current blocker, and can find the native result for the same attempt and candidate.
+- primary_decision_or_action: Deliberately enter the test context and click “Run fortsetzen” on the eligible fixture. Inspect an existing handoff when it is pending.
+
+The approved analytical source maps the AGDF brand priorities **Decision clarity**, **Calm information hierarchy**, and **Permitted next action** to visible scope, state and recovery in AC-001, AC-003 and AC-004. **Source visibility** and **Visible uncertainty** apply to the candidate identity and incomplete observations in AC-005 and AC-006. The brand source is `.agdf/control/BRAND.md` at SHA-256 `960aeb2f12e3e17fea2fb8309045c76fb7b4c6d037f6cd62d59ecbbcf204d6f9`. [UX analysis](UX_INTENT_DEFINITION.md)
+
+## 3. Working Modes And Effective State
+
+| working_mode | effective_state | visible_state_types | effective_state_authority | primary_state_presentation_owner |
+|---|---|---|---|---|
+| Eligible test fixture | The approved scope and current fixture can request one bounded start. | Text identifies the test context, selected Run and permitted action. | Current test scope and canonical Run evaluation. | Companion |
+| Ineligible or stale selection | Test authority is unavailable for this selection. | Outcome and applicable next action when the tester is in a test context. | Scope validation and current Run evaluation. | Companion and the tested chat path |
+| Pending handoff | The original attempt exists and its disposition is unresolved. | Pending message and status-check action after reopening. | Shared admission state and correlated evidence of the attempt. | Companion |
+| Active test turn | The original attempt was claimed and work is active. | Work status in the Companion and receiving turn in the chat. | Shared admission and correlated Codex lifecycle observations. | Companion and receiving Codex chat |
+| Settled attempt or upgrade uncertainty | The original outcome is established or explicitly unresolved. | Observed outcome and applicable next action, or the reason further work is blocked. | Matching native observations, Run eligibility, and fresh generation evidence. | Companion and test evidence record |
+
+## 4. Activation, Blockers, Recovery And Transitions
+
+- activation_and_deactivation: Deliberately use the isolated profile and an explicitly designated current fixture. A click requests continuation. Leaving the validated profile or fixture, deactivating the test mode or invalidating its binding removes test authority. The stored original attempt governs its unresolved outcome.
+- blockers_and_visible_next_actions: Missing or mismatched scope prevents test activation. A stale fixture view leads to a fresh read. A pending or active original attempt blocks a second start and shows the known state. Mixed-generation or unresolved predecessor state requires verification before a new start.
+- recovery_paths: Keep the status of the original attempt available after reopen. Offer an explicit retry once a recoverable non-start has been confirmed and the Run is ready. Preserve uncertain outcomes. Use matching terminal evidence and current scope to determine the next action.
+- relevant_state_transitions: Eligible fixture to pending after a deliberate request, to active on a matching claim, to settled on matching terminal evidence. Outdated state to a fresh evaluation after reload. Competing requests converge on the first attempt. A fresh generation can act only when the current test binding is valid and predecessor work has a known disposition.
+
+## 5. Acceptance Criteria
+
+- criterion_id: AC-001
+  - working_mode: Eligible fixture or ineligible context.
+  - source_state: An explicit test designation applies to a current disposable Run in the recognized isolated profile, or a required input is absent, foreign or stale.
+  - trigger_action: Open the Companion for the selection or request continuation through the tested chat path.
+  - expected_effective_state: Test authority applies only to the valid profile and designated bounded fixture. The ordinary availability decision remains in effect elsewhere.
+  - visible_feedback: The valid selection shows the test context in text and identifies the next action. A tester whose selection is ineligible sees the applicable reason and next action.
+  - blocker_failure_behavior: Wrong profile, ordinary Run, missing or stale scope, and mismatched binding grant zero test starts through either route.
+  - recovery_next_action: Select a current designated fixture in the isolated profile or reload a stale test view.
+  - observable_success: The tester recognizes the valid test context, and a direct call for each invalid case produces no test-admitted work.
+  - required_evidence: Positive and negative cases on both installed MCP paths, including ordinary use and stale binding, and an observation of the relevant Companion states.
+
+- criterion_id: AC-002
+  - working_mode: Native start for an eligible fixture.
+  - source_state: A current disposable Run is ready in the recognized test profile and has no active or pending attempt.
+  - trigger_action: Manually click “Run fortsetzen” once in the actual Codex Desktop Companion.
+  - expected_effective_state: One receiving model turn claims the original attempt for the selected target and Run and performs the bounded action.
+  - visible_feedback: The Companion shows the observed disposition, and the real turn is visible in Codex chat when it starts.
+  - blocker_failure_behavior: A click receipt or delivery response without a matching receiving claim leaves the result unresolved.
+  - recovery_next_action: Inspect the original handoff and its evidence.
+  - observable_success: One click, one admitted attempt and one corresponding native turn can be matched for the exact installed candidate.
+  - required_evidence: Native desktop click, receiving turn, matched attempt and Run identity, start count and candidate identity.
+
+- criterion_id: AC-003
+  - working_mode: Competing attempts for one eligible test Run.
+  - source_state: Two native chats address the same disposable Run with the same applicable test scope.
+  - trigger_action: Exercise two Companion starts, then a Companion start competing with ordinary Codex continuation in a separate test case.
+  - expected_effective_state: Both paths use the same admission decision. Only one competing request starts work and the other observes the winning or unresolved attempt.
+  - visible_feedback: The competing view explains pending or active work for that Run.
+  - blocker_failure_behavior: A second send or work grant for the same competition fails the case. Missing observation leaves the case unresolved.
+  - recovery_next_action: Check the original attempt in the appropriate view. A different eligible fixture can be tested separately.
+  - observable_success: Each native variant shows one admitted attempt, one matching model turn and zero additional starts.
+  - required_evidence: Two-chat recording of both variants with request counts, the winning attempt and the denial or observation on the other route.
+
+- criterion_id: AC-004
+  - working_mode: Outstanding handoff or recovery.
+  - source_state: The original test handoff is published and its receiving outcome is still unresolved.
+  - trigger_action: Close and reopen the Companion, inspect the handoff, then observe the matching receiving and terminal events where available.
+  - expected_effective_state: Reopen and status reads preserve the original attempt. A matching lifecycle event can settle it. A retry requires a confirmed non-start and a current ready state.
+  - visible_feedback: The Companion shows what is pending or observed and the permitted next action in plain language.
+  - blocker_failure_behavior: Absent or conflicting events preserve the unknown outcome and prevent a second start. Stale views require a fresh read.
+  - recovery_next_action: Check the original status or deliberately retry after readiness is confirmed.
+  - observable_success: Reopening and checking leave the send count unchanged. A matching terminal event updates the original disposition. A retry appears only when it can be safely offered.
+  - required_evidence: Pending, reopen, current-state check and lifecycle observations tied to the same native attempt, plus controlled coverage of confirmed non-start and stale views.
+
+- criterion_id: AC-005
+  - working_mode: Fresh test scope after an upgrade, or unresolved predecessor state.
+  - source_state: The test host changes generation with a known predecessor disposition or with unresolved predecessor work.
+  - trigger_action: Open a fresh test session, inspect both routes and attempt the designated case.
+  - expected_effective_state: Test activation requires the current matching generation and proof of the predecessor disposition. Mixed or unresolved state grants zero additional starts.
+  - visible_feedback: The test output identifies the active candidate and shows the unresolved or incompatible state when it applies.
+  - blocker_failure_behavior: Unknown generation identity or predecessor disposition keeps the test action unavailable for that scope.
+  - recovery_next_action: Verify the fresh generation and resolve the original work before selecting a ready fixture again.
+  - observable_success: A compatible fresh session exercises the expected allowed case and the unresolved predecessor case produces no second start.
+  - required_evidence: Candidate identity, fresh-session evidence from both routes, predecessor state, and observed start counts for the controlled upgrade cases.
+
+- criterion_id: AC-006
+  - working_mode: Review candidate-specific test evidence.
+  - source_state: The maintainer has performed some or all native scenarios in the isolated profile.
+  - trigger_action: Review the recorded scenario results for the linked continuation Run.
+  - expected_effective_state: Each result identifies the candidate, tested case, selected Run, applicable attempt and actual observations. The linked Run applies its existing qualification review.
+  - visible_feedback: The record distinguishes observed outcomes from missing or unresolved observations and identifies their source.
+  - blocker_failure_behavior: Incomplete native facts remain visible. Synthetic or mismatched evidence cannot establish a native result.
+  - recovery_next_action: Collect the specific missing native observation in the supported fixture and retain its applicable candidate binding.
+  - observable_success: An independent reviewer can match the exact installed build, clicks, turns, contention and recovery outcomes to the relevant scenarios.
+  - required_evidence: Reviewable redacted native evidence and recorded limits, linked to the corresponding candidate and acceptance cases.
+
+## 6. Non-Goals
+
+- Production activation before native qualification or changes to AGDF's gate and approval authority.
+- Test effects on active delivery Runs, automation of Codex Desktop, additional hosts and public release.
+
+## 7. Users And Roles
+
+AGDF maintainers operate the isolated profile and collect the native evidence. AGDF Core and Codex integration maintainers establish the reliable scope and shared behavior. Reviewers for the linked continuation Run assess the resulting native observations against its test plan.
+
+## 8. Constraints
+
+Use the actual installed Codex Desktop Companion for the native observation and a deliberate manual click. Both paths must respect the approved test scope and preserve admission and recovery for the same original attempt. The profile uses disposable Runs with bounded work and separate local test data. Evidence contains the needed test facts and omits credentials, unrelated conversations and external project data.
+
+## 9. Evidence Requirements
+
+For AC-001 and the negative parts of AC-003 through AC-005, capture observed effects and why a start was withheld. For the native cases, retain candidate identity, permitted action, actual click and receiving turn, matching attempt, scope, counts and terminal or unresolved state. Use the original continuation TP scenario references when ready for review. Record what the maintainer observed, what the synthetic tests cover and which observations are missing. [Linked continuation test plan](../../run-4e2a3b9c-81a9-42e6-8d2f-00cf93c956b3/documents/TP.md)
+
+## 10. Risks And Open Questions
+
+False eligibility, a second start, and mistaken qualification would break the purpose of the test. SD must establish how both entry points verify the same profile and fixture, which native event data is reliable and how to preserve or recover the original attempt during upgrade and teardown. The test plan must give a reproducible way to exercise both native races and preserve redacted evidence.
+
+## Approval Decisions
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| Scope, operator and product behavior | before_prd | resolved | A maintainer manually tests the actual Desktop action in the isolated profile. Test authority is limited to designated disposable Runs and applies through the same admission to both paths. | AGDF maintainers |
+| Evidence and qualification ownership | before_prd | resolved | This Run delivers the test mode and reviewable native observations. The linked continuation Run owns their use for qualification. | AGDF maintainers |
+| Bind test profile and fixture scope consistently, including predecessor and teardown | later_sd | open | Choose the verifiable binding and local failure behavior for both existing paths. | AGDF Core and Codex integration maintainers |
+| Execute and retain candidate-specific observations | later_tp | open | Define manual cases, negative checks, timing and the evidence expected for each criterion. | AGDF integration and QA |
+
+## 11. Next Step
+
+Review this PRD and approve with `Approval: PRD` to proceed to the bound solution design.
+
+## AGDF Approval Summary (de; source=en)
+
+- Ziel: Den echten Klick auf „Run fortsetzen“ im isolierten Codex-Desktop-Testprofil prüfen und den gestarteten Modellturn dem richtigen Run zuordnen.
+- Umfang: Ausgewiesene Wegwerf-Runs, gemeinsamer Schutz vor Doppelstarts, Statusprüfung nach erneutem Öffnen und Nachweis für den bestehenden Begleiter-Run.
+- Entscheidungen: Der Desktop-Klick erfolgt manuell. Die Testfreigabe ist auf Profil und Wegwerf-Runs begrenzt. Der bestehende Run bewertet den nativen Nachweis.
+- AC-001: Profil und Run werden geprüft. Der Testkontext ist sichtbar. Fremde, normale oder veraltete Runs erhalten keine Testfreigabe.
+- AC-002: Ein Klick im Desktop-Begleiter löst genau einen Modellturn aus. Klick, Übergabe und Run sind zuordenbar.
+- AC-003: Zwei konkurrierende Chats lösen nur einen Start aus. Das gilt für zwei Begleiter und für Begleiter gegen normalen Chat.
+- AC-004: Nach erneutem Öffnen lässt sich dieselbe Übergabe prüfen. Ein erneuter Versuch ist erst nach bestätigtem Nichtstart und bei startbereitem Run möglich.
+- AC-005: Nach einem Upgrade müssen beide Wege dieselbe neue Fassung verwenden. Bei ungeklärter Arbeit aus der vorherigen Fassung bleibt ein weiterer Start gesperrt.
+- AC-006: Der Nachweis nennt Build, Testfall und beobachtete Vorgänge. Fehlende Beobachtungen bleiben erkennbar.

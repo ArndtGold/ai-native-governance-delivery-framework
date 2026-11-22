@@ -79,6 +79,29 @@ it('preserves pending when the host response is lost and the card reopens', asyn
   expect(app.sendMessage).toHaveBeenCalledTimes(1);
 });
 
+it('keeps the cancellation notice through a failed poll and restores the action on confirmed readiness', async () => {
+  const { app, port, setState } = fixture();
+  const interrupted = { schema_version: '1', authorizes: false, state: 'running', interrupt_requested: true };
+  app.callServerTool.mockResolvedValueOnce({ structuredContent: interrupted });
+  vi.useFakeTimers();
+  try {
+    render(<CompanionContinuationAction port={port} selection={selection} approval={false}/>);
+    await act(async () => {});
+    expect(screen.getByText(/Der Abbruch wurde angefordert/)).toBeTruthy();
+    setState('unavailable');
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    expect(screen.getByText(/Der Abbruch wurde angefordert/)).toBeTruthy();
+    expect(screen.queryByRole('button')).toBeNull();
+    setState('ready');
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    expect(screen.getByRole('button', { name: 'Run fortsetzen' })).toBeTruthy();
+    expect(app.sendMessage).not.toHaveBeenCalled();
+  } finally {
+    cleanup();
+    vi.useRealTimers();
+  }
+});
+
 it('checks the existing handoff without publishing another request', async () => {
   const { app, port, setState } = fixture();
   setState('pending');

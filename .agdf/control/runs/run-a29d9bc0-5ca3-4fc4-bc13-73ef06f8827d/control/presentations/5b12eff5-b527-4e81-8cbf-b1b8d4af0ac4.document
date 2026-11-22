@@ -1,0 +1,22 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: Isolated AGDF test mode for native Codex Desktop click tests
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Der manuelle Klick wird im isolierten Codex-Desktop-Profil an einem eigens angelegten Wegwerf-Run geprüft. Der Testauftrag liest dessen Status und meldet die Fallkennung im Chat zurück.
+- Begleiter und Chat prüfen dasselbe Profil, dieselbe installierte Fassung und denselben Run. Fordern zwei Chats gleichzeitig Arbeit an, kann genau einer den Testauftrag übernehmen.
+- Nach dem Schließen und erneuten Öffnen zeigt der Begleiter die ursprüngliche Übergabe. Bei einem Update bleibt ein weiterer Start gesperrt, solange der Ausgang des vorigen Auftrags offen ist.
+- Der Testnachweis ordnet Klick, gesendete Nachricht und empfangenden Codex-Turn einander zu. Fehlende Beobachtungen bleiben sichtbar. Der verknüpfte Begleiter-Run entscheidet über die Freischaltung im regulären Betrieb.
+- Mit deiner Freigabe kann der Aufgaben- und Testplan für den manuellen Desktop-Test entstehen.
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d` · Lösungsdesign · Revision: `5ce6339e-d0d5-41cb-8f20-bf7971e92dec`
+
+SHA-256: `sha256:95635bc312eb5ae0f2b9c1dd16077e6928d5b9775ad78173097dbb4ea84001d9`

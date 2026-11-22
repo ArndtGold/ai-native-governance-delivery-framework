@@ -94,11 +94,14 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
     ? marks.indexOf(displayGate) + 1 : 0;
   const nextStep = companion?.next_text || evaluation?.next_action_de;
   const review = waiting && !!resource;
+  const acceptance = waiting && gate === 'UAT';
   const reason = differentNextStep ? evaluation?.next_action_de || evaluation?.next_allowed_action
+    : acceptance ? resource ? 'Prüfe das gelieferte Ergebnis und die offenen Punkte. Entscheide dann, ob du das Ergebnis abnimmst.'
+      : 'Die aktuelle Abnahmeunterlage ist noch nicht verfügbar.'
     : review ? 'Lies den Entwurf und prüfe, ob er zu deinem Auftrag passt.' : blocked
     ? companion?.blocking_text || 'Die Kontrollauswertung meldet ein Hindernis.'
     : nextStep;
-  const offerApproval = waiting && canOfferApproval;
+  const offerApproval = waiting && canOfferApproval && (!acceptance || !!resource);
   const approval = current && offerApproval ? evaluation?.missing_approval : null;
   const title = data.title ?? data.run_id;
   const displayGoal = companion?.goal ?? data.objective;
@@ -127,7 +130,7 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
     </div>
     <h2 tabIndex={-1} data-focus-id="companion-run-heading">{title}</h2>
     {goal && <p className="companion-goal" ref={goalPreview}>{goal}</p>}
-    {(blocked || human || pending || reason) && <div className="companion-turn">
+    {(blocked || human || pending || reason || resource) && <div className="companion-turn">
       <strong role={human && !previous && !expired ? 'status' : undefined}>{previous || expired ? 'Zuletzt beobachteter Schritt' : human ? 'Du bist dran' : blocked ? 'Klärung nötig'
         : work ? work.turn.who : evaluation?.next_operation?.actor === 'agent' ? 'Codex ist als Nächstes dran' : 'Als Nächstes'}</strong>
       {reason && <p id={stepId}>{reason}</p>}
@@ -136,9 +139,9 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
       {resource && source && !expired && !sourceInReader &&
         <button type="button" className="companion-source" aria-disabled={!current || sourcePending || undefined}
           aria-describedby={showSourceHint ? widthHintId : undefined} data-focus-id={`companion:${resource.resource_id}`}
-          onClick={() => { if (current && !sourcePending) onOpen(resource, source.digest); }}>{blocked ? 'Befund öffnen' : `${resource.type}-Entwurf öffnen`}</button>}
-      {current && !resource && (waiting || blocked) && <p className="compact-muted">{waiting ? 'Der registrierte Entwurf ist nicht verfügbar.' : 'Kein passender registrierter Befund verfügbar.'}</p>}
-      {approval && <p className="compact-muted">Wenn der Entwurf passt, antworte im Chat mit <code>{approval}</code>.</p>}
+          onClick={() => { if (current && !sourcePending) onOpen(resource, source.digest); }}>{resource.type === 'OR' ? 'Lieferbericht öffnen' : blocked ? 'Befund öffnen' : acceptance ? 'Abnahmeunterlage öffnen' : `${resource.type}-Entwurf öffnen`}</button>}
+      {current && !resource && !acceptance && (waiting || blocked) && <p className="compact-muted">{waiting ? 'Der registrierte Entwurf ist nicht verfügbar.' : 'Kein passender registrierter Befund verfügbar.'}</p>}
+      {approval && <p className="compact-muted">{acceptance ? 'Wenn du das Ergebnis abnimmst, antworte im Chat mit ' : 'Wenn der Entwurf passt, antworte im Chat mit '}<code>{approval}</code>.</p>}
       {action && continuation && snapshotId && data.revision_id && <CompanionContinuationAction
         key={snapshotId} port={continuation} approval={waiting}
         stepId={reason ? stepId : undefined} onReload={onReload}
@@ -155,7 +158,7 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
         {differentNextStep && <><dt>Nächster Schritt</dt><dd>Die Karte zeigt den aktuell ermittelten nächsten Schritt. Der gespeicherte Schritt weicht davon ab.</dd></>}
         {unknown && <><dt>Codex-Aktivität</dt><dd>Ob Codex gerade an diesem Run arbeitet, ist unklar.</dd></>}
         {purposeGate && <><dt>{purposeHeadings[purposeGate]}</dt><dd>{purposeTexts[purposeGate]}</dd></>}
-        {showSourceHint && <><dt>Entwurfsansicht</dt><dd id={widthHintId}>In einer breiteren Ansicht öffnet sich der Entwurf automatisch daneben.</dd></>}
+        {showSourceHint && <><dt>{acceptance ? 'Abnahmeunterlage' : 'Entwurfsansicht'}</dt><dd id={widthHintId}>In einer breiteren Ansicht öffnet sich {acceptance ? 'die Abnahmeunterlage' : 'der Entwurf'} automatisch daneben.</dd></>}
         {goal && goalClipped && <><dt>Ziel</dt><dd className="companion-full-goal">{goal}</dd></>}
         {marks.length > 0 && <><dt>Vollständige Gate-Reihenfolge</dt><dd><CompanionGatePath marks={marks} previous={!confirmedGate}/></dd></>}
       </dl>

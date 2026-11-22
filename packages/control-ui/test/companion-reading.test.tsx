@@ -34,6 +34,94 @@ function reload() {
 const close = () => fireEvent.click(screen.getByRole('button', { name: /Entwurf schließen|Zurück zum Companion/ }));
 const sourceReads = (read: ReadTransport) => vi.mocked(read).mock.calls.filter(([path]) => path.startsWith('/api/documents/')).length;
 
+it.each([360, 850])('keeps the current UAT presentation in place through approval at %i pixels', async availableWidth => {
+  width(availableWidth);
+  const { run } = fixture();
+  const digest = 'b'.repeat(64);
+  const path = 'control/presentations/current.document';
+  const resource = { resource_id: 'presentation', run_id: run.run_id, type: 'UAT Presentation', path,
+    registered_reference: path, status: 'registered' };
+  run.resources.push(resource);
+  run.evaluation = { ...run.evaluation!, current_gate: 'UAT', missing_approval: 'Approval: UAT' };
+  run.persisted!.current_gate = 'UAT';
+  run.companion!.uat_presentation = { resource_id: resource.resource_id, content_digest: digest };
+  const presentation = { resource, format: 'markdown', content: '## Nutzerabnahme prüfen und entscheiden\n\nGeliefertes Ergebnis.',
+    content_digest: digest, links: {} };
+  const reportPath = `.agdf/control/runs/${run.run_id}/documents/OR.md`;
+  const reportResource = { resource_id: 'report', run_id: run.run_id, type: 'OR', path: reportPath, registered_reference: reportPath, status: 'registered' };
+  const report = { resource: reportResource, format: 'markdown', content: '# Ergebnis des Runs', content_digest: 'c'.repeat(64), links: {} };
+  let current = run;
+  const read = vi.fn(async (url: string) => {
+    if (url.startsWith('/api/freshness')) return { ...fixtureMeta, code: 'source_changed', data: null };
+    if (url.startsWith('/api/documents/report?')) return { ...fixtureMeta, snapshot_id: 'report', data: { kind: 'document', run: current, document: report } };
+    if (url.startsWith('/api/documents/')) return { ...fixtureMeta, snapshot_id: 'document', data: { kind: 'document', run, document: presentation } };
+    return runScope(current, current.revision_id!);
+  }) as unknown as ReadTransport;
+  render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+  await screen.findByText('Prüfe das gelieferte Ergebnis und die offenen Punkte. Entscheide dann, ob du das Ergebnis abnimmst.');
+  if (availableWidth === 360) {
+    expect(sourceReads(read)).toBe(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Abnahmeunterlage öffnen' }));
+  }
+  await screen.findByRole('heading', { name: 'Nutzerabnahme prüfen und entscheiden' });
+  const body = screen.getByRole('article', { name: 'Originaldokument' });
+  const viewport = screen.getByRole('generic', { name: 'Dokumentinhalt' });
+  viewport.scrollTop = 217; viewport.focus(); fireEvent.scroll(viewport);
+  const notice = () => screen.queryByText('Deine Abnahme ist erfasst.');
+  expect(notice()).toBeNull();
+  vi.useFakeTimers();
+  current = structuredClone(run);
+  current.revision_id = 'approved-revision';
+  current.persisted!.current_gate = current.evaluation!.current_gate = 'OR';
+  current.evaluation!.approvals.push({ gate: 'UAT', status: 'approved', evidence: 'Approval: UAT' });
+  current.evaluation!.missing_approval = 'none';
+  current.evaluation!.control_assessment = { state: 'open', authorizes: false };
+  delete current.companion!.uat_presentation;
+  delete current.companion!.decision_material_version;
+  current.companion!.next_text = 'Den Lieferbericht erstellen.';
+  const refresh = () => act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  await refresh();
+  expect(notice()?.getAttribute('role')).toBe('status');
+  expect(screen.queryByRole('button', { name: 'Zum nächsten Schritt' })).toBeNull();
+  if (availableWidth === 850) expect(screen.getByText('Den Lieferbericht erstellen.')).toBeTruthy();
+  await act(async () => { vi.advanceTimersByTime(2500); });
+  await refresh();
+  await act(async () => { vi.advanceTimersByTime(2499); });
+  expect(notice()).toBeTruthy();
+  await act(async () => { vi.advanceTimersByTime(1); });
+  expect(notice()).toBeNull();
+  await refresh();
+  expect(notice()).toBeNull();
+  expect(screen.queryByText('Aktueller Stand nicht bestätigt.')).toBeNull();
+  expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
+  expect([viewport.scrollTop, document.activeElement]).toEqual([217, viewport]);
+  expect(sourceReads(read)).toBe(1);
+  const reportButton = { name: 'Lieferbericht öffnen' };
+  expect(screen.queryByRole('button', reportButton)).toBeNull();
+  current = structuredClone(current);
+  current.lifecycle = 'completed';
+  current.revision_id = 'completion-revision';
+  current.evaluation!.control_assessment = { state: 'completed', authorizes: false };
+  current.evaluation!.completion = { status: 'completed', gate: 'OR', fulfilled: true };
+  current.companion!.next_text = 'Der Run ist abgeschlossen.';
+  current.resources.push(reportResource);
+  current.companion!.closeout_report = { resource_id: reportResource.resource_id, content_digest: report.content_digest };
+  await refresh();
+  const openReport = screen.getByRole('button', reportButton);
+  expect(sourceReads(read)).toBe(1);
+  expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
+  expect([viewport.scrollTop, document.activeElement]).toEqual([217, viewport]);
+  await act(async () => { fireEvent.click(openReport); });
+  expect(screen.getByRole('region', { name: 'Lieferbericht lesen' })).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Ergebnis des Runs' })).toBeTruthy();
+  expect(sourceReads(read)).toBe(2);
+  expect(viewport.scrollTop).toBe(0);
+  expect(screen.queryByRole('button', reportButton)).toBeNull();
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: availableWidth === 360 ? 'Zurück zum Companion' : 'Lieferbericht schließen' })); });
+  expect(screen.getByRole('button', reportButton)).toBeTruthy();
+  expect(screen.queryByRole('region', { name: 'Lieferbericht lesen' })).toBeNull();
+});
+
 it('opens the actual Markdown beside the card at 850 available pixels without expanding the host', async () => {
   width(850);
   const { run, read } = fixture(), expand = vi.fn();
@@ -42,9 +130,13 @@ it('opens the actual Markdown beside the card at 850 available pixels without ex
   expect(screen.getByRole('article', { name: 'Companion-Statuskarte' })).toBeTruthy();
   expect(screen.getByText('Letzter Absatz.')).toBeTruthy();
   expect(expand).not.toHaveBeenCalled();
+  const callsBeforeClose = vi.mocked(read).mock.calls.length;
   fireEvent.click(screen.getByRole('button', { name: 'Entwurf schließen' }));
-  await waitFor(() => expect(screen.queryByRole('heading', { name: 'Vollständiger Entwurf' })).toBeNull());
-  fireEvent.click(screen.getByRole('button', { name: 'PRD-Entwurf öffnen' }));
+  const reopen = screen.getByRole('button', { name: 'PRD-Entwurf öffnen' });
+  expect(reopen).toBe(document.activeElement);
+  expect(reopen.getAttribute('aria-disabled')).toBeNull();
+  expect(vi.mocked(read).mock.calls.slice(callsBeforeClose).map(([path]) => path.split('?')[0])).toEqual(['/api/freshness']);
+  fireEvent.click(reopen);
   await screen.findByRole('heading', { name: 'Vollständiger Entwurf' });
 });
 
@@ -261,15 +353,13 @@ it('keeps an approved draft open for reference and shows the next gate instead o
   row.state = row.version_kind = 'approved';
   row.recorded_approval = { status: 'approved', evidence: 'Approval: PRD' };
   reload();
-  await screen.findByText('Die Entscheidung für dieses Gate ist abgeschlossen.', { exact: false });
+  await screen.findByText('Deine Abnahme ist erfasst.');
   expect(screen.getByText('Lösungsdesign vorbereiten.')).toBeTruthy();
   expect(screen.getByRole('article', { name: 'Originaldokument' })).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Aktuelle Fassung öffnen' })).toBeNull();
   expect(screen.queryByText('Aktueller Stand nicht bestätigt.')).toBeNull();
   expect(sourceReads(read)).toBe(1);
-  fireEvent.click(screen.getByRole('button', { name: 'Zum nächsten Schritt' }));
-  await waitFor(() => expect(screen.queryByRole('region', { name: 'Entwurf lesen' })).toBeNull());
-  expect(screen.getByText('Lösungsdesign vorbereiten.')).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Zum nächsten Schritt' })).toBeNull();
 });
 
 it.each(['missing material', 'finding', 'unregistered', 'mismatch', 'unavailable'])('does not auto-open %s', async kind => {

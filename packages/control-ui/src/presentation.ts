@@ -18,9 +18,10 @@ const documents: Record<string, [string, string]> = {
   'Brownfield Review': ['Einordnung des Vorhabens', 'Ordnet Umfang, Auswirkungen und den passenden Umsetzungsweg ein.'],
   'Brownfield Analysis': ['Bestandsanalyse', 'Prüft bestehende Bausteine, Wiederverwendung und Umsetzungsrisiken.'],
   'UX Intent Definition': ['Nutzungsziel', 'Beschreibt die beabsichtigte Nutzung und verständliche Rückmeldungen.'],
+  'UAT Presentation': ['Abnahmeunterlage', 'Enthält das gelieferte Ergebnis, die Nachweise und die offenen Punkte für die Nutzerabnahme.'],
   'CD+Tests': ['Umsetzungs- und Prüfnachweise', 'Hält Umsetzung, Prüfergebnisse und noch offene Nachweise fest.'],
   CR: ['Code-Prüfung', 'Dokumentiert die Prüfung der konkreten Änderungen.'],
-  OR: ['Abschlussnachweise', 'Dokumentiert den Abschlussstand und verbleibende Grenzen.'],
+  OR: ['Lieferbericht', 'Dokumentiert den Abschlussstand und verbleibende Grenzen.'],
 };
 export const documentName = (type?: string) => type ? documents[type]?.[0] ?? type : 'Dokument lesen';
 export const documentPurpose = (type?: string) => type ? documents[type]?.[1] ?? 'Registrierte Quelle zu diesem Vorhaben.' : 'Registrierte Quelle zu diesem Vorhaben.';

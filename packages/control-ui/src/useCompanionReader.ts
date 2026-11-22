@@ -154,8 +154,10 @@ export function useCompanionReader({ state, enabled, visible, wide, sourcePendin
   const confirmedSource = data && target && shown ? resolveSource(data, target, shown.key) : null;
   const verified = !!(current && !sourcePending && capture && selected && shown && confirmsShownSource(capture, shown, confirmedSource)
     && (shown.decision || capture.detail.snapshot_id === state.detail?.snapshot_id) && !view.loading && !view.problem);
-  const decisionClosed = !!(current && capture && shown?.decision && data?.document_states?.some(row =>
-    row.type === shown.type && row.run_id === data.run_id && row.revision_id === data.revision_id && row.state === 'approved'));
+  const decisionClosed = !!(current && capture && shown?.decision && (shown.type === 'UAT Presentation'
+    ? data?.evaluation?.approvals.some(row => row.gate === 'UAT' && row.status === 'approved')
+    : data?.document_states?.some(row => row.type === shown.type && row.run_id === data.run_id
+      && row.revision_id === data.revision_id && row.state === 'approved')));
   const knownDecision = shown?.knownDecision ?? view.source?.knownDecision;
   const pendingDecision = !!(view.open && !decisionClosed && offered?.decision
     && (!shown?.decision || shown.type === offered.resource.type)

@@ -3,6 +3,10 @@ import { observedAssessment } from './presentation';
 
 function sourceFor(data: Detail, blocked: boolean, waiting: boolean) {
   if (waiting) {
+    if (data.evaluation?.current_gate === 'UAT') {
+      const presentation = data.companion?.uat_presentation;
+      return presentation ? { resourceId: presentation.resource_id, digest: presentation.content_digest } : null;
+    }
     const draft = data.document_states?.find(row => row.type === data.evaluation?.current_gate && row.version_kind === 'draft'
       && row.source_state === 'available' && row.run_id === data.run_id && row.revision_id === data.revision_id);
     if (draft?.content_digest) return { resourceId: draft.resource_id, digest: draft.content_digest };
@@ -11,6 +15,8 @@ function sourceFor(data: Detail, blocked: boolean, waiting: boolean) {
     const finding = data.companion.finding;
     return { resourceId: finding.resource_id, digest: finding.content_digest };
   }
+  const report = data.companion?.closeout_report;
+  if (!waiting && report) return { resourceId: report.resource_id, digest: report.content_digest };
   return null;
 }
 

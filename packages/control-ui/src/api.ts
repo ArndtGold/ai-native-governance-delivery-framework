@@ -39,6 +39,19 @@ function validCompanion(value: unknown, detail: Record<string, unknown>): boolea
     || !value.path.every(row => object(row) && companionGates.has(String(row.gate)) && ['fulfilled', 'current', 'open', 'blocked'].includes(String(row.status)))
     || typeof value.next_text !== 'string' || value.next_text.length > 500
     || typeof value.blocking_text !== 'string' || value.blocking_text.length > 500) return false;
+  const acceptance = value.uat_presentation;
+  if (acceptance !== undefined && (!object(acceptance) || !rawSha(acceptance.content_digest)
+    || !object(detail.evaluation) || detail.evaluation.current_gate !== 'UAT' || detail.evaluation.missing_approval !== 'Approval: UAT'
+    || !sha(value.decision_material_version) || !Array.isArray(detail.resources)
+    || !detail.resources.some(r => object(r) && r.resource_id === acceptance.resource_id && r.type === 'UAT Presentation'
+      && r.status === 'registered' && r.run_id === detail.run_id))) return false;
+  const report = value.closeout_report;
+  const runId = detail.run_id;
+  if (report !== undefined && (!object(report) || !rawSha(report.content_digest) || !Array.isArray(detail.resources)
+    || typeof runId !== 'string' || !RUN_ID_PATTERN.test(runId)
+    || !detail.resources.some(r => object(r) && r.resource_id === report.resource_id && r.type === 'OR'
+      && r.run_id === runId && r.status === 'registered' && r.path === r.registered_reference
+      && r.path === runDocumentPath(runId, 'OR.md')))) return false;
   const finding = value.finding;
   if (finding === undefined) return true;
   if (!object(finding) || !rawSha(finding.content_digest) || !object(detail.evaluation) || !object(detail.evaluation.control_assessment)

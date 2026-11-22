@@ -67,6 +67,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
   const [backlogReturnNotice, setBacklogReturnNotice] = useState<string | null>(null);
   const [unavailableObservation, setUnavailableObservation] = useState<string | null>(null);
   const freshnessPending = useRef<AbortController | null>(null);
+  const checkCompanionFreshness = useRef<(() => Promise<void>) | null>(null);
   const draftPending = useRef<AbortController | null>(null);
   const contextPending = useRef<symbol | null>(null);
   const beforeContextRead = useCallback(() => {
@@ -467,6 +468,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
       }
       finally { checking = false; }
     };
+    checkCompanionFreshness.current = check;
     let waiting: AbortController | null = null;
     const listen = async () => {
       if (!read.waitForChanges || document.hidden || controller.signal.aborted || waiting || contextPending.current) return;
@@ -492,7 +494,7 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
     const timer = window.setInterval(check, watchActivity ? 2000 : 5000); document.addEventListener('visibilitychange', visibility);
     if (justShown) void check();
     void listen();
-    return () => { window.clearInterval(timer); window.clearTimeout(restart); waiting?.abort(); controller.abort(); document.removeEventListener('visibilitychange', visibility); };
+    return () => { checkCompanionFreshness.current = null; window.clearInterval(timer); window.clearTimeout(restart); waiting?.abort(); controller.abort(); document.removeEventListener('visibilitychange', visibility); };
   }, [state.scope, state.stale, state.phase, watchActivity, read, navigate, host, compact, cardVisible, handoff, draftAction.busy, !!review]);
   useEffect(() => () => { void handoff?.invalidate(); }, [handoff]);
   const recordReviewPosition = useCallback(() => {
@@ -767,7 +769,9 @@ export function App({ secret = '', transport, compact: hostCompact = false, onEx
     activity={refreshed ? refreshed.activity : state.scope?.companion_observation?.activity}
     activityUnknown={refreshed ? refreshed.unknown : state.scope?.companion_observation?.liveness === 'unknown'} companionEmpty={companionEmpty} onAbout={() => setAboutOpen(true)} sourceEntry={sourceEntry} visible={companionVisible} reader={reader} onReaderClose={() => {
       reader.close();
-      void navigate({ view: 'detail', runId: state.route.runId }, state.stale, true);
+      // A confirmed document capture already carries the selected Run detail.
+      if (reader.current && checkCompanionFreshness.current) void checkCompanionFreshness.current();
+      else void navigate({ view: 'detail', runId: state.route.runId }, state.stale, true);
     }} onReaderLink={id => {
       if (!reader.current || !detail || !state.scope) return;
       const original = reader.capture?.detail.data?.resources.find(r => r.resource_id === id);

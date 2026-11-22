@@ -4,7 +4,8 @@ import { closeoutConfirmation } from '../lib/control-evaluation/closeout-readine
 import { randomUUID } from 'node:crypto';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
 import { join } from 'node:path';
 import { currentFixture, currentRun } from './fixtures/current-run.js';
 import { clarifiedUr } from './planned-fixtures.js';
@@ -29,8 +30,24 @@ test('current structured journey retains exact approved source mappings and deri
   assert.equal(runSealState(run.f.root, run.content()).status, 'valid');
   accepted(run.approve('QA'));
   assert.equal(run.decision().current_gate, 'UAT');
-  accepted(run.approve('UAT'));
+  const reader = createCockpitReader(run.f.root);
+  assert.equal(reader.snapshot(run.id).data.run.companion.uat_presentation, undefined);
+  const presentationId = accepted(run.present('UAT')).family_result.presentation_id;
+  const snapshot = reader.snapshot(run.id);
+  const source = snapshot.data.run.companion.uat_presentation;
+  const document = reader.document(source.resource_id, snapshot.snapshot_id, run.id).data.document;
+  const file = join(run.f.root, '.agdf/control/runs', run.id, 'control/presentations', presentationId + '.document');
+  const original = readFileSync(file, 'utf8');
+  assert.equal(document.format, 'markdown');
+  assert.equal(document.content, original);
+  assert.equal(document.content_digest, source.content_digest);
+  writeFileSync(file, original + 'Changed');
+  assert.equal(reader.snapshot(run.id).data.run.companion.uat_presentation, undefined);
+  writeFileSync(file, original);
+  accepted(run.call('approval.record', { gate: 'UAT', presentation_id: presentationId, response: 'Approval: UAT' }));
+  assert.equal(reader.snapshot(run.id).data.run.companion.uat_presentation, undefined);
   assert.equal(run.decision().current_gate, 'OR');
+  assert.equal(reader.snapshot(run.id).data.run.companion.closeout_report, undefined);
   const control = run.control();
   for (const gate of ['UR', 'PRD', 'SD', 'TP', 'QA', 'UAT']) assert.equal(control.approvals.get(gate).status, 'approved');
   assert.doesNotMatch(run.content(), /^## (Approvals|Artefacts|Artefact Chain|Current Control State|Evidence)$/mu);
@@ -46,6 +63,12 @@ test('current structured journey retains exact approved source mappings and deri
   const completed = run.f.call('closeout.record', { or,
     confirmation: closeoutConfirmation(run.id, binding.expected_revision_id, operation_id, or.digest) }, { ...binding, operation_id });
   accepted(completed);
+  const reportSnapshot = reader.snapshot(run.id);
+  const reportSource = reportSnapshot.data.run.companion.closeout_report;
+  const reportDocument = reader.document(reportSource.resource_id, reportSnapshot.snapshot_id, run.id).data.document;
+  assert.equal(reportDocument.resource.path, `.agdf/control/runs/${run.id}/documents/OR.md`);
+  assert.equal(reportDocument.content_digest, reportSource.content_digest);
+  assert.equal(reportDocument.content, readFileSync(join(directory, 'documents', 'OR.md'), 'utf8'));
   assert.equal(run.state().meta.lifecycle, 'completed');
   assert.equal(runSealState(run.f.root, run.content()).status, 'valid');
   assert.equal(run.f.execute({ ...run.f.request('closeout.record', { or,

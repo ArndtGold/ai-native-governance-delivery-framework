@@ -36,7 +36,9 @@ export interface RunClosure { outcome: 'superseded' | 'abandoned'; reason: strin
 export interface NextOperation { type: string; operation_key: string; actor: 'agent' | 'human'; effect: string; gate: string; skill_id?: string }
 export interface CompanionFigure { mood: string; reason: { key: string; gate?: string; decision?: string; reason?: string } }
 export interface CompanionStatus { route: string; path: { gate: string; status: 'fulfilled' | 'current' | 'open' | 'blocked' }[];
-  next_text: string; blocking_text: string; goal?: string; decision_material_version?: string; finding?: { resource_id: string; content_digest: string } }
+  next_text: string; blocking_text: string; goal?: string; decision_material_version?: string;
+  uat_presentation?: { resource_id: string; content_digest: string }; closeout_report?: { resource_id: string; content_digest: string };
+  finding?: { resource_id: string; content_digest: string } }
 export interface Detail { run_id: string; title?: string; title_source?: 'ur' | 'objective' | 'run_id'; revision_id: string | null; lifecycle: string | null; objective?: string | null; resources: Resource[]; diagnostics?: Diagnostic[];
   active_run_ids?: string[];
   figure?: CompanionFigure;

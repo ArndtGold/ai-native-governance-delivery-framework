@@ -342,12 +342,18 @@ describe('Codex Companion status card', () => {
     const run = companionDraft(), reply = draftRead(run);
     const returning: Detail = { ...run, resources: [], document_states: [],
       evaluation: { ...run.evaluation!, missing_approval: 'none', control_assessment: { state: 'open', authorizes: false } } };
-    const read = vi.fn(async (path: string) => path.startsWith('/api/documents/') ? reply : path.startsWith('/api/runs/')
-      ? runScope(returning, 'returned-snapshot') : runScope(run)) as unknown as ReadTransport;
+    let changedSinceOpen = false;
+    const read = vi.fn(async (path: string) => {
+      if (path.startsWith('/api/documents/')) return reply;
+      if (path.startsWith('/api/freshness') && changedSinceOpen) return changed;
+      return changedSinceOpen ? runScope(returning, 'returned-snapshot') : runScope(run);
+    }) as unknown as ReadTransport;
     render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
     await screen.findByText('Du bist dran');
     fireEvent.click(primary());
-    fireEvent.click(await screen.findByRole('button', { name: 'Zurück zum Companion' }));
+    const back = await screen.findByRole('button', { name: 'Zurück zum Companion' });
+    changedSinceOpen = true;
+    fireEvent.click(back);
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('heading', { name: run.title })));
     expect(screen.queryByRole('button', { name: 'PRD-Entwurf öffnen' })).toBeNull();
     expect(screen.queryByText('Approval: PRD', { selector: 'code' })).toBeNull();

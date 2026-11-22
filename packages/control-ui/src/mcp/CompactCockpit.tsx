@@ -39,7 +39,12 @@ export function CompactCockpit({ observationNotice, state, headingRef, enabled, 
   const status = readingStatus(state);
   const busy = state.phase === 'loading', usable = !expired && enabled && !busy && !state.stale && !state.problem && state.phase === 'ready' && !!state.scope?.data;
   const mismatch = detailHasMismatch(data);
-  const current = usable && state.detail?.state === 'available' && !mismatch;
+  const currentDetail = usable && state.detail?.state === 'available' && !state.requestedRoute && data?.run_id === state.route.runId;
+  const current = currentDetail && !mismatch;
+  const assessment = data?.evaluation?.control_assessment?.state;
+  const confirmedGate = !!(currentDetail && data?.evaluation?.current_gate && data.evaluation.status !== 'not_evaluated'
+    && (!mismatch || data.lifecycle === 'active' && (assessment === 'open' || assessment === 'blocked')
+      && data.persisted?.current_gate === data.evaluation.current_gate));
   const companionRun = host === 'codex' && state.route.view === 'detail' && !!data;
   const noActiveRun = host === 'codex' && companionEmpty && state.route.view === 'overview' && state.phase === 'ready'
     && (state.scope?.code === 'control_absent' || state.inventory?.data?.kind === 'work'
@@ -54,7 +59,7 @@ export function CompactCockpit({ observationNotice, state, headingRef, enabled, 
       </div></div> : state.route.view === 'document' && state.document ? <div className="compact-document">
         <button className="text-link" onClick={onBack} disabled={host === 'codex' ? !enabled || busy || expired : !usable}>Zurück zur Statuskarte</button>
         <DocumentView result={state.document} detail={state.detail ?? undefined} current={!state.stale && !state.problem && state.phase === 'ready'} runTitle={selected?.title} onOpen={id => { const resource = data?.resources.find(r => r.resource_id === id); if (resource) onOpen?.(resource); }}/>
-      </div> : companionRun && data ? <CompanionCard key={data.run_id} state={state} data={data} activity={activity} activityUnknown={activityUnknown} current={current} visible={visible}
+      </div> : companionRun && data ? <CompanionCard key={data.run_id} state={state} data={data} activity={activity} activityUnknown={activityUnknown} current={current} confirmedGate={confirmedGate} visible={visible}
         enabled={enabled} motion={motion} mismatch={mismatch} sourcePending={sourcePending} sourceInReader={reader.sourceInReader}
         canOfferApproval={reader.canOfferApproval} showWidthHint={reader.showWidthHint}
         onOpen={onOpenCompanion} onReload={onReload} continuation={continuation}/> : selected && data ? <div className="compact-run">

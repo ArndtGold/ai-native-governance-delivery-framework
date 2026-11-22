@@ -17,12 +17,34 @@ import { CompanionGatePath, CompanionProgress } from './CompanionProgress';
 import { CompanionContinuationAction } from './CompanionContinuationAction';
 import type { CompanionContinuation } from './companion-continuation';
 
-const gateRationales: Readonly<Record<string, string>> = registry.locales.de.gateRationale;
+const gateRationales = registry.locales.de.gateRationale;
+type PurposeGate = keyof typeof gateRationales;
+const purposeHeadings: Record<PurposeGate, string> = {
+  UR: 'Warum klären wir den Auftrag?',
+  'Brownfield Review': 'Warum prüfen wir den Bestand?',
+  'Mode/Slice Decision': 'Warum legen wir den Umfang dieser Lieferung fest?',
+  PRD: 'Warum halten wir die Produktanforderungen fest?',
+  SD: 'Warum entwerfen wir die technische Lösung?',
+  TP: 'Warum planen wir die Umsetzung und die Tests?',
+  'Brownfield Analysis': 'Warum untersuchen wir den bestehenden Code im Detail?',
+  'CD+Tests': 'Warum testen wir schon während der Umsetzung?',
+  CR: 'Warum prüfen wir die Änderungen im Code-Review?',
+  QA: 'Warum prüfen wir die Qualitätsnachweise?',
+  UAT: 'Warum braucht es deine Abnahme?',
+  OR: 'Warum erstellen wir einen Lieferbericht?',
+};
+function hasPurpose(gate: string | undefined): gate is PurposeGate {
+  return gate !== undefined && Object.hasOwn(purposeHeadings, gate);
+}
+const purposeTexts = {
+  ...gateRationales,
+  'Brownfield Review': 'Wir klären, welche bestehenden Systeme betroffen sind, wer dafür verantwortlich ist und welche Regeln dort gelten. So können wir Vorhandenes wiederverwenden und vermeiden, dass Änderungen bestehende Abläufe stören.',
+};
 const labels = companionLabels(registry);
 const companionLabel = (path: string, params?: Record<string, string>) => label(labels, 'de', path, params);
 
-export function CompanionCard({ state, data, activity, activityUnknown, current, visible, enabled, motion, mismatch, sourcePending, sourceInReader, canOfferApproval, showWidthHint, onOpen, onReload, continuation }: {
-  state: ReadingState; data: Detail; activity?: CompanionActivity; activityUnknown?: boolean; current: boolean; visible: boolean; enabled: boolean; motion: boolean; mismatch: boolean;
+export function CompanionCard({ state, data, activity, activityUnknown, current, confirmedGate, visible, enabled, motion, mismatch, sourcePending, sourceInReader, canOfferApproval, showWidthHint, onOpen, onReload, continuation }: {
+  state: ReadingState; data: Detail; activity?: CompanionActivity; activityUnknown?: boolean; current: boolean; confirmedGate: boolean; visible: boolean; enabled: boolean; motion: boolean; mismatch: boolean;
   sourcePending: boolean; sourceInReader: boolean; canOfferApproval: boolean; showWidthHint?: boolean; onOpen: (resource: Resource, digest: string) => void;
   onReload: () => void; continuation?: CompanionContinuation;
 }) {
@@ -30,6 +52,7 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
   const companion = data.companion;
   const { assessment, waiting, human } = companionDecision(data, !mismatch && state.detail?.state === 'available');
   const gate = evaluation?.current_gate;
+  const differentNextStep = confirmedGate && mismatch;
   const completed = assessment === 'completed' && evaluation?.completion?.fulfilled === true;
   const expired = hasExpiredSession(state);
   const previous = readingStatus(state).previous;
@@ -48,10 +71,10 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
   }, [activeUntil]);
   const work = active && gate ? activityOf({ reason: { key: 'working', gate } }, { gate }, true, companionLabel, phaseName) : null;
   const unknown = activityUnknown === true && current && visible !== false && !state.refreshing;
-  const marks = companion && assessment !== 'unconfirmed' ? gateMarks({ path: companion.path, gate, route: companion.route, lifecycle: data.lifecycle }) : [];
+  const marks = companion && (assessment !== 'unconfirmed' || differentNextStep) ? gateMarks({ path: companion.path, gate, route: companion.route, lifecycle: data.lifecycle }) : [];
   const gateMark = completed ? marks.filter(mark => mark.mark === 'done').at(-1)
     : marks.find(mark => mark.mark === 'current' && (mark.gate === BUILD_MARK || mark.gate === gate));
-  const observedGate = current || ((previous || expired) && !mismatch)
+  const observedGate = confirmedGate || ((previous || expired) && !mismatch)
     ? gateMark?.gate ?? gate
     : undefined;
   const displayedPhase = observedGate ? gateName(observedGate) : undefined;
@@ -66,12 +89,13 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
   const widthHintId = useId();
   const stepId = useId();
   const showSourceHint = current && !blocked && showWidthHint && !!resource && !sourceInReader;
-  const displayGate = current && !previous ? gateMark : undefined;
+  const displayGate = confirmedGate && !previous ? gateMark : undefined;
   const currentStep = displayGate?.mark === 'current' && companion?.route !== 'undecided'
     ? marks.indexOf(displayGate) + 1 : 0;
   const nextStep = companion?.next_text || evaluation?.next_action_de;
   const review = waiting && !!resource;
-  const reason = review ? 'Lies den Entwurf und prüfe, ob er zu deinem Auftrag passt.' : blocked
+  const reason = differentNextStep ? evaluation?.next_action_de || evaluation?.next_allowed_action
+    : review ? 'Lies den Entwurf und prüfe, ob er zu deinem Auftrag passt.' : blocked
     ? companion?.blocking_text || 'Die Kontrollauswertung meldet ein Hindernis.'
     : nextStep;
   const offerApproval = waiting && canOfferApproval;
@@ -90,7 +114,7 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
     observer?.observe(preview);
     return () => observer?.disconnect();
   }, [goal]);
-  const rationale = gate && (human || pending) && Object.hasOwn(gateRationales, gate) ? gateRationales[gate] : null;
+  const purposeGate = (human || pending) && hasPurpose(gate) ? gate : null;
   const snapshotId = state.scope?.snapshot_id;
   const action = current && visible && snapshotId && data.revision_id && data.lifecycle === 'active'
     && (offerApproval || (pending && evaluation?.next_operation?.actor === 'agent'));
@@ -121,18 +145,19 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
         selection={{ snapshot_id: snapshotId, run_id: data.run_id, revision_id: data.revision_id }} />}
     </div>}
     {state.detail?.code && <ReadState state={state.detail.state} code={state.detail.code}/>}
-    {mismatch && <ReadState state="partial" code="persisted_mismatch"/>}
+    {mismatch && !differentNextStep && <ReadState state="partial" code="persisted_mismatch"/>}
     {marks.length > 0 && <div className="companion-progress">
       {currentStep > 0 && <p className="companion-pit-stop">Boxenstopp {currentStep} von {marks.length}</p>}
-      <CompanionProgress marks={marks} previous={!current}/>
+      <CompanionProgress marks={marks} previous={!confirmedGate}/>
     </div>}
-    {(goal && goalClipped || rationale || unknown || showSourceHint || marks.length > 0) && <details className="companion-details"><summary>ⓘ Details</summary>
+    {(differentNextStep || goal && goalClipped || purposeGate || unknown || showSourceHint || marks.length > 0) && <details className="companion-details"><summary>ⓘ Details</summary>
       <dl>
+        {differentNextStep && <><dt>Nächster Schritt</dt><dd>Die Karte zeigt den aktuell ermittelten nächsten Schritt. Der gespeicherte Schritt weicht davon ab.</dd></>}
         {unknown && <><dt>Codex-Aktivität</dt><dd>Ob Codex gerade an diesem Run arbeitet, ist unklar.</dd></>}
-        {rationale && <><dt>Wozu dieses Gate da ist</dt><dd>{rationale}</dd></>}
+        {purposeGate && <><dt>{purposeHeadings[purposeGate]}</dt><dd>{purposeTexts[purposeGate]}</dd></>}
         {showSourceHint && <><dt>Entwurfsansicht</dt><dd id={widthHintId}>In einer breiteren Ansicht öffnet sich der Entwurf automatisch daneben.</dd></>}
         {goal && goalClipped && <><dt>Ziel</dt><dd className="companion-full-goal">{goal}</dd></>}
-        {marks.length > 0 && <><dt>Vollständige Gate-Reihenfolge</dt><dd><CompanionGatePath marks={marks} previous={!current}/></dd></>}
+        {marks.length > 0 && <><dt>Vollständige Gate-Reihenfolge</dt><dd><CompanionGatePath marks={marks} previous={!confirmedGate}/></dd></>}
       </dl>
     </details>}
   </article>;

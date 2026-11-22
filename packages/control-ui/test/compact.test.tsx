@@ -17,6 +17,27 @@ function chooseArea(name:string){fireEvent.click(screen.getByRole('combobox',{na
 async function tick(){await act(async()=>{await vi.advanceTimersByTimeAsync(5000);});}
 afterEach(()=>{cleanup();vi.restoreAllMocks();vi.useRealTimers();vi.unstubAllGlobals();});
 
+it.each([
+  ['QA', 'blocked', true], ['TP', 'blocked', false], ['QA', 'unconfirmed', false],
+] as const)('shows a confirmed gate when only the next action differs (%s, %s)', async (storedGate, assessment, showGate) => {
+  const run: Detail = { ...data, persisted: { ...data.persisted!, current_gate: storedGate, next_allowed_action: 'Revisit the delivery.' },
+    evaluation: { ...data.evaluation!, current_gate: 'QA', next_action_de: 'Fehlende Prüfnachweise ergänzen.',
+      next_allowed_action: 'Collect the QA evidence.', blocking_reason: 'qa_revise_required', missing_approval: 'none',
+      control_assessment: { state: assessment, authorizes: false } } };
+  const read = vi.fn(async () => runScope(run)) as unknown as ReadTransport;
+  render(<App compact host="codex" transport={read} initialRunId={run.run_id}/>);
+  const card = await screen.findByRole('article', { name: 'Companion-Statuskarte' });
+  if (showGate) {
+    expect(card.querySelector('.companion-signal')?.textContent).toBe('Das Vorhaben ist in der Phase „Qualitätsprüfung“.');
+    expect(card.textContent).toContain('Fehlende Prüfnachweise ergänzen.');
+    expect(card.querySelector('details')?.open).toBe(false);
+  } else {
+    expect(card.querySelector('.companion-signal')?.textContent).not.toContain('Qualitätsprüfung');
+  }
+  expect(card.querySelector('.companion-source')).toBeNull();
+  expect(card.textContent).not.toContain('Approval: QA');
+});
+
 function companionDraft() {
   const run = documentFixture();
   run.title = 'Karte mit registriertem Entwurf';
@@ -376,12 +397,14 @@ describe('Codex Companion status card', () => {
   });
 
   it.each([
-    ['Brownfield Review', 'Einordnung des Vorhabens'],
-    ['Brownfield Analysis', 'Umsetzung und Tests'],
-    ['PRD', 'Produktanforderungen'],
-    ['QA', 'Qualitätsprüfung'],
-    ['Neuer Schritt', 'Neuer Schritt'],
-  ])('names the pending %s gate as %s below the figure', async (gate, heading) => {
+    ['Brownfield Review', 'Einordnung des Vorhabens', 'Warum prüfen wir den Bestand?'],
+    ['Brownfield Analysis', 'Umsetzung und Tests', 'Warum untersuchen wir den bestehenden Code im Detail?'],
+    ['CR', 'Umsetzung und Tests', 'Warum prüfen wir die Änderungen im Code-Review?'],
+    ['PRD', 'Produktanforderungen', 'Warum halten wir die Produktanforderungen fest?'],
+    ['QA', 'Qualitätsprüfung', 'Warum prüfen wir die Qualitätsnachweise?'],
+    ['UAT', 'Abnahme', 'Warum braucht es deine Abnahme?'],
+    ['Neuer Schritt', 'Neuer Schritt', ''],
+  ])('shows the %s step in Details while naming the %s phase below the figure', async (gate, heading, question) => {
     const run = companionDraft();
     run.persisted!.current_gate = gate;
     run.evaluation = { ...run.evaluation!, current_gate: gate, missing_approval: 'none',
@@ -393,6 +416,15 @@ describe('Codex Companion status card', () => {
     expect(signal.closest('.companion-figure-block')).toBeTruthy();
     expect(signal.getAttribute('role')).toBe('status');
     expect(screen.queryByText('Du bist dran')).toBeNull();
+    if (question) {
+      const term = screen.getByText(question, { selector: 'dt' });
+      expect(term.closest('details.companion-details')).toBeTruthy();
+      if (gate === 'Brownfield Review') {
+        expect(term.nextElementSibling?.textContent).toBe('Wir klären, welche bestehenden Systeme betroffen sind, wer dafür verantwortlich ist und welche Regeln dort gelten. So können wir Vorhandenes wiederverwenden und vermeiden, dass Änderungen bestehende Abläufe stören.');
+      }
+    } else {
+      expect(screen.queryByText(/^Warum /, { selector: 'dt' })).toBeNull();
+    }
   });
 
   it('addresses the user when a decision is pending without a formal approval', async () => {

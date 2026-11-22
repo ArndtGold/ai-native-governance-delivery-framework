@@ -348,7 +348,7 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
     const details = card.getByText('ⓘ Details', { exact: true });
     await details.focus(); await details.press('Enter');
     await expect(fullPath.getByRole('listitem')).toHaveText(['UR Abgeschlossen', 'PRD Aktuell', 'SD Offen', 'TP Offen', 'CD+Tests Offen', 'QA Offen', 'UAT Offen', 'OR Offen']);
-    await expect(card.getByText('Wozu dieses Gate da ist')).toBeVisible();
+    await expect(card.getByText('Warum halten wir die Produktanforderungen fest?', { exact: true })).toBeVisible();
     await expect(card.getByText('Datenstand und Prüfung', { exact: true })).toHaveCount(0);
     await expect(card.getByRole('button', { name: 'Vorhaben öffnen' })).toHaveCount(0);
     const about = frame.getByRole('button', { name: 'Über das Cockpit' });

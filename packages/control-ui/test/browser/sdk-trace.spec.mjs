@@ -730,7 +730,8 @@ for (const surface of ['inline', 'panel', ...(referenceDirectory ? ['reference']
       const oldCaptureCount = subjectCaptures, oldDocumentCount = documentRequests;
       const otherUr = clarifiedUr.replace(/^# UR: .*$/m, '# UR: Zweiter Test-Run');
       expect(otherRun.step('ur', otherUr, { title: 'Zweiter Test-Run' }).outcome).toBe('accepted');
-      await expect.poll(() => subjectCaptures).toBeGreaterThan(oldCaptureCount);
+      // Allow a full five-second freshness interval and the subsequent snapshot read.
+      await expect.poll(() => subjectCaptures, { timeout: 10_000 }).toBeGreaterThan(oldCaptureCount);
       await expect(download).toBeVisible();
       await expect(reader.locator('.companion-reader-notice')).toHaveCount(0);
       expect(documentRequests).toBe(oldDocumentCount);

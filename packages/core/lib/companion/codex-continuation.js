@@ -47,6 +47,7 @@ function validateRecord(record, relative) {
     || (record.phase === 'running' && !uuid(record.owner))
     || (['reserved', 'pending'].includes(record.phase) && (!uuid(record.view_id) || record.owner !== null))
     || (record.ended !== undefined && (record.ended !== true || !record.turn || !['running', 'settled'].includes(record.phase)))
+    || (record.interrupt_requested !== undefined && (record.interrupt_requested !== true || !record.turn || !['running', 'settled'].includes(record.phase)))
     || (record.turn !== null && (!isTurnId(record.turn?.session) || !isTurnId(record.turn?.id))))
     throw Error('continuation_record_invalid');
   return record;
@@ -92,6 +93,7 @@ function canRelease(record) {
 function status(record) {
   if (!record || record.phase === 'settled') return ready;
   if (record.phase === 'running' && record.ended === true && canRelease(record)) return ready;
+  if (record.phase === 'running' && record.interrupt_requested) return { state: 'running', interrupt_requested: true };
   return { state: record.phase === 'running' ? 'running' : 'pending' };
 }
 
@@ -115,15 +117,21 @@ export function createCodexContinuationAdmission(dataRoot) {
     } catch { return unavailable; }
   }
 
-  function settleRunning(scope, attemptId, turn) {
+  function observeRunning(scope, attemptId, turn, event) {
     return change(scope, old => {
       if (old?.phase !== 'running' || old.attempt_id !== attemptId
         || old.turn?.session !== turn?.session || old.turn?.id !== turn?.id || !old.turn)
         return { projection: status(old) };
+      if (event === 'Interrupt') {
+        if (old.interrupt_requested || old.ended) return { projection: status(old) };
+        const interrupted = { ...old, interrupt_requested: true };
+        return { record: interrupted, projection: status(interrupted) };
+      }
+      if (event !== 'Stop') return { projection: status(old) };
       const ended = { ...old, ended: true };
       return canRelease(ended)
         ? { record: { ...ended, phase: 'settled' }, projection: ready }
-        : { record: ended, projection: { state: 'running' } };
+        : { record: ended, projection: status(ended) };
     });
   }
 
@@ -162,7 +170,7 @@ export function createCodexContinuationAdmission(dataRoot) {
       return change(scope, old => {
         if (eligible() !== true) return { projection: { state: 'stale' } };
         if (owner !== undefined) {
-          if (old?.phase !== 'running' || old.ended === true || old.owner !== owner) return { projection: status(old).state === 'ready' ? { state: 'stale' } : status(old) };
+          if (old?.phase !== 'running' || old.ended === true || old.interrupt_requested === true || old.owner !== owner) return { projection: status(old).state === 'ready' ? { state: 'stale' } : status(old) };
           if (matches(old, scope)) return { projection: status(old) };
           const record = { ...old, ...binding(scope) };
           return { record, projection: { state: 'running', attempt_id: record.attempt_id, owner, admitted: true } };
@@ -184,8 +192,9 @@ export function createCodexContinuationAdmission(dataRoot) {
         return { record: { ...old, turn }, projection: { state: 'running', matched: true } };
       });
     },
-    settleRunning,
-    settleTurn(turn) {
+    settleRunning: (scope, attemptId, turn) => observeRunning(scope, attemptId, turn, 'Stop'),
+    observeRunning,
+    settleTurn(turn, event = 'Stop') {
       if (!isTurnId(turn?.session) || !isTurnId(turn?.id)) return;
       try {
         readyRoot(dataRoot, false);
@@ -197,7 +206,7 @@ export function createCodexContinuationAdmission(dataRoot) {
           try { old = readRecord(dataRoot, `${directory}/${name}`); }
           catch { continue; }
           if (old?.phase === 'running' && old.turn?.session === turn.session && old.turn?.id === turn.id)
-            settleRunning(old, old.attempt_id, turn);
+            observeRunning(old, old.attempt_id, turn, event);
         }
       } catch { /* A missing or unreadable record cannot prove a release. */ }
     },

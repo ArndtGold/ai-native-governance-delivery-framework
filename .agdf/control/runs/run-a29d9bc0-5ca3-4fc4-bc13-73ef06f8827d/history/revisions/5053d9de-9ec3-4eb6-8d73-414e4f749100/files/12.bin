@@ -1,0 +1,99 @@
+# TP: Isolated AGDF test mode for native Codex Desktop click tests
+
+Status: draft
+Gate: TP
+Gate approval: open
+Based on: SD
+Date: 2026-11-22
+Owner: AGDF Core and Codex integration maintainers
+Traceability contract: criteria-chain-v1
+Planning Decisions contract: tp-decisions-v1
+
+## 1. Task List
+
+Implement the [approved solution design](SD.md) for the six criteria in the [PRD](PRD.md). A fixture is a disposable Run in the isolated profile. Its only work is a status read and a reply containing the case marker.
+
+| task_id | Task | Owner | Dependencies |
+|---|---|---|---|
+| T-001 | Extend local test setup to create the isolated workspace and explicit fixture designation. Record canonical roots, profile and activation identity, installed generation and the exact Run, revision, operation and case marker. Add a read-only preflight and deliberate deactivation. | Codex integration | Approved SD and Brownfield Analysis before code changes |
+| T-002 | Implement one server-side test-scope decision at both entry points. Resolve actual profile and package identity independently on each route, require a shared admission root, and recheck eligibility and canonical binding on reserve, publish and claim. Cover deactivation and predecessor continuity. | AGDF Core and Codex integration | T-001 |
+| T-003 | Use the existing per-Run admission service and hook association for fixture requests. Return the fixed status-read task only to the winning dispatch. Preserve pending work on reopen, cancellation, interruption and upgrade. Add a case-scoped timing checkpoint for repeatable observation in the isolated test harness. | AGDF Core and Codex integration | T-002 |
+| T-004 | Present the test scope, named fixture, current state, blocker and available action in the existing Companion. Preserve keyboard focus on refresh. Show the candidate and case in details. Implement redacted case capture from the actual sources and label unavailable observations. | Companion UI and Codex integration | T-002 and T-003 |
+| T-005 | Extend the existing Core, MCP, UI and built-browser suites. Verify packaging of the same sources, exercise ordinary use and invalid contexts, and record per-route counts and source identity before the first manual click. | AGDF integration and QA | T-001 through T-004 |
+| T-006 | Install the identified candidate in the isolated profile, perform the native cases below, review case-local evidence, settle eligible fixtures and hand the records to the linked continuation Run for assessment. | Desktop test maintainer and QA | T-005 and matched preflight on both installed routes |
+
+## 2. Verification Traceability
+
+| criterion_id | design_decision_id | task_id | scenario_id | expected_result | evidence |
+|---|---|---|---|---|---|
+| AC-001 | SDD-001 | T-001 | SCN-001 | Only the deliberately provisioned disposable fixture in its owning profile has a valid designation. A different profile, ordinary Run, copied or linked workspace cannot acquire one from the view. | Profile setup test and identity preflight for every case. |
+| AC-001 | SDD-002 | T-002 | SCN-002 | Both MCP routes deny the same missing, out-of-scope or stale test binding before work. Changing identity between display and grant also results in zero test work. | Paired route results and counts for reserve, publish and claim. |
+| AC-001 | SDD-006 | T-004 | SCN-003 | At 360 pixels and in the wide panel, the tester can identify the selected fixture and its one available action or read a specific blocker and recovery. | Rendered panel, accessible role/name and keyboard focus across a poll. |
+| AC-002 | SDD-003 | T-006 | SCN-004 | One manual click publishes one attempt. The receiving dispatch claims that attempt exactly once for the selected fixture. | Native gesture, send count, durable attempt and matching claim. |
+| AC-002 | SDD-004 | T-003 | SCN-005 | The winning AGDF response permits only the fixture readback and the case-marker reply. Its execution leaves the Run revision and approval state unchanged. | Recorded dispatch shape, read result and before/after fixture state. |
+| AC-002 | SDD-006 | T-006 | SCN-006 | The claim from the single-click case is linked to exactly one actual receiving turn showing the fixture marker. A missing claim or turn is identified as missing. | Receiving-chat observation and correlated PostToolUse, session and turn aliases for SCN-004. |
+| AC-003 | SDD-003 | T-006 | SCN-007 | Across two ready Companion views for one fixture, competition admits one attempt and one corresponding turn. The second view observes the original attempt and cannot send again. | Two native view observations, ordered publication and denial, send and admission counts. |
+| AC-003 | SDD-002 | T-006 | SCN-008 | Companion versus ordinary chat yields one winner on the same Run. The other route grants zero additional work. An independent ready fixture remains eligible. | Native race trace naming each route, original attempt, losing response and independent fixture status. |
+| AC-004 | SDD-003 | T-006 | SCN-009 | Closing and reopening after publish, before the original claim, and checking status preserve the attempt and send count. Matching Stop or Interrupt permits settlement after canonical checks. | Before/after native panel, attempt, lifecycle source and counts. |
+| AC-004 | SDD-006 | T-004 | SCN-010 | A stale action requests a refresh. A proven pre-publication non-start can offer deliberate retry after readiness is confirmed. Missing or conflicting events after publication keep the handoff open. | UI and admission traces for each branch, focus, labels and count deltas. |
+| AC-005 | SDD-002 | T-002 | SCN-011 | A stale peer, mixed package generation, wrong admission root or withdrawn activation prevents test admission even from an already open card. | Identity report from both installed routes and their zero new grant counts. |
+| AC-005 | SDD-005 | T-006 | SCN-012 | Upgrade carries the disposition of the predecessor. Settled work permits a newly designated case on a matched successor. An unresolved predecessor or missing continuity proof prevents a second start. | Paired predecessor/successor identity, fresh sessions, original admission state and new start counts. |
+| AC-006 | SDD-004 | T-004 | SCN-013 | The bounded marker, attempt and receiving turn can be matched per case. A marker alone or data from another build cannot establish the native result. | Case exporter tests with matching, partial and mismatched inputs. |
+| AC-006 | SDD-006 | T-006 | SCN-014 | An independent reviewer can reconstruct the observed outcome or locate the specific gap for every linked case using only the redacted handoff. | Reviewed native case index and references to allowed observations. |
+
+## 3. Test Plan
+
+Use the existing `codex-continuation-admission-test.js`, MCP `companion-continuation.test.js`, UI `companion-continuation.test.tsx` and built-browser `sdk-trace.spec.mjs` suites. Reuse their existing race and recovery cases. Add checks for the fixture and profile boundary, bounded response, generation transitions and corresponding operator states. Run the affected suites, Control UI typecheck and package integrity checks on the candidate. Capture their results separately from native observations. A fresh authenticated isolated Desktop session and manual access to the panel and chat are execution prerequisites; record their actual availability for each test. No restart of the ordinary desktop profile is part of this procedure.
+
+**Native setup and timing.** Record the Desktop version, package and UI resource identities, both servers' observed roots and generation, and the fixture's current operation. Open two chats on the same disposable project. Assign a fresh fixture to each race or lifecycle case. Keep a second ready fixture for the independence check. In the fixture-only harness, allow the operator to pause the original receiving claim after publication or defer the bounded reply until the competing request has been observed. The checkpoint must leave the shared admission lock free, allow ordinary status reads and competing requests, and affect only the designated fixture. Release by an explicit test-operator action. A missing or timed-out checkpoint marks the observation incomplete. Never use elapsed time as proof of a non-start. Keep one single-click run entirely free of timing controls.
+
+**Observed quantities.** Record actual gestures, Companion messages sent, work grants and corresponding real receiving turns as separate counts. In a chat-versus-Companion race a manually entered chat prompt already creates a chat turn. Record that prompt separately and identify which turn actually received the single work grant. If chat wins, expect zero Companion sends. If the Companion wins, expect one. Capture the losing route's own outcome. A silent view or an absent trace is an unknown count.
+
+| criterion_id | scenario_id | test_route | environment | prerequisites_permissions | owner | expected_evidence | unavailable_action |
+|---|---|---|---|---|---|---|---|
+| AC-001 | SCN-001 | Provision an eligible fixture, then run setup and selection checks with foreign roots, ordinary Runs and copied records. | Disposable profile setup and Core suite | Isolated workspace and local setup access | Codex integration | Positive identity plus each rejected combination | Withhold designation if roots or disposable provenance cannot be established. |
+| AC-001 | SCN-002 | Exercise both installed MCP entry points on valid and invalid bindings. In deterministic tests change the revision or deactivate between reserve, publish and claim. | MCP fixture suite and isolated candidate | Same candidate on both routes and fresh fixture per mutation case | Core maintainer | Decisions per route and zero grants for every denial | Record the unverified route or transition and withhold the scope result. |
+| AC-001 | SCN-003 | Render ready and ineligible cases at 360 pixels and wide width. Navigate by keyboard, poll and inspect the same labels in the native panel. | Component suite, built browser and actual Desktop panel | Current UI bundle and selectable fixtures | Companion UI and maintainer | Screenshot or cropped observation, visible scope and action, accessible name, preserved focus | Keep the missing viewport or native observation open. |
+| AC-002 | SCN-004 | Click once on a ready fixture in the installed side panel with no timing checkpoint. Observe actual publish, claim and completion. | Isolated Codex Desktop | Matched preflight, ready fixture and a human click | Desktop maintainer | One gesture, one send and one admitted claim with the original attempt | Preserve the original handoff when a claim cannot be observed. |
+| AC-002 | SCN-005 | Assert the response and allowed follow-up on each winning route. Compare canonical state before and after the status read. | MCP integration suite and the single-click fixture | Bound disposable Run and readable before/after state | Core maintainer | Read-only response and marker, stable revision, zero gate effects | Block fixture use if a work plan or mutation can be granted. |
+| AC-002 | SCN-006 | Match the receiving reply and lifecycle association to the count and claim from SCN-004. Include a missing-event control in the exporter test. | Desktop receiving chat and local evidence check | Case-local observation of receiving turn and hooks | Desktop maintainer | Receiving turn alias, case marker and matching claim, or a named missing fact | Leave the native click-to-turn result open if correlation fails. |
+| AC-003 | SCN-007 | Open two ready cards. Publish from one, hold the receiving claim, then click the other. Release and inspect both cards. Also run the existing independent-process contention test. | Two native chats and Core suite | Same ready fixture on both sides and an observed contention window | Desktop maintainer | Exactly one Companion send and admitted turn, second view receiving pending or stale state | Repeat with a fresh fixture if overlap was missed; record missing overlap if it cannot be established. |
+| AC-003 | SCN-008 | Use two fresh fixtures for the two orderings. First compete from chat against a pending Companion send. Then hold a chat winner's bounded reply and exercise a previously ready card. Inspect a second independent fixture. | Two native chats in the isolated profile | Ordinary governed chat route, existing Companion route, fixture checkpoint | Desktop maintainer | One work grant per race, losing route disposition, expected send counts and unaffected second fixture | Record precisely which ordering or peer route could not be observed. |
+| AC-004 | SCN-009 | Pause between publish and claim. Close and reopen the panel, check status, then release. Finish normally. On a separate fixture interrupt the matched running turn. | Actual Desktop panel and chat | Observable pending handoff, continuation store and lifecycle hooks | Desktop maintainer | Same attempt and count on reopen, matched Stop and Interrupt on their respective cases | Preserve any uncertain attempt; never start another request to prove its outcome. |
+| AC-004 | SCN-010 | Cancel before publication, withhold a post-publication response, send a conflicting terminal observation in a test fixture, and change a selected revision. Exercise the controls and poll. | Admission suite, component suite and built browser | Disposable fixtures with controlled events | Companion UI and Core | Ready-only explicit retry, pending remains protected, stale view reloads, zero sends on status checks | If ambiguity permits retry, block the case and reproduce in the admission suite. |
+| AC-005 | SCN-011 | Test mismatched generations and roots at both entries. Withdraw activation with an open view and repeat the start attempt. | Runtime fixtures and separate isolated candidate sessions | Verified predecessor and successor identities and separate test roots | Codex integration | Per-route identity and refusal, old activation issuing no grant | Mark unverifiable identity as ineligible and keep the original evidence. |
+| AC-005 | SCN-012 | In isolated upgrade trials, capture settled and outstanding predecessor states. Install the named successor, open a fresh session and check both routes before requesting work. Also test loss of continuity in a disposable copy. | Native isolated upgrade trials plus deterministic fixtures | Both candidate packages available, preserved per-trial admission store, no effects on delivery Runs | Desktop maintainer | One bounded fresh start on the settled path; zero new starts and known reason on pending, mixed or missing-continuity paths | Retain the predecessor evidence and report the missing trial or route. |
+| AC-006 | SCN-013 | Compare matched and incomplete case records against the original readback. Provide a foreign candidate, uncorrelated turn and missing source as negative inputs. | Case exporter tests with disposable data | Case-local aliases and known expected observations | Codex integration | Explicit missing facts, candidate binding and no inferred native pass | Correct the case record before sharing it for qualification. |
+| AC-006 | SCN-014 | Review the handoff against the linked plan. Reconstruct counts and chronology and check that private content has been removed. | Local native evidence review | Case records, available cropped observations, reviewer access to the fixture evidence | QA reviewer | Scenario index keyed to candidate and case with observations, conflicts and gaps | Return the record for redaction or name the missing observation for the operator. |
+
+**Evidence handoff.** Cross-reference this Run's SCN-004 and SCN-006 to linked SCN-002, SCN-009 to linked SCN-009, SCN-007 and SCN-008 to both variants of linked SCN-011, and SCN-011 and SCN-012 to linked SCN-012. Give each trial a case alias and store only the candidate and host versions, fixture/attempt/turn aliases, ordered event sources, counts and disposition needed for review. Preserve consistent aliases within the trial. Exclude credentials, project paths outside the fixture, full conversations and raw unrelated hook events. The handoff records what was observed; its recipient makes the qualification decision.
+
+## Planning Decisions
+
+| Decision | Source | Status | Resolution | Owner |
+|---|---|---|---|---|
+| Manual timing, coverage and redaction | SD: Timing and capture procedure | resolved | Use fresh case-scoped fixtures and one unpaused native baseline. At defined boundaries hold only the fixture's claim or reply, observe the peer before release and retain case-local aliases and separate counts. Cross-link both contention variants and the upgrade trials to the linked plan. | AGDF integration and QA |
+| Test order and stopping condition | TP | resolved | Complete deterministic boundary, browser and packaging checks before manual exercise. Treat each missing native source as an explicit gap. Repeat only affected scenarios when the candidate, test conditions or evidence change. | QA reviewer |
+
+## 4. Brownfield Scope
+
+Inspect the current profile launcher, provenance owner, qualification and admission roots during Brownfield Analysis. Reuse `mcp-protocol-runtime.js` for candidate identity, `mcp-dispatch-runtime.js` and `cockpit-session.js` for the two entry points, `codex-continuation-binding.js` for canonical currency, and `codex-continuation.js` and `codex-activity.js` for reservation, claim and terminal correlation. Extend the existing Companion card, action and status read. Compare the observable fixture states to the brand source identified in SD and retain the evidence under the original acceptance IDs for TP review.
+
+## 5. Out Of Scope
+
+Production enablement, gate approvals, changes on other hosts, Desktop automation, arbitrary work in fixture turns, tests on delivery Runs and publication are outside this plan. A fixture timing control is available only in the isolated harness. Ordinary production qualification and governance remain with their existing owners.
+
+## 6. Risks And Blockers
+
+A second work grant, cross-profile effect, unbounded fixture response or automatic retry of a published unresolved attempt blocks readiness. Missing host access, unavailable timing control, unmatched candidate identities or incomplete event capture leave their native cases open. Keep the fixture and record of unresolved work for investigation. Deactivate further admission on teardown. Remove a fixture workspace only after its attempts have a known disposition and its requested evidence has been retained. Technical verification ends after the required observable results and targeted rechecks are recorded; mandatory reviews and human decisions still follow.
+
+## 7. Next Step
+
+The maintainer reviews the tasks, native cases and evidence boundaries. Approval of this plan permits the implementation-preparation Brownfield Analysis and subsequent implementation under canonical gate control.
+
+## AGDF Approval Summary (de; source=en)
+
+- Der Plan beginnt mit einem abgegrenzten Testprofil. Nur ein eigens angelegter Wegwerf-Run darf den Testauftrag ausführen. Er liest seinen Status und meldet die Fallkennung im Chat zurück.
+- Zuerst prüfen automatisierte Tests die beiden Zugangswege, die Doppelstartsperre und die Anzeige im Begleiter. Danach klickt eine Person im isolierten Codex-Desktop-Profil auf „Run fortsetzen“. Der Nachweis verbindet diesen Klick mit genau einem empfangenden Codex-Turn.
+- Zwei weitere Fälle prüfen die Konkurrenz zwischen zwei Begleitern sowie zwischen Begleiter und Chat. Nach erneutem Öffnen, bei Abbruch und nach einem Update muss die ursprüngliche Übergabe nachvollziehbar bleiben.
+- Der verknüpfte Run erhält pro Fall die geprüfte Fassung, die beobachteten Starts und etwaige Lücken. Mit deiner Freigabe beginnt die Bestandsanalyse zur Vorbereitung der Umsetzung.

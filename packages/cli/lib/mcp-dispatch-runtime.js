@@ -81,9 +81,11 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
   });
 }
 
-function stopCodexContinuation(result, state, language) {
+function stopCodexContinuation(result, decision, language) {
   const de = language?.toLowerCase().split('-')[0] === 'de';
-  const text = state === 'running' ? de ? 'Codex arbeitet bereits an diesem Run.' : 'Codex is already working on this Run.'
+  const { state } = decision;
+  const text = decision.interrupt_requested ? de ? 'Der Abbruch wurde angefordert.' : 'Cancellation has been requested.'
+    : state === 'running' ? de ? 'Codex arbeitet bereits an diesem Run.' : 'Codex is already working on this Run.'
     : state === 'pending' ? de ? 'Die Bestätigung von Codex steht noch aus.' : 'Codex has not confirmed the original handoff yet.'
     : state === 'stale' ? de ? 'Der Run hat sich geändert. Öffne den aktuellen Stand.' : 'The Run has changed. Open its current state.'
     : de ? 'Die Fortsetzung für diesen Run ist gerade nicht verfügbar.' : 'Continuation is unavailable for this Run.';
@@ -97,13 +99,13 @@ function admitCodexContinuation(admission, input, result) {
   const operation = result.control.next_operation, root = result.target?.governance_target;
   if (operation.actor !== 'agent' && !(input.continuationAttemptId && operation.operation_key === 'approval.record')) return result;
   if (!admission) return input.continuationAttemptId || input.continuationOwner
-    ? stopCodexContinuation(result, 'unavailable', input.presentationLanguage) : result;
+    ? stopCodexContinuation(result, { state: 'unavailable' }, input.presentationLanguage) : result;
   const scope = { root, target_id: resolveControlCommandTarget(root).target_id,
     run_id: input.runId, revision_id: result.continuation.revision_id ?? result.control.revision_id,
     operation_key: operation.operation_key, actor: operation.actor };
   const decision = admission.claim(scope, { attemptId: input.continuationAttemptId, owner: input.continuationOwner },
     () => isCurrentContinuation(root, scope));
-  if (!decision.admitted) return stopCodexContinuation(result, decision.state, input.presentationLanguage);
+  if (!decision.admitted) return stopCodexContinuation(result, decision, input.presentationLanguage);
   return { ...result, continuation: { ...result.continuation,
     work_admission: { attempt_id: decision.attempt_id, owner: decision.owner, target_id: scope.target_id, run_id: scope.run_id },
     instruction: `${result.continuation.instruction} After a canonical write, use the owner-bound resume_call from this dispatch when its ready next action is to continue this Run. Never reuse it outside this turn.`,

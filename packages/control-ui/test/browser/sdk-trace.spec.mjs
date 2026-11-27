@@ -12,10 +12,9 @@ import { fixture, treeBytes } from '../../../core/test/control-cockpit-fixtures.
 import { buildCompanionFixtures, replaceCompanionPrd } from '../../../core/test/fixtures/companion-fixtures.js';
 import { currentFixture, currentRun } from '../../../core/test/fixtures/current-run.js';
 import { createCockpitSessionService } from '../../../core/lib/control-inspect/cockpit-session.js';
-import { COCKPIT_RENDER_DEFINITION, COCKPIT_PLUGIN_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, COCKPIT_CONTINUATION_DEFINITION,
-  parseCockpitArguments, parseCockpitContinuationArguments, parsePluginCockpitArguments } from '../../../core/lib/control-inspect/cockpit-contract.js';
+import { COCKPIT_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, parseCockpitArguments } from '../../../core/lib/control-inspect/cockpit-contract.js';
 import { createCompanionJournal, journalPath } from '../../../core/lib/companion/journal.js';
-import { createCodexContinuationAdmission } from '../../../core/lib/companion/codex-continuation.js';
+import './companion-continuation-cases.mjs';
 import { readCockpitUiBuild } from '../../../../scripts/cockpit-ui-build.mjs';
 import { evidencePath } from './server-fixture.mjs';
 import { JSDOM } from 'jsdom';
@@ -25,88 +24,6 @@ import { clarifiedUr } from '../../../core/test/planned-fixtures.js';
 // This uses the same Core/SDK/built-UI harness, never another product renderer.
 const referenceDirectory = process.env.AGDF_COMPANION_REFERENCE_DIR;
 const checkBrowserZoom = process.env.AGDF_COMPANION_BROWSER_ZOOM === '1';
-
-test('Companion keyboard click sends one bound request and reopens pending (synthetic SDK host)', async ({ page }) => {
-  const cleanups = [];
-  const fixture = buildCompanionFixtures({ after: fn => cleanups.push(fn) }, ['F04'])[0];
-  const temporary = mkdtempSync(join(tmpdir(), 'agdf-companion-continuation-browser-'));
-  const ui = readCockpitUiBuild();
-  const session = createCockpitSessionService(undefined, { integrationSurface: 'codex', pluginMode: true,
-    continuationQualified: true, companionDataRoot: temporary });
-  const tools = [
-    [COCKPIT_PLUGIN_RENDER_DEFINITION, parsePluginCockpitArguments, session.render],
-    [COCKPIT_READ_DEFINITION, parseCockpitArguments, session.read],
-    [COCKPIT_CONTINUATION_DEFINITION, parseCockpitContinuationArguments, session.continue],
-  ].map(([definition, parse, execute]) => ({ name: definition.name, definition, parse: value => parse(value), execute }));
-  const runtime = { ...createTestRuntime(), mode: 'cockpit', definition: COCKPIT_PLUGIN_RENDER_DEFINITION, tools,
-    uiCapabilityRequired: true, responseLimit: 8 * 1024 ** 2, ui: {
-      uri: ui.manifest.uri, mimeType: ui.manifest.mime_type, limit: 4 * 1024 ** 2, directory: pathToFileURL(ui.root + '/'),
-    }, serialize: JSON.stringify, failure: session.failure, close: session.close };
-  const sdkServer = buildAgdfServer({ runtime });
-  const client = new Client({ name: 'synthetic-continuation-companion', version: '1' },
-    { capabilities: { extensions: { 'io.modelcontextprotocol/ui': { mimeTypes: [ui.manifest.mime_type] } } } });
-  const [a, b] = InMemoryTransport.createLinkedPair();
-  let server, prepared;
-  const sent = [];
-  const open = async () => client.callTool({ name: 'agdf_cockpit', arguments: {
-    working_directory: fixture.root, primary_target: fixture.root, target_source: 'explicit_target', run_id: fixture.runId,
-  } });
-  try {
-    await sdkServer.connect(b);
-    await client.connect(a);
-    prepared = await open();
-    const targetId = prepared.structuredContent.target.target_id;
-    expect(prepared._meta.agdf_cockpit.continuation).toBe(true);
-    await build({ configFile: false, logLevel: 'error', build: { outDir: temporary, emptyOutDir: false,
-      lib: { entry: new URL('./sdk-trace-host.ts', import.meta.url).pathname, formats: ['es'], fileName: () => 'host.js' }, target: 'es2022' } });
-    server = createServer(async (req, res) => {
-      try {
-        if (req.url === '/tool') {
-          const chunks = [];
-          for await (const data of req) chunks.push(data);
-          const input = JSON.parse(Buffer.concat(chunks).toString());
-          const result = await client.callTool(input);
-          if (input.name === 'agdf_cockpit_continue' && result.structuredContent?.send === true) sent.push(result.structuredContent);
-          res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(result)); return;
-        }
-        if (req.url === '/prepared') { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(prepared)); return; }
-        res.setHeader('content-type', req.url === '/host.js' ? 'text/javascript' : 'text/html');
-        res.end(req.url === '/cockpit.html' ? ui.files['cockpit.html'] : req.url === '/host.js' ? readFileSync(join(temporary, 'host.js'))
-          : '<!doctype html><style>body{margin:0}iframe{display:block;width:100%;height:100vh;border:0}</style><iframe title="Synthetic Cockpit"></iframe><script type="module" src="/host.js"></script>');
-      } catch { res.statusCode = 500; res.end('synthetic_tool_failed'); }
-    });
-    await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
-    await page.setViewportSize({ width: 360, height: 900 });
-    await page.goto(`http://127.0.0.1:${server.address().port}/?companion=inline&continuation=withhold`);
-    const card = page.frameLocator('iframe').getByRole('article', { name: 'Companion-Statuskarte' });
-    const button = card.getByRole('button', { name: 'Run fortsetzen' });
-    await expect(button).toBeVisible();
-    await expect(card.locator('.companion-turn').getByRole('button', { name: 'Run fortsetzen' })).toHaveCount(1);
-    await expect(button).toHaveAccessibleDescription(await card.locator('.companion-turn > p[id]').innerText());
-    await button.focus();
-    await page.keyboard.press('Enter');
-    await expect(card.getByText('Die Bestätigung von Codex steht noch aus.')).toBeVisible();
-    await expect.poll(() => page.evaluate(() => window.sdkTraceHarness.logs.filter(row => row.kind === 'continuation-message').length)).toBe(1);
-    const context = await page.evaluate(() => window.sdkTraceHarness.logs.find(row => row.kind === 'context-ack' && row.params.structuredContent?.agdf_companion_continuation));
-    expect(sent).toHaveLength(1);
-    expect(context.params.structuredContent.agdf_companion_continuation.call.arguments).toMatchObject({ run_id: fixture.runId,
-      continuation_attempt_id: sent[0].attempt_id });
-    expect(createCodexContinuationAdmission(temporary).inspect({ target_id: targetId, run_id: fixture.runId }).state).toBe('pending');
-    prepared = await open();
-    await page.reload();
-    await expect(card.getByText('Die Bestätigung von Codex steht noch aus.')).toBeVisible();
-    await expect(button).toHaveCount(0);
-    await card.getByRole('button', { name: 'Übergabe prüfen' }).click();
-    await expect(card.getByText('Der Begleiter hat den Status geprüft.', { exact: false })).toBeVisible();
-    expect(await page.evaluate(() => window.sdkTraceHarness.logs.some(row => row.kind === 'continuation-message'))).toBe(false);
-    expect(sent).toHaveLength(1);
-  } finally {
-    await client.close(); await sdkServer.close();
-    if (server) await new Promise(resolve => server.close(resolve));
-    rmSync(temporary, { recursive: true, force: true });
-    for (const cleanup of cleanups.reverse()) cleanup();
-  }
-});
 
 async function launchZoomBrowser(temporary) {
   const extension = join(temporary, 'browser-zoom');

@@ -306,8 +306,11 @@ export function createCockpitSessionService(root, {
         if (integrationSurface === 'codex' && session.companionBinding && response.data
           && (replacement || input.operation === 'freshness')) {
           const binding = session.companionBinding;
-          const observation = { run_id: binding.run_id, revision_id: binding.revision_id,
-            events: readCockpitEvents(companionDataRoot, session.root, binding.run_id) };
+          const observation = { run_id: binding.run_id, revision_id: binding.revision_id };
+          // Without a data root the journal writer is disabled, so there is no event history to report.
+          if (typeof companionDataRoot === 'string' && companionDataRoot) {
+            observation.events = readCockpitEvents(companionDataRoot, session.root, binding.run_id);
+          }
           if (binding.gate) {
             const seen = companionDataRoot && readCodexObservation(companionDataRoot, binding, now());
             if (seen?.activity) observation.activity = { ...binding, expires_at: seen.activity.expires_at };

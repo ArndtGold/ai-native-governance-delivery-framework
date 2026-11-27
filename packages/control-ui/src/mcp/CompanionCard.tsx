@@ -19,6 +19,15 @@ import { CompanionContinuationAction } from './CompanionContinuationAction';
 import type { CompanionContinuation } from './companion-continuation';
 
 const eventGateTitle = (gate: string) => gateTitle(registry, 'de', gate);
+const twoDigits = (value: number) => String(value).padStart(2, '0');
+// The journal keeps events across days, so an event of an earlier day carries its date.
+function eventTimeText(at: string, now = new Date()): string {
+  const date = new Date(at);
+  const clock = clockText(date.getTime());
+  if (date.toDateString() === now.toDateString()) return clock;
+  const day = `${twoDigits(date.getDate())}.${twoDigits(date.getMonth() + 1)}.`;
+  return `${date.getFullYear() === now.getFullYear() ? day : `${day}${date.getFullYear()}`} ${clock}`;
+}
 const gateRationales = registry.locales.de.gateRationale;
 type PurposeGate = keyof typeof gateRationales;
 const purposeHeadings: Record<PurposeGate, string> = {
@@ -62,8 +71,9 @@ export function CompanionCard({ state, data, observation, current, confirmedGate
   const pending = assessment === 'open' && !human;
   const [, setActivityTime] = useState(0);
   const activity = observation?.activity;
-  const eventHistory = !state.requestedRoute && observation?.run_id === data.run_id && observation.revision_id === data.revision_id
-    ? observation.events : undefined;
+  // A retained or expired reading no longer refreshes its events, so it shows none.
+  const eventHistory = !state.requestedRoute && !previous && !expired
+    && observation?.run_id === data.run_id && observation.revision_id === data.revision_id ? observation.events : undefined;
   const events = eventHistory?.state === 'available' && Array.isArray(eventHistory.items)
     ? eventHistory.items.slice(0, 5).filter(event => typeof event?.id === 'string' && EVENT_KINDS.includes(event.kind)
       && (event.at === null || typeof event.at === 'string' && Number.isFinite(Date.parse(event.at)))
@@ -180,7 +190,7 @@ export function CompanionCard({ state, data, observation, current, confirmedGate
     {(events.length > 0 || eventHistory?.state === 'unavailable') && <section className="companion-events" aria-label={companionLabel('fields.events')}>
       <h3>{companionLabel('fields.events')}</h3>
       {eventHistory?.state === 'unavailable' ? <p>{companionLabel('messages.eventsUnavailable')}</p> : <ul>{events.map(event => <li key={event.id}>
-        {event.at && <><time dateTime={event.at}>{clockText(Date.parse(event.at))}</time>{' '}</>}
+        {event.at && <><time dateTime={event.at}>{eventTimeText(event.at)}</time>{' '}</>}
         {eventText(event, companionLabel, { gateTitle: eventGateTitle })}
       </li>)}</ul>}
     </section>}

@@ -587,6 +587,38 @@ it('says that activity is unknown while the Codex hooks give no sign of life', a
   expect(card.getAttribute('data-tone')).toBe('working');
 });
 
+it('dates earlier events of the selected Codex Run and hides the history once the session expires', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(2026, 10, 17, 12, 0));
+  width(650);
+  const run = runData('run-a');
+  const event = (id: string, at: Date, kind: string, gate: string | null) => ({ id, at: at.toISOString(), kind, gate, reason: null });
+  let observation: Record<string, unknown> = { run_id: run.run_id, revision_id: run.revision_id, events: { state: 'available', items: [
+    event('e-3', new Date(2026, 10, 17, 9, 5), 'approval_recorded', 'PRD'),
+    event('e-2', new Date(2026, 10, 14, 16, 30), 'document_recorded', 'UR'),
+    event('e-1', new Date(2025, 11, 31, 23, 59), 'run_completed', null),
+  ] } };
+  let expired = false;
+  const read: ReadTransport = async path => {
+    if (!path.startsWith('/api/freshness')) return { ...runScope(run), companion_observation: observation } as never;
+    if (expired) throw Error('session_expired');
+    return { ...fixtureMeta, data: { unchanged: true }, companion_observation: observation } as never;
+  };
+  render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+  await screen.findByRole('heading', { name: run.run_id });
+  const history = screen.getByRole('region', { name: 'Ereignisse' });
+  expect([...history.querySelectorAll('time')].map(time => time.textContent)).toEqual(['09:05', '14.11. 16:30', '31.12.2025 23:59']);
+  expect(history.textContent).toContain('Freigabe erfasst für Produktanforderungen');
+  observation = { ...observation, events: { state: 'unavailable', items: [] } };
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(screen.getByRole('region', { name: 'Ereignisse' }).textContent).toContain('Ereignisse nicht verfügbar');
+  expired = true;
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(screen.getByRole('article', { name: 'Companion-Statuskarte' })).toBeTruthy();
+  expect(screen.queryByRole('region', { name: 'Ereignisse' })).toBeNull();
+  expect(screen.queryByText(/Ereignisse nicht verfügbar/)).toBeNull();
+});
+
 it('polls the Codex card quickly only while the shown step waits for the agent', async () => {
   vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
   width(650);

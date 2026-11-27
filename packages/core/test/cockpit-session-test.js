@@ -7,7 +7,8 @@ import { createCockpitSessionService } from '../lib/control-inspect/cockpit-sess
 import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
 import { parseCockpitArguments, COCKPIT_LIMITS, COCKPIT_RENDER_DEFINITION } from '../lib/control-inspect/cockpit-contract.js';
 import { fixture, treeBytes } from './control-cockpit-fixtures.js';
-import { createCompanionJournal, journalPath } from '../lib/companion/journal.js';
+import { createCompanionJournal, journalPath, JOURNAL_LIMIT_BYTES } from '../lib/companion/journal.js';
+import { COCKPIT_EVENTS_READ_LIMIT } from '../lib/companion/read-cockpit-events.js';
 import { observeCodexActivity } from '../lib/companion/codex-activity.js';
 import { tmpdir } from 'node:os';
 import { createRun } from '../lib/control-state/run-state-repository.js';
@@ -430,6 +431,9 @@ test('Codex freshness attaches current Companion activity or unknown liveness on
     assert.equal(run.data.run.evaluation.current_gate, gate);
     // SCN-004: without a sign of life of the Codex Companion hooks, activity is unknown, not idle.
     assert.equal(run.companion_observation.liveness, 'unknown');
+    assert.equal(run.companion_observation.activity, undefined);
+    assert.equal(run.companion_observation.run_id, run_id);
+    assert.equal(run.companion_observation.revision_id, run.data.run.revision_id);
     assert.equal(observeCodexActivity(data, { session_id: 'chat-1', hook_event_name: 'SessionStart', source: 'startup' }), true);
     const resting = (await call({ operation: 'freshness', snapshot_id: run.snapshot_id })).companion_observation;
     assert.equal(resting.liveness, undefined);
@@ -450,6 +454,8 @@ test('Codex freshness attaches current Companion activity or unknown liveness on
     assert.deepEqual(active, { target_id: run.target.target_id, run_id, revision_id, gate, expires_at: active?.expires_at });
     const other = await call({ operation: 'snapshot', run_id: 'fixture-completed' });
     assert.equal(other.companion_observation.liveness, undefined, 'a completed Run has no live activity status');
+    assert.equal(other.companion_observation.activity, undefined, 'a completed Run has no activity');
+    assert.equal(other.companion_observation.run_id, 'fixture-completed');
     assert.equal(await read(other.snapshot_id), undefined);
     assert.equal(await read(run.snapshot_id), undefined, 'an obsolete snapshot cannot attach evidence');
     const returned = await call({ operation: 'snapshot', run_id });
@@ -457,8 +463,9 @@ test('Codex freshness attaches current Companion activity or unknown liveness on
     assert.equal(observeCodexActivity(data, { ...observation, hook_event_name: 'Interrupt' }), true);
     assert.equal(await read(returned.snapshot_id), undefined);
     fs.writeFileSync(join(data, 'companion', 'codex-activity.json'), '{"broken"');
-    assert.equal((await call({ operation: 'freshness', snapshot_id: returned.snapshot_id })).companion_observation.liveness, 'unknown',
-      'an unreadable store leaves activity unknown');
+    const unreadable = (await call({ operation: 'freshness', snapshot_id: returned.snapshot_id })).companion_observation;
+    assert.equal(unreadable.liveness, 'unknown', 'an unreadable store leaves activity unknown');
+    assert.equal(unreadable.activity, undefined, 'an unreadable store attaches no activity');
   } finally {
     await service.close();
     fs.rmSync(data, { recursive: true, force: true });
@@ -510,4 +517,51 @@ test('Codex updates selected Run events without invalidating the current snapsho
   const resource = snapshot.data.run.resources.find(row => row.type === 'UR');
   assert.equal((await call({ operation: 'document', snapshot_id: snapshot.snapshot_id,
     run_id: 'fixture-a', resource_id: resource.resource_id })).state, 'available');
+});
+
+test('Codex events tolerate a journal that concurrent writers pushed past the writer bound', async t => {
+  const f = fixture();
+  const dataRoot = fs.mkdtempSync(join(tmpdir(), 'cockpit-companion-bound-'));
+  const service = createCockpitSessionService(f.root, { integrationSurface: 'codex', companionDataRoot: dataRoot });
+  t.after(async () => {
+    await service.close();
+    f.close();
+    fs.rmSync(dataRoot, { recursive: true, force: true });
+  });
+  const { _meta } = await service.render({ run_id: 'fixture-a' });
+  const call = args => service.read({ session_id: _meta.agdf_cockpit.session_id, ...args });
+  const snapshot = await call({ operation: 'snapshot', run_id: 'fixture-a' });
+  const events = async () => (await call({ operation: 'freshness', snapshot_id: snapshot.snapshot_id })).companion_observation.events;
+  const line = (id, hour) => `${JSON.stringify({ schema_version: 'companion-event/1', id, at: new Date(Date.UTC(2026, 10, 18, hour)).toISOString(),
+    kind: 'document_recorded', gate: 'UR', root: f.root, run_id: 'fixture-a' })}\n`;
+  // An unparseable filler line stands in for the other projects' events.
+  const filler = bytes => `${'x'.repeat(bytes)}\n`;
+  fs.mkdirSync(join(dataRoot, 'companion'));
+  const rotated = join(dataRoot, 'companion', 'events.1.jsonl');
+  fs.writeFileSync(rotated, filler(JOURNAL_LIMIT_BYTES) + line('rotated', 1));
+  fs.writeFileSync(journalPath(dataRoot), filler(JOURNAL_LIMIT_BYTES) + line('current', 2));
+  assert.deepEqual((await events()).items.map(item => item.id), ['current', 'rotated'],
+    'both files above the writer bound but within the read headroom stay readable');
+  fs.writeFileSync(rotated, filler(COCKPIT_EVENTS_READ_LIMIT) + line('rotated', 1));
+  const skipped = await events();
+  assert.equal(skipped.state, 'available', 'an oversized rotation file does not hide the current history');
+  assert.deepEqual(skipped.items.map(item => item.id), ['current'], 'an oversized rotation file is skipped');
+  fs.writeFileSync(journalPath(dataRoot), filler(COCKPIT_EVENTS_READ_LIMIT) + line('current', 2));
+  assert.deepEqual(await events(), { state: 'unavailable', items: [] }, 'an oversized current file is unavailable');
+});
+
+test('Codex attaches no event history without a Companion data root', async t => {
+  const f = fixture();
+  const service = createCockpitSessionService(f.root, { integrationSurface: 'codex', companionDataRoot: '' });
+  t.after(async () => {
+    await service.close();
+    f.close();
+  });
+  const { _meta } = await service.render({ run_id: 'fixture-a' });
+  const call = args => service.read({ session_id: _meta.agdf_cockpit.session_id, ...args });
+  const snapshot = await call({ operation: 'snapshot', run_id: 'fixture-a' });
+  assert.equal(snapshot.companion_observation.run_id, 'fixture-a');
+  assert.equal('events' in snapshot.companion_observation, false);
+  const refreshed = await call({ operation: 'freshness', snapshot_id: snapshot.snapshot_id });
+  assert.equal('events' in refreshed.companion_observation, false);
 });

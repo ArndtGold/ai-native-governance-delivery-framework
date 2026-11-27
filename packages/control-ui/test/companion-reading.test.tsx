@@ -130,6 +130,9 @@ it('opens the actual Markdown beside the card at 850 available pixels without ex
   expect(screen.getByRole('article', { name: 'Companion-Statuskarte' })).toBeTruthy();
   expect(screen.getByText('Letzter Absatz.')).toBeTruthy();
   expect(expand).not.toHaveBeenCalled();
+  // The download appears only once the reader has confirmed the shown source. Closing earlier
+  // rereads the Run in the background on a slow runner instead of the freshness check below.
+  await screen.findByRole('link', { name: 'Originaldatei herunterladen' });
   const callsBeforeClose = vi.mocked(read).mock.calls.length;
   fireEvent.click(screen.getByRole('button', { name: 'Entwurf schließen' }));
   const reopen = screen.getByRole('button', { name: 'PRD-Entwurf öffnen' });

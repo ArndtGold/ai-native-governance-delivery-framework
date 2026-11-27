@@ -144,6 +144,7 @@ export const CLAUDE_MCP_RUNTIME_ENTRIES = Object.freeze([
   "lib/mcp-decision-protocol.js",
   "lib/mcp-lifecycle/package.js",
   "lib/mcp-lifecycle/prepared-call-journal.js",
+  "lib/mcp-lifecycle/system-boot.js",
   "lib/mcp-lifecycle/plugin-runtime.js",
   "lib/mcp-lifecycle/facade-entry.js",
   "lib/mcp-lifecycle/facade-owner-entry.js",

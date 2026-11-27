@@ -1,12 +1,13 @@
 import { randomUUID } from 'node:crypto';
-import { constants, closeSync, fstatSync, lstatSync, mkdirSync, openSync, readdirSync, readSync } from 'node:fs';
-import { isAbsolute, join } from 'node:path';
+import { constants, closeSync, fstatSync, lstatSync, mkdirSync, openSync, readdirSync, readSync, realpathSync } from 'node:fs';
+import { isAbsolute, join, resolve } from 'node:path';
 import { hasSymlinkComponent } from '../control-state/contained-file.js';
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from '../control-state/run-identity.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
 import { inspectMutationClaims } from '../control-state/control-layout.js';
 import { pendingRunStepPath } from '../control-state/run-step-pending.js';
 import { atomicWrite, withOwnedFileLockWait } from '../owned-file-lock.js';
+import { createExecutableBootBoundary, isExecutablePublicationEntry } from './executable-boot-boundary.js';
 
 const directory = 'codex-continuation';
 const targetPattern = /^sha256:[a-f0-9]{64}$/;
@@ -15,6 +16,57 @@ const recordPattern = /^[a-f0-9]{64}-[a-z0-9][a-z0-9._-]{0,127}\.json$/;
 const maxBytes = 4096;
 const unavailable = Object.freeze({ state: 'unavailable' });
 const ready = Object.freeze({ state: 'ready' });
+const legacyRuntime = Object.freeze({ state: 'unavailable', legacy_runtime: true });
+
+// Owned plugin generations retain their executable before starting a facade.
+// A different retained generation may serve a chat without shared admission.
+// Retention is uncertainty, never PID liveness or permission to erase claims.
+// Only the current producer's verified root (adapter-owned, never UI input) is exempt.
+function predecessorsClear(dataRoot, runtimeRoot, executionBoundary) {
+  try {
+    executionBoundary.refresh();
+    let restart = false, seen = 0;
+    const relative = 'mcp/generations';
+    if (hasSymlinkComponent(dataRoot, relative)) return legacyRuntime;
+    const generations = join(dataRoot, relative);
+    let names;
+    try { names = readdirSync(generations); }
+    catch (error) { return error.code === 'ENOENT' ? ready : legacyRuntime; }
+    if (names.length > 512) return legacyRuntime;
+    for (const name of names) {
+      if (!/^[a-f0-9]{64}$/u.test(name)) return legacyRuntime;
+      const publication = join(generations, name);
+      if (!lstatSync(publication).isDirectory() || lstatSync(publication).isSymbolicLink()) return legacyRuntime;
+      const versions = readdirSync(publication);
+      if (versions.length > 32) return legacyRuntime;
+      for (const version of versions) {
+        if (isExecutablePublicationEntry(version)) {
+          if (++seen > 32768) return legacyRuntime;
+          const state = executionBoundary(publication, version);
+          if (state === 'unknown') return legacyRuntime;
+          if (state === 'same_boot') restart = true;
+          continue;
+        }
+        const root = join(publication, version);
+        if (!lstatSync(root).isDirectory() || lstatSync(root).isSymbolicLink()) return legacyRuntime;
+        if (root === runtimeRoot && realpathSync(root) === resolve(root)) continue;
+        const claims = join(root, '.agdf-executable-claims');
+        let stat;
+        try { stat = lstatSync(claims); }
+        catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+        if (!stat.isDirectory() || stat.isSymbolicLink()) return legacyRuntime;
+        const names = readdirSync(claims);
+        if ((seen += names.length) > 32768) return legacyRuntime;
+        for (const name of names) {
+          const state = executionBoundary(root, name);
+          if (state === 'unknown') return legacyRuntime;
+          if (state === 'same_boot') restart = true;
+        }
+      }
+    }
+    return restart ? { ...legacyRuntime, boot_restart_required: true } : ready;
+  } catch { return legacyRuntime; }
+}
 
 function uuid(value) { return typeof value === 'string' && REVISION_ID_PATTERN.test(value); }
 function isTurnId(value) { return typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/u.test(value); }
@@ -92,7 +144,9 @@ function canRelease(record) {
 
 function status(record) {
   if (!record || record.phase === 'settled') return ready;
-  if (record.phase === 'running' && record.ended === true && canRelease(record)) return ready;
+  // Interrupt is Codex's terminal cancellation hook, not a request followed by Stop.
+  // Older records kept only interrupt_requested; retain their pending-write guard.
+  if (record.phase === 'running' && (record.ended === true || record.interrupt_requested === true) && canRelease(record)) return ready;
   if (record.phase === 'running' && record.interrupt_requested) return { state: 'running', interrupt_requested: true };
   return { state: record.phase === 'running' ? 'running' : 'pending' };
 }
@@ -103,7 +157,9 @@ function newRecord(scope, phase, { viewId = null, owner = null } = {}) {
 
 // The lock protects a short read / check / write. The durable record, not the
 // lock or the Companion activity lease, protects the run while work is unresolved.
-export function createCodexContinuationAdmission(dataRoot) {
+export function createCodexContinuationAdmission(dataRoot, { runtimeRoot, bootId } = {}) {
+  const executionBoundary = createExecutableBootBoundary(dataRoot, bootId);
+  const startBoundary = () => predecessorsClear(dataRoot, runtimeRoot, executionBoundary);
   function change(scope, transition) {
     try {
       const relative = runFile(scope);
@@ -122,13 +178,8 @@ export function createCodexContinuationAdmission(dataRoot) {
       if (old?.phase !== 'running' || old.attempt_id !== attemptId
         || old.turn?.session !== turn?.session || old.turn?.id !== turn?.id || !old.turn)
         return { projection: status(old) };
-      if (event === 'Interrupt') {
-        if (old.interrupt_requested || old.ended) return { projection: status(old) };
-        const interrupted = { ...old, interrupt_requested: true };
-        return { record: interrupted, projection: status(interrupted) };
-      }
-      if (event !== 'Stop') return { projection: status(old) };
-      const ended = { ...old, ended: true };
+      if (event !== 'Stop' && event !== 'Interrupt') return { projection: status(old) };
+      const ended = { ...old, ended: true, ...(event === 'Interrupt' && { interrupt_requested: true }) };
       return canRelease(ended)
         ? { record: { ...ended, phase: 'settled' }, projection: ready }
         : { record: ended, projection: status(ended) };
@@ -137,7 +188,11 @@ export function createCodexContinuationAdmission(dataRoot) {
 
   return Object.freeze({
     inspect(scope) {
-      try { readyRoot(dataRoot, false); return status(readRecord(dataRoot, runFile(scope))); }
+      try {
+        readyRoot(dataRoot, false);
+        const prior = status(readRecord(dataRoot, runFile(scope)));
+        return prior.state === 'ready' ? startBoundary() : prior;
+      }
       catch { return unavailable; }
     },
     reserve(scope, viewId, eligible) {
@@ -146,6 +201,8 @@ export function createCodexContinuationAdmission(dataRoot) {
         const prior = status(old);
         if (prior.state !== 'ready') return { projection: prior };
         if (eligible() !== true) return { projection: { state: 'stale' } };
+        const boundary = startBoundary();
+        if (boundary.state !== 'ready') return { projection: boundary };
         const record = newRecord(scope, 'reserved', { viewId });
         return { record, projection: { state: 'pending', attempt_id: record.attempt_id, reserved: true } };
       });
@@ -155,6 +212,8 @@ export function createCodexContinuationAdmission(dataRoot) {
         if (old?.phase !== 'reserved' || old.view_id !== viewId || old.attempt_id !== attemptId || !matches(old, scope))
           return { projection: status(old) };
         if (eligible() !== true) return { record: { ...old, phase: 'settled' }, projection: { state: 'stale' } };
+        const boundary = startBoundary();
+        if (boundary.state !== 'ready') return { record: { ...old, phase: 'settled' }, projection: boundary };
         // Persist pending before issuing the sole permission to send. The same
         // response cannot be produced again, including after a lost reply.
         return { record: { ...old, phase: 'pending' }, projection: { state: 'pending', attempt_id: attemptId, send: true } };
@@ -179,6 +238,13 @@ export function createCodexContinuationAdmission(dataRoot) {
           if (old?.phase !== 'pending' || old.attempt_id !== attemptId || !matches(old, scope))
             return { projection: status(old).state === 'ready' ? { state: 'stale' } : status(old) };
         } else if (status(old).state !== 'ready') return { projection: status(old) };
+        const boundary = startBoundary();
+        if (boundary.state !== 'ready') return {
+          // An exact receiving claim can positively decline before any work
+          // grant. Observation alone never settles an uncertain publication.
+          ...(attemptId !== undefined ? { record: { ...old, phase: 'settled' } } : {}),
+          projection: boundary,
+        };
         const token = randomUUID();
         const record = attemptId === undefined ? newRecord(scope, 'running', { owner: token }) : { ...old, phase: 'running', owner: token };
         return { record, projection: { state: 'running', attempt_id: record.attempt_id, owner: token, admitted: true } };
@@ -194,6 +260,22 @@ export function createCodexContinuationAdmission(dataRoot) {
     },
     settleRunning: (scope, attemptId, turn) => observeRunning(scope, attemptId, turn, 'Stop'),
     observeRunning,
+    retireSessionTurns(session, currentTurn) {
+      if (!isTurnId(session) || !isTurnId(currentTurn)) return;
+      try {
+        readyRoot(dataRoot, false);
+        const names = readdirSync(join(dataRoot, directory));
+        if (names.length > 512) return;
+        for (const name of names) {
+          if (!recordPattern.test(name)) continue;
+          let old;
+          try { old = readRecord(dataRoot, `${directory}/${name}`); }
+          catch { continue; }
+          if (old?.phase === 'running' && old.turn?.session === session && old.turn.id !== currentTurn)
+            observeRunning(old, old.attempt_id, old.turn, 'Stop');
+        }
+      } catch { /* Unknown ownership stays protected. */ }
+    },
     settleTurn(turn, event = 'Stop') {
       if (!isTurnId(turn?.session) || !isTurnId(turn?.id)) return;
       try {

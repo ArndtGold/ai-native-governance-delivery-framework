@@ -131,7 +131,7 @@ it('opens the actual Markdown beside the card at 850 available pixels without ex
   expect(screen.getByText('Letzter Absatz.')).toBeTruthy();
   expect(expand).not.toHaveBeenCalled();
   const callsBeforeClose = vi.mocked(read).mock.calls.length;
-  fireEvent.click(screen.getByRole('button', { name: 'Entwurf schließen' }));
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Entwurf schließen' })); });
   const reopen = screen.getByRole('button', { name: 'PRD-Entwurf öffnen' });
   expect(reopen).toBe(document.activeElement);
   expect(reopen.getAttribute('aria-disabled')).toBeNull();
@@ -516,10 +516,15 @@ it.each([false, true])('recovers after a failed switch (user moved focus: %s)', 
 });
 
 
-it('shows confirmed work on the selected Codex card and clears it on freshness without a reload', async () => {
-  width(650);
-  const gate = 'CD+Tests';
+it.each(['CD+Tests', 'CR'])('shows confirmed %s work on the selected Codex card and clears it without a reload', async gate => {
+  width(gate === 'CR' ? 360 : 650);
   const run = runData('run-a');
+  run.persisted!.current_gate = gate;
+  run.evaluation!.current_gate = gate;
+  if (gate === 'CR') run.companion = {
+    route: 'structured_slice', path: [{ gate: 'TP', status: 'fulfilled' }, { gate: 'QA', status: 'open' }],
+    next_text: 'Code-Review durchführen.', blocking_text: 'none',
+  };
   run.evaluation!.next_operation = { actor: 'agent', type: 'implement_approved_plan', operation_key: 'delivery.implementation.complete',
     effect: 'preparation', gate };
   const record = { target_id: fixtureMeta.target.target_id, run_id: run.run_id, revision_id: run.revision_id!, gate,
@@ -534,7 +539,13 @@ it('shows confirmed work on the selected Codex card and clears it on freshness w
   activity = record;
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
   expect(screen.getByText('Das Vorhaben ist in der Phase „Umsetzung und Tests“.', { selector: '.companion-signal' })).toBeTruthy();
-  expect(screen.getByText(/Ich arbeite gerade daran/)).toBeTruthy();
+  const working = screen.getByText(/Ich arbeite gerade daran/);
+  expect(working.previousElementSibling?.textContent).toBe('Einen Augenblick');
+  if (gate === 'CR') {
+    expect(working.textContent).toContain('Code-Prüfung');
+    expect(screen.getByRole('list', { name: 'Gate-Fortschritt' }).querySelector('[aria-current="step"]')?.textContent)
+      .toBe('CD+Tests Aktuell');
+  }
   activity = { ...record, expires_at: Date.now() - 1 };
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
   expect(screen.queryByText('Einen Augenblick')).toBeNull();

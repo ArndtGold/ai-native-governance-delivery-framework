@@ -16,11 +16,11 @@ import { COCKPIT_LIMITS, parseCockpitArguments, parseCockpitContinuationArgument
 export function createCockpitSessionService(root, {
   budget, poolFactory = viewRoot => new ReadWorkerPool(viewRoot, { limits: { total: COCKPIT_LIMITS.capture },
     maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration, budget }), now = Date.now, pluginMode = false, integrationSurface,
-  continuationQualified = false, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV],
+  continuationQualified = false, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV], continuationRuntimeRoot, continuationBootId,
 } = {}) {
   const target = pluginMode ? null : { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
   const continueRun = pluginMode && integrationSurface === 'codex' && continuationQualified === true && companionDataRoot
-    ? createCodexContinuationAdmission(companionDataRoot) : null;
+    ? createCodexContinuationAdmission(companionDataRoot, { runtimeRoot: continuationRuntimeRoot, bootId: continuationBootId }) : null;
   const sessions = new Map();
   let closed = false, renderGeneration = 0, publication = null, resourceIdentity = null;
   const failure = (code, viewTarget = target) => ({ schema_version: '2', target: viewTarget, snapshot_id: null, observed_as_of: null,
@@ -81,8 +81,11 @@ export function createCockpitSessionService(root, {
         const session = active(input.session_id);
         const scope = session.continuationBinding;
         if (!session.continuation || signal?.aborted || !scope || session.snapshot !== input.snapshot_id
-          || scope.run_id !== input.run_id || scope.revision_id !== input.revision_id || !session.displayed)
+          || scope.run_id !== input.run_id || scope.revision_id !== input.revision_id)
           return response({ state: 'stale' });
+        // First paint may not have acknowledged this exact snapshot yet. Reading
+        // status can retry; a gesture still requires the display acknowledgement.
+        if (!session.displayed) return response({ state: input.operation === 'status' ? 'unavailable' : 'stale' });
         if (input.operation === 'status') return response(continueRun.inspect(scope));
         const eligible = () => !signal?.aborted && isCurrentContinuation(session.root, scope);
         if (input.operation === 'reserve') {

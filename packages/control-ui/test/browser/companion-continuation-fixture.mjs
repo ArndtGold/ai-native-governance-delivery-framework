@@ -11,7 +11,9 @@ import { Client, InMemoryTransport } from '@modelcontextprotocol/client';
 import { buildAgdfServer } from '../../../mcp-server/src/server.js';
 import { createTestRuntime } from '../../../mcp-server/test/runtime-fixture.js';
 import { createMcpDispatchRuntime } from '../../../cli/lib/mcp-dispatch-runtime.js';
-import { buildCompanionFixtures } from '../../../core/test/fixtures/companion-fixtures.js';
+import { readSystemBootId } from '../../../cli/lib/mcp-lifecycle/system-boot.js';
+import { buildCompanionFixtures, pendingCompanionCodeReview } from '../../../core/test/fixtures/companion-fixtures.js';
+import { currentFixture } from '../../../core/test/fixtures/current-run.js';
 import { createCockpitReader } from '../../../core/lib/control-inspect/cockpit.js';
 import { createCockpitSessionService } from '../../../core/lib/control-inspect/cockpit-session.js';
 import { COCKPIT_PLUGIN_RENDER_DEFINITION, COCKPIT_READ_DEFINITION, COCKPIT_CONTINUATION_DEFINITION,
@@ -30,6 +32,7 @@ export function counts(events, observed, candidate) {
 }
 
 export const test = base.extend({
+  subject: ['brownfield', { option: true }],
   assets: [async ({}, use) => {
     const ui = readCockpitUiBuild();
     const built = await build({ configFile: false, logLevel: 'error', build: { write: false, target: 'es2022',
@@ -41,12 +44,17 @@ export const test = base.extend({
     await use({ ui, host, fixtureDigest: hash.digest('hex'), commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() });
   }, { scope: 'worker' }],
 
-  lab: async ({ context, assets }, use, info) => {
+  lab: async ({ context, assets, subject }, use, info) => {
     const cleanups = [];
-    const fixture = buildCompanionFixtures({ after: fn => cleanups.push(fn) }, ['F04'])[0];
+    const lifecycle = { after: fn => cleanups.push(fn) };
+    const fixture = subject === 'code-review' ? (() => {
+      const f = currentFixture(lifecycle), run = pendingCompanionCodeReview(f);
+      return { id: 'code-review', root: f.root, runId: run.id };
+    })() : buildCompanionFixtures(lifecycle, ['F04'])[0];
     const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-browser-admission-')));
     const target = { working_directory: fixture.root, primary_target: fixture.root, target_source: 'explicit_target' };
-    const options = { integrationSurface: 'codex', pluginMode: true, continuationQualified: true, companionDataRoot: root };
+    const options = { integrationSurface: 'codex', pluginMode: true, continuationQualified: true, companionDataRoot: root,
+      continuationBootId: readSystemBootId() };
     let session = createCockpitSessionService(undefined, options);
     const tool = (definition, parse, method) => ({ name: definition.name, definition, parse: value => parse(value),
       execute: (value, signal) => session[method](value, signal) });
@@ -76,8 +84,12 @@ export const test = base.extend({
     const tally = () => counts(events, observed, candidate);
     const faults = { rejectContext: false, losePublishReply: false, stale: false, foreign: false };
     const prompt = { session_id: 'fixture-chat', turn_id: 'fixture-turn' };
-    let race;
+    let race, displayAcknowledgement;
     function synchronizeStarts() { race = { views: new Set(), ...Promise.withResolvers() }; }
+    function delayDisplayAcknowledgement() {
+      displayAcknowledgement = Promise.withResolvers();
+      return () => displayAcknowledgement.resolve();
+    }
 
     async function open(page, runId = fixture.runId) {
       const view = ++viewNumber;
@@ -128,6 +140,8 @@ export const test = base.extend({
         if (path === '/tool') {
           const input = route.request().postDataJSON();
           const operation = input.arguments.operation;
+          if (input.name === 'agdf_cockpit_read' && operation === 'display_ack' && displayAcknowledgement)
+            await displayAcknowledgement.promise;
           if (race && input.name === 'agdf_cockpit_continue' && operation === 'reserve') {
             race.views.add(view);
             if (race.views.size === 2) race.resolve();
@@ -137,6 +151,8 @@ export const test = base.extend({
           if (input.name === 'agdf_cockpit_continue' && faults.foreign && operation === 'reserve') input.arguments.run_id = 'foreign-fixture';
           const response = await client.callTool(input);
           const r = response.structuredContent;
+          if (input.name === 'agdf_cockpit_read' && operation === 'display_ack')
+            add('display-ack', { view, state: r?.state, code: r?.code, candidate: generation });
           if (input.name === 'agdf_cockpit_continue') {
             add(r?.send === true ? 'permit' : 'service-' + operation, { view, state: r?.state, attempt: r?.attempt_id,
               candidate: generation });
@@ -190,10 +206,11 @@ export const test = base.extend({
     }
     try {
       await server.connect(b); await client.connect(a);
-      await use({ open, receive, hook, rollover, synchronizeStarts, events, observed, tally, messages, faults, marker, fixture, root, targetId,
+      await use({ open, receive, hook, rollover, synchronizeStarts, delayDisplayAcknowledgement, events, observed, tally, messages, faults, marker, fixture, root, targetId,
         current: lookup, candidate: () => candidate });
     } finally {
       race?.resolve();
+      displayAcknowledgement?.resolve();
       const visible = [];
       for (const page of context.pages()) {
         const frame = page.frames().find(f => f.url() === origin + '/cockpit.html');

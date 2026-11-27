@@ -110,7 +110,7 @@ function observeContinuation(dataRoot, input, now) {
   if (!admission.associateTurn(work, work.attempt_id, work.owner, turn).matched) return;
   const records = load(directory(dataRoot));
   const prior = records.find(row => row.session === turn.session && row.turn === turn.id && row.terminal === true && row.until > now);
-  if (prior?.kind === 'ended') admission.observeRunning(work, work.attempt_id, turn, 'Stop');
+  if (prior?.kind === 'ended' || prior?.kind === 'retired') admission.observeRunning(work, work.attempt_id, turn, 'Stop');
   if (prior?.kind === 'interrupted') admission.observeRunning(work, work.attempt_id, turn, 'Interrupt');
 }
 
@@ -123,7 +123,14 @@ export function observeCodexActivity(dataRoot, input, now = Date.now()) {
     if (!isActivityId(turn)) return false;
     // A new prompt proves that the earlier turns of its session are over, whether or not they reported it.
     if (event === 'UserPromptSubmit') {
-      return mutate(dataRoot, true, now, activity => ({ activity: retireTurns(activity, { session, turn }, now) ?? activity, liveness: livenessRow(now) }));
+      return mutate(dataRoot, true, now, activity => {
+        const next = retireTurns(activity, { session, turn }, now);
+        // Only an accepted host prompt retires durable work. Duplicate, retired
+        // or quarantined prompts cannot release the current native turn.
+        if (next && !next.some(row => row.quarantined))
+          createCodexContinuationAdmission(dataRoot).retireSessionTurns(session, turn);
+        return { activity: next ?? activity, liveness: livenessRow(now) };
+      });
     }
     const terminal = event === 'Stop' || event === 'Interrupt';
     if (!terminal && (event !== 'PostToolUse' || !isAgdfDispatchTool(input.tool_name)

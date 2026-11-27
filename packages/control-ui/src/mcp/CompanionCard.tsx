@@ -133,8 +133,8 @@ export function CompanionCard({ state, data, activity, activityUnknown, current,
     {(blocked || human || pending || reason || resource) && <div className="companion-turn">
       <strong role={human && !previous && !expired ? 'status' : undefined}>{previous || expired ? 'Zuletzt beobachteter Schritt' : human ? 'Du bist dran' : blocked ? 'Klärung nötig'
         : work ? work.turn.who : evaluation?.next_operation?.actor === 'agent' ? 'Codex ist als Nächstes dran' : 'Als Nächstes'}</strong>
-      {reason && <p id={stepId}>{reason}</p>}
       {work && work.turn.what !== reason && <p>{work.turn.what}</p>}
+      {reason && <p id={stepId}>{reason}</p>}
       {blocked && companion?.next_text && companion.next_text !== reason && <p>{companion.next_text}</p>}
       {resource && source && !expired && !sourceInReader &&
         <button type="button" className="companion-source" aria-disabled={!current || sourcePending || undefined}

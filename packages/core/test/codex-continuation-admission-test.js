@@ -124,7 +124,56 @@ test('unreadable durable admission never becomes a new reservation', t => {
   assert.equal(readFileSync(record, 'utf8'), 'incomplete-write');
 });
 
-test('a matching native turn and a clean mutation check are required to settle work', t => {
+test('an unresolved predecessor executable blocks new work until its retention is released', t => {
+  const { root, scope, view, admission } = fixture(t);
+  const claims = join(root, 'mcp', 'generations', 'a'.repeat(64), '0.32.0', '.agdf-executable-claims');
+  mkdirSync(claims, { recursive: true });
+  const claim = join(claims, randomUUID() + '.json');
+  writeFileSync(claim, '{}'); // Unknown retained executable: no assertion of PID liveness.
+  const blocked = { state: 'unavailable', legacy_runtime: true };
+  assert.deepEqual(admission.inspect(scope), blocked);
+  assert.deepEqual(admission.reserve(scope, view, eligible), blocked);
+  assert.deepEqual(admission.claim(scope, {}, eligible), blocked);
+  rmSync(claim); // Simulated acknowledged release by the executable owner, never by admission.
+  assert.equal(admission.inspect(scope).state, 'ready');
+  assert.equal(admission.claim(scope, {}, eligible).admitted, true);
+});
+
+test('a predecessor appearing before publication or receipt cannot earn a send or work grant', t => {
+  const { root, scope, view, admission } = fixture(t);
+  const claims = join(root, 'mcp', 'generations', 'b'.repeat(64), '0.32.0', '.agdf-executable-claims');
+  const claim = join(claims, randomUUID() + '.json');
+  const retain = () => { mkdirSync(claims, { recursive: true }); writeFileSync(claim, '{}'); };
+  const first = admission.reserve(scope, view, eligible);
+  retain();
+  assert.deepEqual(admission.publish(scope, view, first.attempt_id, eligible), { state: 'unavailable', legacy_runtime: true });
+  rmSync(claim);
+  assert.equal(admission.inspect(scope).state, 'ready', 'no send was issued');
+  const second = admission.reserve(scope, view, eligible);
+  assert.equal(admission.publish(scope, view, second.attempt_id, eligible).send, true);
+  retain();
+  assert.equal(admission.inspect(scope).state, 'pending', 'observation preserves an uncertain handoff');
+  assert.deepEqual(admission.claim(scope, { attemptId: second.attempt_id }, eligible), { state: 'unavailable', legacy_runtime: true });
+  rmSync(claim);
+  assert.equal(admission.inspect(scope).state, 'ready', 'the exact receiver positively declined before work');
+  assert.equal(admission.claim(scope, { attemptId: second.attempt_id }, eligible).admitted, undefined);
+});
+
+test('only the adapter-owned current runtime is exempt and unsafe claim directories stay protected', t => {
+  const { root, scope, view } = fixture(t);
+  const current = join(root, 'mcp', 'generations', 'c'.repeat(64), '0.32.0');
+  mkdirSync(join(current, '.agdf-executable-claims'), { recursive: true });
+  writeFileSync(join(current, '.agdf-executable-claims', randomUUID() + '.json'), '{}');
+  const admission = createCodexContinuationAdmission(root, { runtimeRoot: current });
+  assert.equal(admission.inspect(scope).state, 'ready');
+  const other = join(root, 'mcp', 'generations', 'd'.repeat(64), '0.32.0');
+  mkdirSync(other, { recursive: true });
+  writeFileSync(join(other, '.agdf-executable-claims'), 'not a directory');
+  assert.deepEqual(admission.reserve(scope, view, eligible), { state: 'unavailable', legacy_runtime: true });
+  assert.equal(readFileSync(join(other, '.agdf-executable-claims'), 'utf8'), 'not a directory');
+});
+
+test('a matching native interrupt settles work without Stop after mutation checks clear', t => {
   const { root, scope, admission } = fixture(t);
   const claim = admission.claim(scope, {}, eligible);
   const nativeTurn = { session_id: 'chat', turn_id: 'turn-1' };
@@ -138,16 +187,17 @@ test('a matching native turn and a clean mutation check are required to settle w
   hook('UserPromptSubmit');
   hook('PostToolUse', post);
   hook('Stop', { session_id: 'foreign-chat' });
+  hook('Interrupt', { turn_id: 'foreign-turn' });
+  assert.equal(admission.inspect(scope).state, 'running');
+  const pendingPath = pendingRunStepPath(root, scope.run_id);
+  mkdirSync(dirname(pendingPath), { recursive: true });
+  writeFileSync(pendingPath, '{}');
   hook('Interrupt');
   const stopping = { state: 'running', interrupt_requested: true };
   assert.deepEqual(createCodexContinuationAdmission(root).inspect(scope), stopping);
   assert.deepEqual(admission.reserve(scope, randomUUID(), eligible), stopping);
   assert.deepEqual(admission.claim(scope, {}, eligible), stopping);
   assert.deepEqual(admission.claim({ ...scope, revision_id: randomUUID() }, { owner: claim.owner }, eligible), stopping);
-  const pendingPath = pendingRunStepPath(root, scope.run_id);
-  mkdirSync(dirname(pendingPath), { recursive: true });
-  writeFileSync(pendingPath, '{}');
-  hook('Stop');
   assert.deepEqual(admission.inspect(scope), stopping);
   rmSync(pendingPath);
   assert.equal(admission.inspect(scope).state, 'ready');
@@ -156,6 +206,54 @@ test('a matching native turn and a clean mutation check are required to settle w
   hook('PostToolUse', post);
   hook('Stop');
   assert.equal(admission.inspect(scope).state, 'running');
+});
+
+test('an accepted next native prompt retires only its own completed work and retains pending mutations', t => {
+  const { root, scope, admission } = fixture(t);
+  const first = admission.claim(scope, {}, eligible);
+  const turn = { session: 'same-chat', id: 'old-turn' };
+  admission.associateTurn(scope, first.attempt_id, first.owner, turn);
+  const prompt = (session, id, now) => observeCodexActivity(root,
+    { session_id: session, turn_id: id, hook_event_name: 'UserPromptSubmit' }, now);
+  prompt(turn.session, turn.id, 1000);
+  prompt('other-chat', 'next-turn', 1001);
+  assert.equal(admission.inspect(scope).state, 'running');
+  observeCodexActivity(root, { session_id: turn.session, hook_event_name: 'SessionStart' }, 1002);
+  assert.equal(admission.inspect(scope).state, 'running', 'compaction is not a terminal signal');
+  const pending = pendingRunStepPath(root, scope.run_id);
+  mkdirSync(dirname(pending), { recursive: true }); writeFileSync(pending, '{}');
+  prompt(turn.session, 'next-turn', 1003);
+  assert.equal(admission.inspect(scope).state, 'running', 'unfinished writes retain the original claim');
+  rmSync(pending);
+  assert.equal(admission.inspect(scope).state, 'ready');
+  const second = admission.claim(scope, {}, eligible);
+  admission.associateTurn(scope, second.attempt_id, second.owner, { session: turn.session, id: 'next-turn' });
+  prompt(turn.session, turn.id, 1004);
+  prompt(turn.session, 'next-turn', 1005);
+  assert.equal(admission.inspect(scope).state, 'running', 'retired and duplicate prompts cannot release the successor');
+});
+
+test('a quarantined activity store cannot retire durable work on a prompt', t => {
+  const { root, scope, admission } = fixture(t);
+  const first = admission.claim(scope, {}, eligible);
+  admission.associateTurn(scope, first.attempt_id, first.owner, { session: 'chat', id: 'old' });
+  mkdirSync(join(root, 'companion'), { recursive: true });
+  writeFileSync(join(root, 'companion/codex-activity.json'), 'broken');
+  observeCodexActivity(root, { session_id: 'chat', turn_id: 'new', hook_event_name: 'UserPromptSubmit' }, 1000);
+  assert.equal(admission.inspect(scope).state, 'running');
+});
+
+test('a delayed claim result recovers a prior accepted native prompt retirement', t => {
+  const { root, scope, admission } = fixture(t);
+  const first = admission.claim(scope, {}, eligible);
+  observeCodexActivity(root, { session_id: 'chat', turn_id: 'old', hook_event_name: 'UserPromptSubmit' }, 1000);
+  observeCodexActivity(root, { session_id: 'chat', turn_id: 'new', hook_event_name: 'UserPromptSubmit' }, 1001);
+  assert.equal(admission.inspect(scope).state, 'running', 'the receiving turn is not yet correlated');
+  observeCodexActivity(root, { session_id: 'chat', turn_id: 'old', hook_event_name: 'PostToolUse', tool_use_id: 'late-tool',
+    tool_name: 'mcp__agdf__agdf_dispatch', tool_input: { continue_delivery: true, run_id: scope.run_id },
+    tool_response: { structuredContent: { authorizes: false, terminal: false, target: { governance_target: root },
+      continuation: { run_id: scope.run_id, work_admission: { target_id: scope.target_id, run_id: scope.run_id, ...first } } } } }, 1002);
+  assert.equal(admission.inspect(scope).state, 'ready');
 });
 
 for (const first of ['Stop', 'Interrupt']) test(first + ' before the tool result is matched to its actual claim', t => {
@@ -170,9 +268,25 @@ for (const first of ['Stop', 'Interrupt']) test(first + ' before the tool result
     tool_name: 'mcp__agdf__agdf_dispatch', tool_input: { continue_delivery: true, run_id: scope.run_id },
     tool_response: { structuredContent: { authorizes: false, terminal: false, target: { governance_target: root },
       continuation: { run_id: scope.run_id, work_admission: { target_id: scope.target_id, run_id: scope.run_id, ...claim } } } } }, 1003);
-  if (first === 'Interrupt') {
-    assert.deepEqual(admission.inspect(scope), { state: 'running', interrupt_requested: true });
-    observeCodexActivity(root, { ...identity, hook_event_name: 'Stop' }, 1004);
-  }
   assert.equal(admission.inspect(scope).state, 'ready');
+});
+
+test('an interrupt-only record from the preceding build releases after its mutation check clears', t => {
+  const { root, scope, admission } = fixture(t);
+  const claim = admission.claim(scope, {}, eligible);
+  admission.associateTurn(scope, claim.attempt_id, claim.owner, { session: 'legacy-chat', id: 'legacy-turn' });
+  const directory = join(root, 'codex-continuation');
+  const recordPath = join(directory, readdirSync(directory).find(name => name.endsWith('.json')));
+  const record = JSON.parse(readFileSync(recordPath, 'utf8'));
+  writeFileSync(recordPath, JSON.stringify({ ...record, interrupt_requested: true }));
+  const pendingPath = pendingRunStepPath(root, scope.run_id);
+  mkdirSync(dirname(pendingPath), { recursive: true });
+  writeFileSync(pendingPath, '{}');
+  const restarted = createCodexContinuationAdmission(root);
+  assert.deepEqual(restarted.inspect(scope), { state: 'running', interrupt_requested: true });
+  assert.equal(restarted.reserve(scope, randomUUID(), eligible).reserved, undefined);
+  rmSync(pendingPath);
+  assert.equal(restarted.inspect(scope).state, 'ready');
+  assert.equal(restarted.claim(scope, { owner: claim.owner }, eligible).admitted, undefined);
+  assert.equal(restarted.reserve(scope, randomUUID(), eligible).reserved, true);
 });

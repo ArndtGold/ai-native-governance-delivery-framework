@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { createMcpCockpitRuntime, createMcpDispatchRuntime } from '../../cli/lib/mcp-dispatch-runtime.js';
+import { createMcpCockpitRuntime, createMcpDispatchRuntime, inspectMcpDispatcherRuntime } from '../../cli/lib/mcp-dispatch-runtime.js';
 import { approvalFixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
 import { createCodexContinuationAdmission } from '../../core/lib/companion/codex-continuation.js';
 import { createCockpitReader } from '../../core/lib/control-inspect/cockpit.js';
@@ -36,10 +36,13 @@ test('qualification matches candidate bytes and requires native competing-chat e
   assert.equal(check(qualification).reason, 'qualification_evidence_digest_mismatch');
 });
 
-test('the scoped action rejects stale input, blocks an ordinary competing dispatch and claims the original exactly once', async t => {
+test('a matched candidate without native qualification exposes the action and guards both start routes', async t => {
   const f = await approvalFixture();
   const root = dataRoot(t);
-  const options = { surface: 'codex', companionDataRoot: root, continuationQualified: true };
+  const inspected = { ...inspectMcpDispatcherRuntime(), provenanceStatus: 'matched',
+    generationIdentity: { server_digest: '1'.repeat(64), dispatcher_digest: '2'.repeat(64), sdk_digest: '3'.repeat(64) },
+    continuationQualified: false, continuationHost: null };
+  const options = { surface: 'codex', companionDataRoot: root, inspected };
   const dispatch = createMcpDispatchRuntime(options);
   const cockpit = await createMcpCockpitRuntime({ ...options, cockpitMode: 'plugin' });
   t.after(async () => { await cockpit.close(); await dispatch.close(); f.close(); });
@@ -54,8 +57,11 @@ test('the scoped action rejects stale input, blocks an ordinary competing dispat
   assert.equal(snapshot.state, 'available');
   const binding = { session_id, snapshot_id: snapshot.snapshot_id, revision_id: f.revision(), run_id: runId };
   const invokeAction = (operation, fields) => action.execute(action.parse({ ...binding, operation, ...fields }));
+  assert.equal(invokeAction('status').state, 'unavailable', 'a pending display acknowledgement is retryable');
+  assert.equal(invokeAction('status', { revision_id: randomUUID() }).state, 'stale', 'foreign bindings remain stale');
   assert.equal(invokeAction('reserve').state, 'stale', 'action requires a displayed snapshot');
   await read.execute({ session_id, operation: 'display_ack', snapshot_id: snapshot.snapshot_id });
+  assert.equal(invokeAction('status').state, 'ready', 'display acknowledgement makes the same binding usable');
   assert.equal(invokeAction('reserve', { revision_id: randomUUID() }).state, 'stale');
   const approval = invokeAction('reserve');
   assert.equal(approval.operation_key, 'approval.record');
@@ -94,4 +100,67 @@ test('the scoped action rejects stale input, blocks an ordinary competing dispat
   assert.equal(claimed.continuation.work_admission.attempt_id, ready.attempt_id);
   assert.equal(claimed.continuation.resume_call.arguments.continuation_owner, claimed.continuation.work_admission.owner);
   assert.match(invokeDispatch({}).host_action.text, /already working/);
+});
+
+test('missing ownership or generation identity keeps continuation unavailable', async t => {
+  for (const observation of [
+    { provenanceStatus: 'unowned', generationIdentity: { server_digest: '1'.repeat(64) } },
+    { provenanceStatus: 'matched', generationIdentity: null },
+  ]) {
+    const inspected = { ...inspectMcpDispatcherRuntime(), ...observation, continuationQualified: false };
+    const runtime = await createMcpCockpitRuntime({ surface: 'codex', cockpitMode: 'plugin',
+      companionDataRoot: dataRoot(t), inspected });
+    t.after(() => runtime.close());
+    assert.equal(runtime.tools.some(tool => tool.name === 'agdf_cockpit_continue'), false);
+  }
+});
+
+test('explicitly disabling a plugin candidate cannot bypass shared admission through ordinary continuation', async t => {
+  const f = await approvalFixture();
+  assert.equal(f.approve().outcome, 'accepted');
+  t.after(() => f.close());
+  const runtime = createMcpDispatchRuntime({ surface: 'codex', companionDataRoot: dataRoot(t), continuationQualified: false });
+  t.after(() => runtime.close());
+  const tool = runtime.tool('agdf_dispatch');
+  const result = tool.execute(tool.parse({ skill_id: 'gate-check', continue_delivery: true, run_id: 'fixture-a',
+    working_directory: f.root, primary_target: f.root, target_source: 'explicit_target', presentation_language: 'en' }));
+  assert.equal(result.terminal, true);
+  assert.equal(result.continuation, null);
+  assert.match(result.host_action.text, /unavailable/);
+});
+
+test('both Companion and ordinary continuation refuse an unresolved predecessor without replacing its claim', async t => {
+  const f = await approvalFixture();
+  assert.equal(f.approve().outcome, 'accepted');
+  const root = dataRoot(t);
+  const inspected = { ...inspectMcpDispatcherRuntime(), provenanceStatus: 'matched',
+    generationIdentity: { server_digest: '1'.repeat(64), dispatcher_digest: '2'.repeat(64), sdk_digest: '3'.repeat(64) } };
+  const options = { surface: 'codex', companionDataRoot: root, inspected };
+  const dispatch = createMcpDispatchRuntime(options);
+  const cockpit = await createMcpCockpitRuntime({ ...options, cockpitMode: 'plugin' });
+  t.after(async () => { await cockpit.close(); await dispatch.close(); f.close(); });
+  const target = { working_directory: f.root, primary_target: f.root, target_source: 'explicit_target' };
+  const rendered = await cockpit.tools.find(tool => tool.name === 'agdf_cockpit').execute({ ...target, run_id: 'fixture-a' });
+  const session_id = rendered._meta.agdf_cockpit.session_id;
+  const read = cockpit.tools.find(tool => tool.name === 'agdf_cockpit_read');
+  const action = cockpit.tools.find(tool => tool.name === 'agdf_cockpit_continue');
+  const snapshot = await read.execute({ session_id, operation: 'snapshot', run_id: 'fixture-a' });
+  await read.execute({ session_id, operation: 'display_ack', snapshot_id: snapshot.snapshot_id });
+  const binding = { session_id, snapshot_id: snapshot.snapshot_id, revision_id: f.revision(), run_id: 'fixture-a' };
+  const claims = join(root, 'mcp', 'generations', 'a'.repeat(64), '0.32.0', '.agdf-executable-claims');
+  mkdirSync(claims, { recursive: true });
+  const path = join(claims, randomUUID() + '.json');
+  writeFileSync(path, '{}');
+  const invoke = operation => action.execute(action.parse({ ...binding, operation }));
+  assert.equal(invoke('status').legacy_runtime, true);
+  assert.equal(invoke('reserve').reserved, undefined);
+  const gate = dispatch.tool('agdf_dispatch');
+  const ordinary = gate.execute(gate.parse({ ...target, presentation_language: 'en', skill_id: 'gate-check',
+    continue_delivery: true, run_id: 'fixture-a' }));
+  assert.equal(ordinary.terminal, true);
+  assert.equal(ordinary.continuation, null);
+  assert.match(ordinary.host_action.text, /older AGDF connection/);
+  rmSync(path); // Fixture simulation of the retention owner's confirmed release.
+  assert.equal(invoke('status').state, 'ready');
+  assert.equal(invoke('reserve').reserved, true);
 });

@@ -2,6 +2,10 @@
 // `run-view` command and maps it to the companion's runs. The companion derives no run semantics of
 // its own: status, gate path, missing approval, next step and figure come from the status card's
 // evaluator. Process access is injected by the host ({ run(argv, init) }, as `$.process` provides).
+// With the plugin data directory the same read carries the root's companion events from Core's single
+// journal reader (run run-71aa7dbb, SD SDD-003, SDD-004).
+
+import { EVENT_KINDS } from './events.mjs';
 
 export const RUN_VIEW_SCHEMA = 'run-view/1';
 export const RUN_VIEW_TIMEOUT_MS = 10_000;
@@ -18,10 +22,23 @@ export const isStructured = route => route === 'structured_delivery' || route ==
 const TEXT_LIMIT = 240;
 const clip = text => { const value = String(text ?? ''); return value.length > TEXT_LIMIT ? `${value.slice(0, TEXT_LIMIT - 1)}…` : value; };
 
-// The only command the companion runs: the read-only run view of one project root.
-export function runViewArgv({ pluginRoot, root, language, runIds = [] }) {
+// An absolute path in either form; the run view refuses a relative data root, which would cost the
+// whole read, so the companion then reads without events instead.
+const isAbsolutePath = path => typeof path === 'string' && /^(?:[A-Za-z]:[\\/]|[\\/])/u.test(path);
+
+// The only command the companion runs: the read-only run view of one project root, with the root's
+// event history when the plugin data directory is known.
+export function runViewArgv({ pluginRoot, root, language, runIds = [], dataDir = null }) {
   return ['node', `${pluginRoot}/runtime/agdf-local.js`, 'run-view', '--dir', root, '--json', '--language', language,
-    ...runIds.flatMap(runId => ['--run', runId])];
+    ...runIds.flatMap(runId => ['--run', runId]), ...(isAbsolutePath(dataDir) ? ['--companion-data', dataDir] : [])];
+}
+
+// The run view's event history as the companion keeps it: null when the view carries none (no data
+// directory), unavailable for a history it cannot use, else its events in journal order.
+export function eventHistory(events) {
+  if (events === undefined || events === null) return null;
+  if (events?.state !== 'available' || !Array.isArray(events.items)) return { state: 'unavailable', items: [] };
+  return { state: 'available', items: events.items.filter(item => typeof item?.id === 'string' && EVENT_KINDS.includes(item.kind)) };
 }
 
 // One run-view entry as the companion's run.
@@ -67,15 +84,18 @@ export function snapshotFromRunView(stdout, { now }) {
   if (view?.schema_version !== RUN_VIEW_SCHEMA || !Array.isArray(view.runs) || !view.store) {
     return { status: 'failed', runs: [], unreadable: [], readAt: now, error: 'malformed' };
   }
+  // A readable view whose runs are unusable still carries the events it read before them (SD SDD-003):
+  // they reach the pane and toasts now, while durable facts wait for a view that can confirm them.
+  const events = eventHistory(view.events);
   if (view.store.status === 'unavailable' && TRANSIENT_STORE_REASONS.includes(view.store.reason)) {
-    return { status: 'failed', runs: [], unreadable: [], readAt: now, error: view.store.reason };
+    return { status: 'failed', runs: [], unreadable: [], readAt: now, error: view.store.reason, events };
   }
   // A run read while its files changed (after the run view's bounded retries) makes the view incomplete;
   // like a transient store failure it keeps the last good view instead of showing that run as blocked.
   // A single run that ran into the read budget is not transient: it stays that run's own reason, so the
   // other runs are still shown.
   const changedRun = view.runs.find(run => TRANSIENT_RUN_REASONS.includes(run?.evaluation_error));
-  if (changedRun) return { status: 'failed', runs: [], unreadable: [], readAt: now, error: changedRun.evaluation_error };
+  if (changedRun) return { status: 'failed', runs: [], unreadable: [], readAt: now, error: changedRun.evaluation_error, events };
   const status = view.store.status === 'ok' ? 'ok' : view.store.status === 'no_control' ? 'no_control' : 'unavailable';
   return {
     status,
@@ -90,6 +110,8 @@ export function snapshotFromRunView(stdout, { now }) {
     planned: (Array.isArray(view.planned) ? view.planned : []).filter(entry => typeof entry?.plan_id === 'string').map(companionPlan),
     unreadable: (view.diagnosis?.unreadable ?? []).map(({ run_id, reason }) => ({ id: run_id, reason })),
     diagnosis: view.diagnosis ?? null,
+    // The root's companion events of the same read, read before its runs (SD SDD-003).
+    events,
     // A run that ran into the read budget may read on the next attempt: the adapter keeps no
     // fingerprint for such a view, so the next check reads again instead of waiting for a file change.
     retry: view.runs.some(run => run?.evaluation_error === 'timeout'),
@@ -99,11 +121,11 @@ export function snapshotFromRunView(stdout, { now }) {
 
 // Runs the command through the host and never throws: a process failure, a timeout or malformed
 // output is a failed snapshot with its cause, which the adapter settles as stale.
-export async function readSnapshot(processes, { pluginRoot, root, language, runIds = [], now, clock = () => Date.now() }) {
+export async function readSnapshot(processes, { pluginRoot, root, language, runIds = [], dataDir = null, now, clock = () => Date.now() }) {
   let ran;
   const started = await clock();
   try {
-    ran = await processes.run(runViewArgv({ pluginRoot, root, language, runIds }), { timeoutMs: RUN_VIEW_TIMEOUT_MS });
+    ran = await processes.run(runViewArgv({ pluginRoot, root, language, runIds, dataDir }), { timeoutMs: RUN_VIEW_TIMEOUT_MS });
   } catch {
     // `$.process.run` rejects when the command cannot start or is still running at the timeout; its
     // message format is not specified, so the elapsed time tells the two apart (CR finding CIR-06).

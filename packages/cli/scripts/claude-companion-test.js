@@ -48,6 +48,23 @@ const activity = (gate = "SD") => [{ target_id: "/fixture", run_id: "r", revisio
   const processes = results => ({ run: async (argv, init) => { calls.push({ argv, init }); const next = results.shift(); if (next instanceof Error) throw next; return next; } });
   const argv = runViewArgv({ pluginRoot: "C:/plugin", root: "C:/p", language: "de", runIds: ["picked"] });
   assert.deepEqual(argv, ["node", "C:/plugin/runtime/agdf-local.js", "run-view", "--dir", "C:/p", "--json", "--language", "de", "--run", "picked"]);
+  // Run run-71aa7dbb (SDD-004): with the plugin data directory the same read carries this root's events.
+  assert.deepEqual(runViewArgv({ pluginRoot: "C:/plugin", root: "C:/p", language: "de", dataDir: "C:/data/agdf-agdf" }).slice(-2),
+    ["--companion-data", "C:/data/agdf-agdf"]);
+  const withEvents = events => snapshotFromRunView(JSON.stringify({ ...JSON.parse(runView([])), ...(events === undefined ? {} : { events }) }), { now: 1 }).events;
+  assert.equal(withEvents(undefined), null, "a view without events carries none");
+  assert.deepEqual(withEvents({ state: "available", items: [{ id: "a", kind: "approval_requested", at: null }, { id: 7, kind: "approval_requested" }, { id: "b", kind: "guess" }] }),
+    { state: "available", items: [{ id: "a", kind: "approval_requested", at: null }] }, "only events of a known kind with an id");
+  assert.deepEqual([withEvents({ state: "unavailable", items: [] }), withEvents({ state: "available" }), withEvents("x")],
+    [{ state: "unavailable", items: [] }, { state: "unavailable", items: [] }, { state: "unavailable", items: [] }], "an unusable history is unavailable");
+  // CR finding CR-01: a readable view whose runs are unusable keeps its events; CR-06: a relative data
+  // directory would fail the whole read, so the companion then reads without events.
+  const transient = snapshotFromRunView(JSON.stringify({ ...JSON.parse(runView([], { status: "unavailable", reason: "source_changed" })),
+    events: { state: "available", items: [{ id: "u", kind: "effect_unknown", at: null }] } }), { now: 1 });
+  assert.deepEqual([transient.status, transient.events.items.map(item => item.id)], ["failed", ["u"]]);
+  assert.equal(runViewArgv({ pluginRoot: "C:/plugin", root: "C:/p", language: "de", dataDir: "relative/data" }).includes("--companion-data"), false);
+  assert.deepEqual(runViewArgv({ pluginRoot: "/plugin", root: "/p", language: "de", dataDir: "/home/u/.claude/plugins/data/agdf-agdf" }).slice(-2),
+    ["--companion-data", "/home/u/.claude/plugins/data/agdf-agdf"]);
   const ok = await readSnapshot(processes([{ exitCode: 0, stdout: runView([{ ...entry(), figure: deriveFigureState(entry()) },
     { run_id: "legacy", valid: false, evaluated: true, findings: ["AGDF_RUN_VERSION_UNSUPPORTED"] }], undefined,
     { unreadable: [{ run_id: "legacy", reason: "run_version_unsupported" }], counts: { unreadable: 1 } }), stderr: "" }]),
@@ -733,18 +750,22 @@ for (const invalid of ["", "[]", "{\"schema_version\":2,\"enabled\":true}", "{\"
   assert.deepEqual(assignRun({ runs: quiet, sessionStartedAt: start, mention: { runId: "named", at: start }, selection: "picked", isBrowsing: true }).chatRunId, "named");
 }
 
-// Companion core SDD-007: the journal reader keeps a cursor, skips foreign and malformed lines, compares
-// roots normalized and falls back to the event time after a rotation; review facts stay bounded.
+// Companion core SDD-007; run run-71aa7dbb (SD SDD-004 to SDD-007): the companion keeps a cursor over
+// the run view's events and falls back to the event time after a rotation; it parses no journal line
+// and compares no roots itself (Core's single reader does both; companion-journal-contract-test.js).
 {
-  const { EVENT_KINDS, TOAST_KINDS, eventText, latestReview, normalizeRoot, parseJournal, sameRoot, shortRunId, unseenEvents } = await companion("events.mjs");
+  const { EVENT_KINDS, TOAST_KINDS, eventText, historyEvents, latestReview, shortRunId, unseenEvents } = await companion("events.mjs");
   const coreEvents = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "companion", "events.js")).href);
   assert.deepEqual([EVENT_KINDS, TOAST_KINDS], [coreEvents.EVENT_KINDS, coreEvents.TOAST_KINDS], "the companion reads the kinds Core writes");
   // CR finding CIR-04: every companion mirror of a Core value is pinned to its owner.
   const mirror = await companion("events.mjs");
   const coreJournal = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "companion", "journal.js")).href);
-  assert.deepEqual([mirror.JOURNAL_FILE, mirror.JOURNAL_ROTATED_FILE, mirror.journalDirectory("D")],
-    [coreJournal.JOURNAL_FILE, coreJournal.JOURNAL_ROTATED_FILE, `D/${coreJournal.JOURNAL_DIRECTORY}`], "the companion reads the files Core writes");
-  assert.ok(mirror.JOURNAL_READ_LIMIT >= coreJournal.JOURNAL_LIMIT_BYTES, "the bounded read covers a full journal file");
+  assert.deepEqual([mirror.JOURNAL_FILE, mirror.journalDirectory("D")],
+    [coreJournal.JOURNAL_FILE, `D/${coreJournal.JOURNAL_DIRECTORY}`], "the companion watches the file Core writes");
+  // SCN-002: the journal parser, the root normalization and the read bound are gone from the template.
+  for (const name of ["parseJournal", "EVENT_SCHEMA", "normalizeRoot", "sameRoot", "JOURNAL_READ_LIMIT", "JOURNAL_ROTATED_FILE"]) {
+    assert.equal(name in mirror, false, `events.mjs no longer exports ${name}`);
+  }
   const coreFigure = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "companion", "figure-state.js")).href);
   const coreIdentity = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "control-state", "run-identity.js")).href);
   const coreOperations = await import(pathToFileURL(join(repoRoot, "packages", "core", "lib", "control-state", "run-operations.js")).href);
@@ -757,24 +778,41 @@ for (const invalid of ["", "[]", "{\"schema_version\":2,\"enabled\":true}", "{\"
   assert.deepEqual([...catalog.COMPANION_UNREADABLE_REASONS].sort(),
     [...new Set([...runView.DIAGNOSIS_REASONS, ...classification.BOUNDED_READ_CODES, ...READ_FAILURE_REASONS])].sort(),
     "the catalog has a text for every reason the run view, the bounded read and the companion produce");
-  for (const [left, right] of [["C:\\Work\\App", "c:/work/app/"], ["\\\\Server\\Share\\App", "//server/share/app"], ["/home/Work/App", "/home/work/app"],
-    ["/home/Work/App/", "/home/Work/App"], ["C:\\Work\\App", "C:\\Work\\Other"], ["P:\\", "p:\\"], ["P:", "p:/"]]) {
-    const win32 = /^(?:[a-z]:(?:[\\/]|$)|[\\/]{2})/iu.test(left);
-    assert.equal(mirror.sameRoot(left, right), coreEvents.sameRoot(left, right, { win32 }), `root comparison ${left} | ${right}`);
-  }
-  const ev = (id, at, fields = {}) => ({ schema_version: "companion-event/1", id, at, root: "C:\\Work\\App", run_id: "r1", gate: "SD", kind: "approval_requested", ...fields });
-  const text = [JSON.stringify(ev("a", "2026-11-05T10:00:00.000Z")), "{\"cut", JSON.stringify({ ...ev("x", "t"), schema_version: "companion-event/2" }),
-    JSON.stringify(ev("b", "2026-11-05T10:00:01.000Z", { root: "c:/work/app/" })), JSON.stringify(ev("c", "2026-11-05T10:00:02.000Z", { root: "D:\\Other" }))].join("\n");
-  const events = parseJournal(text);
-  assert.deepEqual(events.map(item => item.id), ["a", "b", "c"]);
-  assert.deepEqual(coreEvents.parseEventLines(text).map(item => item.id), ["a", "b", "c"], "the companion parses like Core");
-  assert.equal(normalizeRoot("C:\\Work\\App\\"), "c:/work/app");
-  assert.equal(normalizeRoot("/home/Work/App/"), "/home/Work/App", "POSIX roots keep their case");
-  assert.ok(sameRoot("C:\\Work\\App", "c:/work/app/") && !sameRoot("/a", "/A") && !sameRoot("", ""));
-  assert.deepEqual(unseenEvents(events, { root: "C:\\Work\\App", cursor: null }), { fresh: [], cursor: { id: "c", at: "2026-11-05T10:00:02.000Z" } }, "a first read is a baseline");
-  assert.deepEqual(unseenEvents(events, { root: "C:\\Work\\App", cursor: { id: "a", at: "x" } }).fresh.map(item => item.id), ["b"], "after the cursor, this root only");
-  assert.deepEqual(unseenEvents(events, { root: "C:\\Work\\App", cursor: { id: "gone", at: "2026-11-05T10:00:00.500Z" } }).fresh.map(item => item.id), ["b"], "a rotated cursor falls back to time");
-  assert.deepEqual(unseenEvents([], { root: "/p", cursor: { id: null, at: "t" } }), { fresh: [], cursor: { id: null, at: "t" } });
+  // The run view's events of this root, as Core's reader returns them (journal order, ISO times).
+  const ev = (id, at, fields = {}) => ({ id, at, run_id: "r1", gate: "SD", kind: "approval_requested", reason: null, ...fields });
+  const events = [ev("a", "2026-11-05T10:00:00.000Z"), ev("b", "2026-11-05T10:00:01.000Z"), ev("c", "2026-11-05T10:00:02.000Z")];
+  assert.deepEqual(unseenEvents(events, { cursor: null }), { fresh: [], cursor: { id: "c", at: "2026-11-05T10:00:02.000Z" } }, "a first read is a baseline");
+  assert.deepEqual(unseenEvents(events, { cursor: { id: "a", at: "x" } }).fresh.map(item => item.id), ["b", "c"], "the events after the cursor");
+  assert.deepEqual(unseenEvents(events, { cursor: { id: "gone", at: "2026-11-05T10:00:00.500Z" } }).fresh.map(item => item.id), ["b", "c"], "a rotated cursor falls back to time");
+  assert.deepEqual(unseenEvents([ev("n", null)], { cursor: { id: "gone", at: "2026" } }).fresh, [], "an event without a time is not fresh by time");
+  assert.deepEqual(unseenEvents([], { cursor: { id: null, at: "t" } }), { fresh: [], cursor: { id: null, at: "t" } });
+  // CR finding CR-03: a view read before the cursor's event (an overlapping read applied later) never
+  // moves the cursor back, so the next read announces nothing twice.
+  const ahead = { id: "z", at: "2026-11-05T10:00:05.000Z" };
+  assert.deepEqual(unseenEvents(events, { cursor: ahead }), { fresh: [], cursor: ahead }, "an older view keeps the cursor");
+  assert.deepEqual(unseenEvents([...events, ev("z", ahead.at), ev("y", "2026-11-05T10:00:06.000Z")], { cursor: ahead }).fresh.map(item => item.id), ["y"]);
+  // SCN-010, SCN-011 (SDD-006): a history view lists durable facts only once confirmed and keeps a
+  // still-uncertain outcome beyond the newest lines until its run recorded a later operation.
+  const run1 = fields => ({ id: "r1", lifecycle: "active", path: [{ gate: "UR", status: "fulfilled" }, { gate: "PRD", status: "current" }], updatedAt: "2026-11-05T09:00:00.000Z", ...fields });
+  const newestFirst = [ev("p", "2026-11-05T10:00:09.000Z", { kind: "approval_recorded", gate: "PRD" }), ev("q", "2026-11-05T10:00:08.000Z", { kind: "approval_recorded", gate: "UR" }),
+    ev("k", "2026-11-05T10:00:07.000Z", { kind: "run_completed", gate: "OR" }),
+    ...[6, 5, 4, 3, 2].map(second => ev(`d${second}`, `2026-11-05T10:00:0${second}.000Z`, { kind: "document_recorded" })),
+    ev("u", "2026-11-05T10:00:01.000Z", { kind: "effect_unknown", reason: "dispatch_timeout" })];
+  assert.deepEqual(historyEvents(newestFirst, [run1()]).map(item => item.id), ["q", "d6", "d5", "d4", "u"],
+    "unconfirmed approval and completion are left out; the uncertain outcome keeps its place beyond the newest");
+  assert.deepEqual(historyEvents(newestFirst, [run1({ updatedAt: "2026-11-05T10:00:05.000Z", lifecycle: "completed" })]).map(item => item.id),
+    ["q", "k", "d6", "d5", "d4"], "after a later operation the outcome is ordinary history; a completed run confirms its completion");
+  assert.deepEqual(historyEvents(newestFirst, []).map(item => item.id), ["d6", "d5", "d4", "d3", "u"], "a run detail without a path confirms no approval");
+  assert.deepEqual(historyEvents(newestFirst.slice(0, 2), [run1()], { limit: 1 }).map(item => item.id), ["q"]);
+  // SCN-009 (SDD-007): the time text of both companions.
+  const { eventTimeText } = await companion("view.mjs");
+  const now = new Date(2026, 10, 27, 12, 0).getTime();
+  const local = (...parts) => new Date(...parts).toISOString();
+  assert.deepEqual([
+    eventTimeText(local(2026, 10, 27, 14, 5), { locale: "de", now }), eventTimeText(local(2026, 10, 26, 14, 5), { locale: "de", now }),
+    eventTimeText(local(2025, 10, 26, 14, 5), { locale: "de", now }), eventTimeText(local(2026, 10, 26, 14, 5), { locale: "en", now }),
+    eventTimeText(local(2026, 10, 27, 14, 5), { locale: "en", now }), eventTimeText("not a time", { locale: "de", now }), eventTimeText(null, { now }),
+  ], ["14:05", "26.11. 14:05", "26.11.2025 14:05", "2026-11-26 14:05", "14:05", "", ""]);
   const tEn = (path, params) => label(labels, "en", path, params);
   // Owner request of 2026-11-06 (T-013): the shown run's events name no run; another run follows the
   // event text by its objective, else by its short id, so a cut line keeps the event.
@@ -791,13 +829,17 @@ for (const invalid of ["", "[]", "{\"schema_version\":2,\"enabled\":true}", "{\"
   assert.equal(latestReview([ev("a", "t")], tEn), null);
   for (const kind of EVENT_KINDS) for (const locale of ["de", "en"]) assert.notEqual(label(labels, locale, `events.${kind}`), `events.${kind}`, `${locale} text for ${kind}`);
   // The view lists the events with their time, the newest review and the unavailable hint.
+  const eventDay = Date.parse("2026-11-05T10:30:00.000Z");
   const shown = view({ snapshot: snapshot([run({ last_activity: "2026-10-26T08:01:00Z", drift: [{ document: "SD", path: "p", recorded_digest: `sha256:${"1".repeat(64)}`, current_digest: null }] })]),
     events: [ev("b", "2026-11-05T10:00:01.000Z", { kind: "effect_unknown", run_id: "r" }), ev("c", "2026-11-05T10:00:00.000Z", { kind: "write_rejected", reason: "stale_revision" })],
-    eventsAvailable: false });
+    eventsAvailable: false, now: eventDay });
   assert.deepEqual(shown.events.map(line => line.slice(6)), ["Wirkung unbekannt – Vorgangsstatus prüfen", "Aufruf abgelehnt (stale_revision) · r1"],
     "the shown run's event names no run; another run's event names it after the text");
   const pair = view({ snapshot: snapshot([run({ run_id: "a", objective: "First run" }), run({ run_id: "b", objective: "Second run" })]),
-    events: [ev("d", "2026-11-05T10:00:02.000Z", { run_id: "b" }), ev("e", "2026-11-05T10:00:01.000Z", { run_id: "a" })] });
+    events: [ev("d", "2026-11-05T10:00:02.000Z", { run_id: "b" }), ev("e", "2026-11-05T10:00:01.000Z", { run_id: "a" })], now: eventDay });
+  // AC-005: an event of an earlier day carries its date in the pane (German day and month).
+  const dated = view({ snapshot: snapshot([run()]), events: [ev("f", new Date(2026, 10, 4, 9, 15).toISOString())], now: new Date(2026, 10, 5, 12, 0).getTime() });
+  assert.equal(dated.events[0], "04.11. 09:15 Freigabe angefragt für Lösungsdesign · r1", "an earlier day is dated");
   assert.deepEqual([pair.runId, pair.events.map(line => line.slice(6))], ["a", ["Freigabe angefragt für Lösungsdesign · Second run", "Freigabe angefragt für Lösungsdesign"]],
     "an event of another open run names it by its objective");
   assert.equal(shown.eventsHint, "Ereignisse nicht verfügbar; der Run-Status wird weiter gelesen.");

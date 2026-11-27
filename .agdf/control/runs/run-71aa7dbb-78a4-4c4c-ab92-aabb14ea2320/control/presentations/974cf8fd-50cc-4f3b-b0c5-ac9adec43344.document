@@ -1,0 +1,38 @@
+## Nutzerabnahme prüfen und entscheiden
+
+Single Core reader for the companion event journal
+
+- Ziel: Der Core-Journal-Leser ist die einzige Implementierung, die das Journal liest; der Claude-Begleiter erhält die Ereignisse seines Projekt-Roots über den bereits genutzten read-only Befehl `run-view`, und beide Begleiter zeigen für dasselbe Journal dieselben Ereignisse.
+- Geliefertes Ergebnis: Das Companion-Ereignisjournal wird nur noch vom Core-Leser `readCompanionEvents` gelesen; `run-view` liefert mit `--companion-data` die Ereignisse des Roots (vor den Runs gelesen), der Claude-Begleiter nutzt sie und beobachtet das Journal nur noch über Größe und Änderungszeit, die Codex-Karte nutzt denselben Leser und dieselben Regeln für Bestätigung, haftende Ereignisse und Datumsanzeige; ein Contract-Test prüft Leser und beide Verbraucher auf gemeinsamen Fixtures. Alle Tasks T-001 bis T-008 und Szenarien SCN-001 bis SCN-013 sind erfüllt, die vier Code-Review-Befunde behoben und nachgeprüft; alle Suiten des Testplans und `compatibility:check` (56/56) laufen durch.
+- Technische QA: pass
+- Nachweisgrenzen: Die echte Claude-Desktop-Pane und die Codex-App wurden nicht geöffnet (Nachweis über gerenderte Module in Testhosts); zwei Cockpit-Core-Tests scheitern an Windows-Hostgrenzen (Symlink-Recht, Dateisperre unter Last) unabhängig von dieser Änderung; die CI des Pull Requests steht noch aus.
+- Risiken und offene Punkte: Jede Journaländerung, auch aus anderen Projekten, startet einen `run-view` je offenem Claude-Begleiter (vom Owner akzeptiert, Root-Filter im Observer als mögliche Folgeaufgabe); bei einem Prozessausfall von `run-view` kommen Ereignisse verzögert; die nativen Claude-CLI-Beobachtungen waren schon vorher veraltet; der Branch baut auf PR #85 auf, der derzeit Konflikte mit seiner Basis hat.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- ur ·  (exact cooperative association)
+- route · UR (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 0
+
+- QA: .agdf/control/runs/run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320/documents/QA_REPORT.md · sha256:5aac63d29abeeabfe54cf97183a23dde758a084bae9589bcaa0db5920906eb38
+- Review: .agdf/control/runs/run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320/documents/TP_REVIEW.md · sha256:9a11a92b3c1a304e6bf192108360dfbee4fc685040a7c9135a03ea07d45394f1
+- Review: .agdf/control/runs/run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320/documents/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:cd12e0f593a0009a6cc481bc639ba1838f1fb50148296f6c63ccea7532159169
+- Review: .agdf/control/runs/run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320/documents/CODE_REVIEW.md · sha256:cc1270877932021c4c4bd61336c1d66a08b563b1c33e1f2b52939534178534b1
+- UR: .agdf/control/runs/run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320/documents/UR.md · sha256:c1afd327459838910850c4632e96db339c664b9a3f755586d93a1657079abd60
+
+Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UAT.
+
+### Fassung und Quellen
+
+Run: `run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320` · Nutzerabnahme · Revision: `eb73c3d7-7145-4cb1-9942-c749c3f7cc2e`
+
+SHA-256: `sha256:a151255b2e6df094cf00e368aa46d2b6914e6cbb70c2b24878c0c5ef58081c9e`

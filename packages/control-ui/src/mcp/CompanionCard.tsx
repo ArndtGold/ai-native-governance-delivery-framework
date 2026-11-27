@@ -1,8 +1,8 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { BUILD_MARK, gateMarks } from '../../../../plugins/agdf/host-templates/claude/companion/gate-bar.mjs';
 import { matchesActivity } from '../../../core/lib/companion/activity.js';
-import { activityOf, clockText } from '../../../../plugins/agdf/host-templates/claude/companion/view.mjs';
-import { EVENT_KINDS, eventText } from '../../../../plugins/agdf/host-templates/claude/companion/events.mjs';
+import { activityOf, eventTimeText } from '../../../../plugins/agdf/host-templates/claude/companion/view.mjs';
+import { EVENT_KINDS, eventText, historyEvents } from '../../../../plugins/agdf/host-templates/claude/companion/events.mjs';
 import { companionLabels, gateTitle, label } from '../../../../plugins/agdf/host-templates/claude/companion/localization.mjs';
 import registry from '../../../../plugins/agdf/meta/agdf-interaction-locales.json';
 import { RunFigure, useReducedFigureMotion } from '../RunFigure';
@@ -19,15 +19,6 @@ import { CompanionContinuationAction } from './CompanionContinuationAction';
 import type { CompanionContinuation } from './companion-continuation';
 
 const eventGateTitle = (gate: string) => gateTitle(registry, 'de', gate);
-const twoDigits = (value: number) => String(value).padStart(2, '0');
-// The journal keeps events across days, so an event of an earlier day carries its date.
-function eventTimeText(at: string, now = new Date()): string {
-  const date = new Date(at);
-  const clock = clockText(date.getTime());
-  if (date.toDateString() === now.toDateString()) return clock;
-  const day = `${twoDigits(date.getDate())}.${twoDigits(date.getMonth() + 1)}.`;
-  return `${date.getFullYear() === now.getFullYear() ? day : `${day}${date.getFullYear()}`} ${clock}`;
-}
 const gateRationales = registry.locales.de.gateRationale;
 type PurposeGate = keyof typeof gateRationales;
 const purposeHeadings: Record<PurposeGate, string> = {
@@ -74,10 +65,13 @@ export function CompanionCard({ state, data, observation, current, confirmedGate
   // A retained or expired reading no longer refreshes its events, so it shows none.
   const eventHistory = !state.requestedRoute && !previous && !expired
     && observation?.run_id === data.run_id && observation.revision_id === data.revision_id ? observation.events : undefined;
+  // The Claude companion's rules pick the lines (run run-71aa7dbb, SD SDD-006): a recorded approval or
+  // completion only once this run detail confirms it, a still-uncertain outcome kept beyond the newest.
   const events = eventHistory?.state === 'available' && Array.isArray(eventHistory.items)
-    ? eventHistory.items.slice(0, 5).filter(event => typeof event?.id === 'string' && EVENT_KINDS.includes(event.kind)
+    ? historyEvents(eventHistory.items.filter(event => typeof event?.id === 'string' && EVENT_KINDS.includes(event.kind)
       && (event.at === null || typeof event.at === 'string' && Number.isFinite(Date.parse(event.at)))
-      && (event.gate === null || typeof event.gate === 'string') && (event.reason === null || typeof event.reason === 'string')) : [];
+      && (event.gate === null || typeof event.gate === 'string') && (event.reason === null || typeof event.reason === 'string')),
+    [{ id: data.run_id, lifecycle: data.lifecycle, path: companion?.path ?? [], updatedAt: data.last_activity ?? '' }]) : [];
   const active = current && visible !== false && !state.refreshing && !previous && !expired && pending
     && evaluation?.next_operation?.actor === 'agent' && matchesActivity(activity, {
       target_id: state.scope?.target.target_id, run_id: data.run_id, revision_id: data.revision_id ?? undefined, gate,
@@ -190,8 +184,8 @@ export function CompanionCard({ state, data, observation, current, confirmedGate
     {(events.length > 0 || eventHistory?.state === 'unavailable') && <section className="companion-events" aria-label={companionLabel('fields.events')}>
       <h3>{companionLabel('fields.events')}</h3>
       {eventHistory?.state === 'unavailable' ? <p>{companionLabel('messages.eventsUnavailable')}</p> : <ul>{events.map(event => <li key={event.id}>
-        {event.at && <><time dateTime={event.at}>{eventTimeText(event.at)}</time>{' '}</>}
-        {eventText(event, companionLabel, { gateTitle: eventGateTitle })}
+        {event.at && <><time dateTime={event.at}>{eventTimeText(event.at, { locale: 'de' })}</time>{' '}</>}
+        {eventText(event, companionLabel, { gateTitle: eventGateTitle, shownRunId: data.run_id })}
       </li>)}</ul>}
     </section>}
   </article>;

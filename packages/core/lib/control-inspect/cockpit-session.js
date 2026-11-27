@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { relative, sep } from 'node:path';
 import { COMPANION_DATA_ROOT_ENV } from '../companion/journal.js';
-import { readCockpitEvents } from '../companion/read-cockpit-events.js';
+import { readCompanionEvents } from '../companion/read-companion-events.js';
 import { readCodexObservation } from '../companion/codex-activity.js';
 import { createCodexContinuationAdmission } from '../companion/codex-continuation.js';
 import { continuationBinding, isCurrentContinuation } from '../companion/codex-continuation-binding.js';
@@ -12,6 +12,13 @@ import { resolveTaskTarget } from '../task-target-resolution.js';
 import { runPath } from '../control-state/run-state-reader.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
 import { COCKPIT_LIMITS, parseCockpitArguments, parseCockpitContinuationArguments, parsePluginCockpitArguments } from './cockpit-contract.js';
+
+// The selected run's event history from the single journal reader, newest first by time as the
+// companion card lists it; the card picks its lines from it (SD SDD-006).
+function selectedRunEvents(dataRoot, root, runId) {
+  const { state, items } = readCompanionEvents(dataRoot, root, { runId });
+  return { state, items: items.slice().reverse().sort((left, right) => (right.at ?? '').localeCompare(left.at ?? '')) };
+}
 
 // One connection owns bounded independent read views. Retiring workers still occupy slots.
 export function createCockpitSessionService(root, {
@@ -309,7 +316,7 @@ export function createCockpitSessionService(root, {
           const observation = { run_id: binding.run_id, revision_id: binding.revision_id };
           // Without a data root the journal writer is disabled, so there is no event history to report.
           if (typeof companionDataRoot === 'string' && companionDataRoot) {
-            observation.events = readCockpitEvents(companionDataRoot, session.root, binding.run_id);
+            observation.events = selectedRunEvents(companionDataRoot, session.root, binding.run_id);
           }
           if (binding.gate) {
             const seen = companionDataRoot && readCodexObservation(companionDataRoot, binding, now());

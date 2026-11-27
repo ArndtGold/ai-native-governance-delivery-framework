@@ -16,13 +16,16 @@ const readLanguage = options => {
 };
 
 // Read-only companion run view (SD SDD-001): the status card fields of every active or unreadable
-// run of one project root plus every run named with --run, versioned run-view/1. Writes nothing.
+// run of one project root plus every run named with --run, versioned run-view/1. With
+// --companion-data it also carries the root's companion event history (run run-71aa7dbb, SDD-003).
+// Writes nothing.
 // Exit 0 for a complete view, 2 when the store is unavailable or has no control folder.
 export function executeRunView(options, io = console) {
   // A malformed run id is a usage error, never an evaluated run of its own (CR finding C3).
   const invalid = (options.runIds ?? []).find(runId => !RUN_ID_PATTERN.test(runId));
   if (invalid !== undefined) throw new CliUsageError(`run-view --run requires a run id (${RUN_ID_PATTERN}); got ${JSON.stringify(invalid)}.`);
-  const view = readRunView(options.dir, { language: readLanguage(options), runIds: options.runIds ?? [] });
+  const view = readRunView(options.dir, { language: readLanguage(options), runIds: options.runIds ?? [],
+    companionDataRoot: options.companionDataRoot ?? null });
   if (options.json) io.log(JSON.stringify(view, null, 2));
   else {
     io.log(`AGDF run-view: ${view.store.status}${view.store.reason ? ` (${view.store.reason})` : ''}`);

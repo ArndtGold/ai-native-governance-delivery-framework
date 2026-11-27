@@ -1,0 +1,26 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: Single Core reader for the companion event journal
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Das Journal wird nur noch vom Core-Leser gelesen; der Claude-Begleiter bekommt Run-Zustand und Ereignisse aus einem einzigen `run-view`-Lesevorgang, die Codex-Karte wendet dieselben Regeln für Bestätigung, haftende Ereignisse und Datumsanzeige an.
+- Leser (SDD-001, SDD-002): `read-cockpit-events.js` wird zu `read-companion-events.js` mit `readCompanionEvents(dataRoot, projectRoot, { runId, limit, review })`; die geprüften Leseregeln (doppelte Writer-Grenze, aktuelle vor Rotationsdatei, übergroße Rotationsdatei übersprungen, Cache, Identitätsprüfung) bleiben; Root-Abgleich über Realpath und unter Windows ohne Groß-/Kleinschreibung; das Modul wird auch im Copilot-Profil ausgeliefert, weil `run-view` es braucht.
+- `run-view` (SDD-003): neue eindeutige Option `--companion-data` mit absolutem Pfad; die Ereignisse werden vor den Runs gelesen, damit jede Bestätigung im selben Dokument trägt; zusätzliches Feld `events`, Schema bleibt `run-view/1`; ohne Option unverändert.
+- Claude-Begleiter (SDD-004, SDD-005): `refresh` nimmt vor dem Lesevorgang den Journal-Stempel (Größe und Änderungszeit), verarbeitet Cursor, Toasts, Bestätigung und haftende Ereignisse auf den Ereignissen desselben Lesevorgangs; `pollEvents` vergleicht nur noch den Stempel; Parser, Root-Normalisierung, Lesegrenze und Rotationsdateiname entfallen aus `events.mjs`; ein fehlendes Journal bedeutet künftig „keine Ereignisse“ statt „Ereignisse nicht verfügbar“.
+- Codex-Karte (SDD-006): gemeinsame Auswahlfunktion `historyEvents` blendet unbestätigte Freigaben und Abschlüsse aus und hält noch unsichere Ergebnisse sichtbar; die Run-Detailansicht erhält `last_activity` aus derselben Quelle wie der Claude-Begleiter; die Cockpit-Beobachtung liefert bis zu 32 Ereignisse mit `run_id`.
+- Datumsanzeige (SDD-007): gemeinsame Funktion `eventTimeText` – heute nur Uhrzeit, sonst Deutsch „26.11. 14:05“ bzw. „26.11.2025 14:05“, Englisch „2026-11-26 14:05“.
+- Nachweis (SDD-008): neuer Contract-Test mit gemeinsamen Journal-Fixtures (übergroße Dateien, Rotation, kaputte und fremde Zeilen, fremder Root, Alias, Laufwerksbuchstabe) für Leser, Claude-Abbildung über `run-view` und Cockpit-Beobachtung; dazu angepasste bestehende Suiten, `npm run build:prepare`, Payload-Baseline, Eval-Fingerprints, `npm run compatibility:record` und `npm run compatibility:check`.
+- Entscheidungen: explizite Option statt Umgebungsvariable; Schema bleibt `run-view/1`; höchstens 32 Ereignisse je Lesevorgang, im `run-view` mit einer Prüfangabe (Vorschau höchstens 4096 Zeichen), im Cockpit ohne; Ereignisse vor Runs lesen; `last_activity` im Run-Detail; Umbenennung und Auslieferung in allen Profilen; fehlendes Journal ohne Hinweis. Die genaue Aufteilung der Testfälle legt der TP fest.
+- Risiken: ein `run-view`-Lesevorgang je Journaländerung auch aus anderen Projekten (vom Owner akzeptiert); `subst`-Laufwerke werden vom JS-Realpath nicht aufgelöst, passen aber über die exakte Schreibweise; im ungünstigsten Fall etwa 150 KB zusätzliche JSON-Ausgabe.
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320` · Lösungsdesign · Revision: `33dc4b9d-ad26-4c16-ab32-2372a9e4d144`
+
+SHA-256: `sha256:2934a7c419645896a9ce640accb97ad8fcf12d2ea08125fbe5bc07ab8ac1c06f`

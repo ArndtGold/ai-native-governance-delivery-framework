@@ -1158,7 +1158,12 @@ try {
     append(line({ root: join(tmpdir(), "another-project") }), "{not json", "{\"schema_version\":\"companion-event/1\",\"kind\":\"approval_requ");
     const toastsBefore = host.log.toasts.length;
     await emit("journal");
-    assert.deepEqual([calls(), host.log.toasts.length], [before, toastsBefore], "other roots and malformed lines change nothing");
+    // Run run-71aa7dbb (SD SDD-004): the companion no longer reads the journal itself, so any journal
+    // change reads the run view once, which carries this root's events from Core's single reader.
+    assert.deepEqual([calls(), host.log.toasts.length], [before + 1, toastsBefore], "other roots and malformed lines cost one read and raise no toast");
+    const dataOption = host.log.processes.at(-1).slice(-2);
+    assert.ok(dataOption[0] === "--companion-data" && /[\\/]plugins[\\/]data[\\/]agdf-agdf$/u.test(dataOption[1]), `the read names the plugin data directory: ${dataOption}`);
+    before = calls();
     // The same root in another spelling: separators and, for a drive path, case.
     const spelled = /^[a-z]:\\/iu.test(evented.root) ? evented.root.replaceAll("\\", "/").toUpperCase() : `${evented.root}/`;
     append(line({ root: spelled }));
@@ -1241,9 +1246,12 @@ try {
     await emit("journal");
     lines = await shown();
     assert.equal(lines.filter(text => /^\d{2}:\d{2} Approval recorded for /u.test(text)).length, 1, `only the confirmed approval is shown: ${JSON.stringify(lines)}`);
-    assert.equal(lines.filter(text => /^\d{2}:\d{2} Effect unknown – check the operation status$/u.test(text)).length, 2, "the shown run's events name no run");
+    // AC-005 (run run-71aa7dbb, SDD-007): the outcome of an earlier day carries its date (English ISO).
+    const uncertainLine = /^(?:\d{4}-\d{2}-\d{2} )?\d{2}:\d{2} Effect unknown – check the operation status$/u;
+    assert.equal(lines.filter(text => uncertainLine.test(text)).length, 2, "the shown run's events name no run");
+    assert.ok(lines.some(text => /^(?:1999-12-31|2000-01-01) \d{2}:\d{2} Effect unknown/u.test(text)), `the earlier day is dated: ${JSON.stringify(lines)}`);
     await (await entry(host, "retry"))();
-    assert.equal((await shown()).filter(text => /^\d{2}:\d{2} Effect unknown – check the operation status$/u.test(text)).length, 1,
+    assert.equal((await shown()).filter(text => uncertainLine.test(text)).length, 1,
       "an uncertain outcome before the run's last activity leaves; the later one stays");
     const retryToasts = host.log.toasts.length;
     append(line({}));
@@ -1259,6 +1267,16 @@ try {
     await emit("journal");
     assert.equal(host.log.toasts.length, rotationToasts + 2, "both the rotated and the current line are announced");
     rmSync(rotatedJournal);
+
+    // Run run-71aa7dbb (SD SDD-004): the run signal and the journal signal of one write share one read;
+    // the read takes the journal stamp first, so the journal signal finds nothing new.
+    const sharedToasts = host.log.toasts.length;
+    before = calls();
+    append(line({}));
+    touch(evented.root);
+    await emit("run");
+    await emit("journal");
+    assert.deepEqual([calls(), host.log.toasts.length], [before + 1, sharedToasts + 1], "one read serves both signals and announces the event once");
 
     // After a failed read, the next notification or deliberate retry reads again.
     const realRun = host.$.process.run;
@@ -1291,6 +1309,25 @@ try {
     await emit("journal");
     assert.equal(await approvedShown(), 1, "shown only once");
 
+    // Run run-71aa7dbb, CR finding CR-01: a readable run view whose runs are unusable for now (a write
+    // during its read) still delivers its events: an uncertain outcome is announced at once, a recorded
+    // approval waits for a view that confirms it.
+    const transientRun = async (argv, init) => {
+      const result = await realRun(argv, init);
+      const view = JSON.parse(result.stdout);
+      return { ...result, exitCode: 2, stdout: JSON.stringify({ ...view, store: { status: "unavailable", reason: "source_changed" } }) };
+    };
+    host.$.process.run = transientRun;
+    const transientToasts = host.log.toasts.length;
+    append(line({ kind: "approval_recorded", gate: fulfilled }), line({ kind: "effect_unknown", outcome: "effect_unknown", reason: "dispatch_timeout", gate: "EVIDENCE" }));
+    await emit("journal");
+    assert.deepEqual(host.log.toasts.slice(transientToasts), ["Effect unknown – check the operation status"], "the uncertain outcome is announced during the outage");
+    assert.equal(await approvedShown(), 1, "the new approval waits for a confirming view");
+    host.$.process.run = realRun;
+    await emit("run");
+    assert.equal(await approvedShown(), 2, "a confirming view shows the waiting approval");
+    assert.equal(host.log.toasts.length, transientToasts + 1, "nothing is announced twice");
+
     // CR finding B2: a new conversation is noticed at the next check, which drops the chat's run.
     await host.fire("turn.complete", { answer: "Continuing with fixture-a." });
     await settleLong();
@@ -1318,13 +1355,20 @@ try {
     await emit("run");
     rmSync(elsewhere, { recursive: true, force: true });
 
-    // A missing journal shows "events unavailable"; the run state is still read.
+    // Run run-71aa7dbb (SD SDD-004): a missing journal means no events yet, not "events unavailable";
+    // a journal the reader cannot use (here above twice the writer's bound) shows the hint, and the
+    // run state is still read.
+    const hint = "Events unavailable; the run state is still read.";
     renameSync(journal, `${journal}.away`);
     await emit("journal");
-    assert.ok((await shown()).includes("Events unavailable; the run state is still read."));
+    assert.ok(!(await shown()).includes(hint), "a missing journal is no unavailable history");
+    writeFileSync(journal, " ".repeat(1024 * 1024 + 1));
+    await emit("journal");
+    assert.ok((await shown()).includes(hint), "an oversized journal is unavailable");
+    rmSync(journal);
     renameSync(`${journal}.away`, journal);
     await emit("journal");
-    assert.ok(!(await shown()).includes("Events unavailable; the run state is still read."));
+    assert.ok(!(await shown()).includes(hint));
     await host.fire("command.run", { command: COMMAND });
     await host.fire("command.run", { command: COMMAND });
   } finally {

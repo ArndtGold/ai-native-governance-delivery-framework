@@ -18,6 +18,20 @@ export const TERMINAL_PREVIEW_LINES = 3;
 const folderName = root => String(root ?? '').replace(/[\\/]+$/u, '').split(/[\\/]/u).pop() || String(root ?? '');
 // Host-local wall-clock time, HH:MM.
 export const clockText = ms => { const at = new Date(ms); return `${two(at.getHours())}:${two(at.getMinutes())}`; };
+// The time text of an event in both companions (run run-71aa7dbb, SD SDD-007): the clock for an event of
+// the local day of `now`, otherwise its date before the clock (German day and month, with the year for
+// another year; other locales an ISO date). A missing or unreadable time has no text.
+export function eventTimeText(at, { locale = 'en', now = Date.now() } = {}) {
+  const ms = typeof at === 'string' ? Date.parse(at) : NaN;
+  if (!Number.isFinite(ms)) return '';
+  const date = new Date(ms), today = new Date(now), clock = clockText(ms);
+  if (date.toDateString() === today.toDateString()) return clock;
+  if (String(locale).toLowerCase().startsWith('de')) {
+    const day = `${two(date.getDate())}.${two(date.getMonth() + 1)}.`;
+    return `${date.getFullYear() === today.getFullYear() ? day : `${day}${date.getFullYear()}`} ${clock}`;
+  }
+  return `${date.getFullYear()}-${two(date.getMonth() + 1)}-${two(date.getDate())} ${clock}`;
+}
 
 // The name a person reads for the shown run: its stable title, else the catalog's "new run". The run
 // id never names a run; it stays a reference line at the panel's end.
@@ -265,14 +279,15 @@ export function buildPanelView(input) {
   };
 }
 
-// Pane entries of the journal (decision P1) and the review facts of the newest staging or recording
+// Pane entries of the run view's events (decision P1) and the review facts of the newest staging or recording
 // (decision P2); without a readable journal the pane says so and invents nothing. `naming` is
 // { shownRunId, runs }: the shown run's events name no run.
 function eventFields(input, t, naming) {
   const events = (input.events ?? []).slice(0, PANE_EVENTS);
   const gate = value => gateTitle(input.registry, input.locale, value);
   return {
-    events: events.length ? events.map(event => `${clockText(Date.parse(event.at))} ${eventText(event, t, { gateTitle: gate, ...naming })}`) : null,
+    events: events.length ? events.map(event => [eventTimeText(event.at, { locale: input.locale, now: input.now ?? Date.now() }),
+      eventText(event, t, { gateTitle: gate, ...naming })].filter(Boolean).join(' ')) : null,
     review: latestReview(events, t),
     eventsHint: input.eventsAvailable === false ? t('messages.eventsUnavailable') : null,
   };

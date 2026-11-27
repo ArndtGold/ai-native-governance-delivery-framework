@@ -26,6 +26,7 @@ import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactRea
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { inspectApprovedArtefact } from '../control-state/artefact-binding-proof.js';
 import { runClosure } from '../control-state/run-operations.js';
+import { runLastActivity } from '../control-state/run-inventory.js';
 import { projectRunEntry, readUrFacts } from '../companion/run-view.js';
 // Shared with the companion run view, in a module every runtime profile carries.
 import { boundedCode, projectCockpitAssessment } from './run-classification.js';
@@ -196,6 +197,8 @@ export function createCockpitReader(root, options = {}) {
     const companionGoal = urFacts?.sourceLanguage === 'de' ? urFacts.authoredGoal : urFacts?.localizedGoal;
     const identity = runIdentity({ runId: run.run_id, runContent: run.content, urHeading: urTitle });
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
+      // The newest receipt time; the companion card keeps an uncertain outcome until a later one (SDD-006).
+      last_activity: runLastActivity(run.content),
       closure: projectRunClosure(run.content), work_summary,
       ...(companion && { figure: companion.figure, companion: { route: companion.mode, path: companion.path,
         next_text: companionText(companion.next_step_text), blocking_text: companionText(companion.blocking_text),

@@ -37,6 +37,7 @@ declare module '*core/lib/companion/activity.js' {
 
 declare module '*claude/companion/view.mjs' {
   export function clockText(ms: number): string;
+  export function eventTimeText(at: string | null | undefined, options?: { locale?: string; now?: number }): string;
   export function activityOf(derived: { reason: { key: 'building' | 'working'; gate: string } }, run: { gate: string },
     isTurnActive: boolean, t: (path: string, params?: Record<string, string>) => string, title: (gate: string) => string):
     { label: string; turn: { who: string; what: string } } | null;
@@ -54,5 +55,8 @@ declare module '*claude/companion/localization.mjs' {
 declare module '*claude/companion/events.mjs' {
   export const EVENT_KINDS: ReadonlyArray<string>;
   export function eventText(event: import('./types').CompanionEvent,
-    t: (path: string, params: Record<string, string>) => string, options: { gateTitle: (gate: string) => string }): string;
+    t: (path: string, params: Record<string, string>) => string, options: { gateTitle: (gate: string) => string; shownRunId?: string | null }): string;
+  export function historyEvents<T extends import('./types').CompanionEvent>(events: T[],
+    runs?: { id: string; lifecycle: string | null; path: { gate: string; status: string }[]; updatedAt: string }[],
+    options?: { limit?: number }): T[];
 }

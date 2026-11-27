@@ -1,0 +1,108 @@
+# Brownfield Review: Isolated AGDF test mode for native Codex Desktop click tests
+
+Gate: Brownfield Review
+Type: Brownfield Review
+Mode: post_ur_review
+Status: done
+
+## Run
+
+- run_id: run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d
+- related_ur: UR.md
+- current_gate: Brownfield Review
+- reviewer: Codex
+- reviewed_at: 2026-11-20
+
+## Objective
+
+Enable case-specific native click evidence for designated disposable Runs in the existing isolated Codex Desktop profile. The linked continuation Run owns the qualification decision.
+
+## UI / UX Impact Routing
+
+- delivery_context: brownfield
+- ui_ux_impact: high
+- ui_ux_impact_reason: Test activation changes when a read-oriented Companion can start a real Codex turn and applies the same effective authority in the Companion and ordinary chat. A tester must recognize the test context, the disposition of the first attempt and the action available when another start is blocked.
+- ux_intent_definition_required: yes
+- ux_intent_definition_result: blocked
+
+## Existing-System View
+
+| Area | Existing owner or artefact | Evidence | Impact |
+|---|---|---|---|
+| Product semantics | Linked continuation Run and its approved test plan | Its TP defines the single click, competing starts, pending handoff and upgrade observations. This Run supplies test activation and evidence for those cases. | high |
+| Source of truth | Installed generation provenance and canonical Run bindings | `packages/core/lib/runtime/plugin-provenance.js` validates native qualification against owned generation identities. `packages/core/lib/companion/codex-continuation-binding.js` binds the target, Run, revision and operation. | high |
+| Runtime path | Codex worker and Cockpit session | `mcp-protocol-runtime.js` derives qualification. `mcp-dispatch-runtime.js` and `cockpit-session.js` attach both paths to the existing admission service. Extend the shared path with a bounded test authority. | high |
+| UI / UX | Companion card and continuation action | `CompanionCard.tsx` owns the next-step area. `CompanionContinuationAction.tsx` presents pending, running, retry and stale states. The test context can be identified in that same card. | high |
+| Persistence / data | Private AGDF runtime root and scoped admission records | Both test profile servers connected through paths under the isolated profile. `codex-continuation.js` owns reservation, publication and claim states. The profile is prepared and the production qualification record is absent for the tested generation. | medium |
+| Tests / QA | Existing SDK-browser and MCP test fixtures, Codex lifecycle observation | `sdk-trace.spec.mjs` and `companion-continuation.test.js` exercise binding and contention with disposable data. `codex-activity.js` consumes correlated host events. The existing results leave native click and receiving-turn evidence open. | high |
+| Release / operations | Local installer and owned generation verification | The test profile contains the byte-matched local candidate and independent MCP roots. A test build needs a locally reversible setup and an observable predecessor boundary. | medium |
+
+## Architecture Impact
+
+- architecture_relevance: relevant
+- architecture_impact: high
+- architecture_reason: Test activation grants an intentionally limited path to a real Codex turn before native qualification. An inaccurate classification at either entry point could admit non-fixture work or allow a second start.
+- architecture_evidence: `packages/core/lib/runtime/plugin-provenance.js`, `packages/cli/lib/mcp-protocol-runtime.js`, `packages/cli/lib/mcp-dispatch-runtime.js`, `packages/core/lib/control-inspect/cockpit-session.js`, `packages/core/lib/companion/codex-continuation.js` and the linked continuation TP and CD+Tests evidence.
+- architecture_missing_evidence: The exact trusted test scope, its configuration and replay lifetime, the bounded fixture contract, and the native correlation observations need to be established by AGDF Core and Codex integration during design and tests.
+- architecture_next_owner_and_action: UX defines how a tester recognizes permission, handoff and recovery. The Core and Codex integration owners bind both entry points to one test-scope decision and the existing admission lock. The test plan specifies the exact manual observations and teardown.
+
+## Reuse And Parallel-Structure Risk
+
+| Finding | Evidence | Risk | Required action |
+|---|---|---|---|
+| problem: The installed runtime requires a completed qualification record to expose the action needed for the first native click | `inspectCodexContinuationQualification` and `createCockpitSessionService` jointly explain the observed missing action. | revise | Add a deliberate fixture authority with profile and Run checks. Keep qualification validation as the ordinary activation route. |
+| problem: A view-local test switch would expose an action without protecting a competing chat | Both paths currently attach to `createCodexContinuationAdmission` from the same runtime data root. | revise | Reuse the same admission service and evaluate the test binding consistently before either path can admit work. |
+| unresolved: A genuine Desktop turn and the original attempt need a shared evidence identity | The temporary app-server probe establishes registration. The synthetic SDK host establishes reservation and UI behavior. Neither supplies a Desktop gesture or its receiving turn. | revise | Reuse existing runtime identity and lifecycle observations in a manual native procedure. Establish exactly which recorded events tie a test click to the receiving turn and terminal state. |
+
+## Mode / Slice Decision
+
+- decision: structured_delivery
+- required_next_gate: PRD
+- scope_reason: authority_policy_security_depth. The change introduces bounded authority to start a real Codex turn before qualification in an isolated profile. A compact route and structured_slice are ineligible because the decision must protect both work entry points from a misplaced or stale test grant.
+- evidence: Existing-System View, Architecture Impact and Structured Depth Evidence in this review, plus the linked continuation TP and recorded CD+Tests.
+- transparency_note: Complete UX intent analysis before PRD. Product and solution artefacts should stay focused on the fixture boundary and native evidence needed by the linked Run.
+
+## Structured Depth Evidence
+
+- depth_policy_version: 1
+- depth_facts_status: complete
+- primary_reason_code: authority_policy_security_depth
+- decisive_full_depth_triggers: Authority and security. Activating an otherwise withheld action can cause a real model turn through two existing surfaces, so the exception needs a shared, enforceable boundary and an observable recovery policy.
+- rejected_alternative: structured_slice. A scoped test display alone cannot grant and contain a real work request across both paths.
+- missing_or_conflicting_facts: none for depth selection. The proof of test identity, exact runtime binding, recovery and native capture remain design and verification questions.
+- depth_evidence_refs: `UR.md`, `packages/core/lib/runtime/plugin-provenance.js`, `packages/cli/lib/mcp-dispatch-runtime.js`, `packages/core/lib/control-inspect/cockpit-session.js`, `packages/core/lib/companion/codex-continuation.js` and the linked continuation TP.
+
+| check_id | result | evidence |
+|---|---|---|
+| coherent_outcome | pass | Obtain reviewable click and turn evidence for designated test Runs in one isolated profile. |
+| authority_boundary | fail | Unqualified activation gains a real work effect under a new explicit test boundary. |
+| owner_consumer_coordination | pass | Core admission, Codex integration and the Companion remain the existing owners. The linked Run consumes evidence rather than coordinating a public cutover. |
+| full_depth_impacts_absent | fail | The supported test route changes effective authorization at both MCP entry points. |
+| migration_propagation_bounded | unknown | SD must show how the disposable scope and old generation are handled during an upgrade or rollback. |
+| failure_recovery_local | unknown | A closed view and ambiguous handoff extend across sessions. The procedure must preserve the original attempt and specify teardown. |
+| independently_acceptable | pass | The test scope has independent evidence for authorized fixtures, out-of-scope denial and duplicate prevention. The linked Run evaluates native qualification separately. |
+
+## PRD / SD Open Questions
+
+| Question | Required gate | Impact |
+|---|---|---|
+| Which states must distinguish test availability, current work, unresolved handoff and ineligibility to a manual tester? | PRD | revise |
+| What evidence proves test profile and fixture identity for both paths, and which failures leave the pre-qualification action unavailable? | SD | revise |
+| Which native observations bind the installed candidate, deliberate click, receiving turn and predecessor boundary? | SD | revise |
+
+## Context Graph Impact
+
+- context_graph_impact: link_only
+- context_graph_refs: .agdf/control/CONTEXT_GRAPH.md#cg-mcp-dispatch-adapter, .agdf/control/CONTEXT_GRAPH.md#cg-brand-guided-ux, .agdf/control/CONTEXT_GRAPH.md#cg-quality-contract
+- context_graph_required_action: link
+- context_graph_gate_effect: none
+- context_graph_evidence: Existing nodes cover bound MCP calls, brand guidance and the distinction between native observation and test evidence. Recheck the impact after SD assigns the test authority.
+
+## Next Permissible Step
+
+- next_allowed_action: Record UX Intent Definition for the visible test scope and then draft the bound PRD.
+- forbidden_until_then: Implementation before the delivery gates.
+
+## Quality Outlook
+
+- quality_outlook: Prove the same target, Run, attempt and turn for the winning eligible start. Cover wrong profile, ordinary Run, stale identity, both conflict cases, reopen and predecessor behavior. Keep the test evidence attributable to the exact installed candidate and distinct from a qualification decision.

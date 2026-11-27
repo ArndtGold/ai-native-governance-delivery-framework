@@ -10,6 +10,8 @@ const bridge = new AppBridge(null, { name: companion === 'panel' ? 'chatgpt' : c
   hostContext: { displayMode: displayModes[0], availableDisplayModes: [...displayModes], locale: 'de' },
 });
 const logs: unknown[] = [];
+// Optional Playwright observer, kept outside the iframe so reloads retain the case trace.
+const observer = (window as Window & { observeContinuation?: (kind: string, params: unknown) => Promise<void> }).observeContinuation;
 bridge.onrequestdisplaymode = async ({ mode }) => {
   logs.push({ kind: companion ? 'display-mode-request' : 'mode', mode });
   if (!displayModes.some(available => available === mode)) return { mode: displayModes[0] };
@@ -19,10 +21,12 @@ bridge.onrequestdisplaymode = async ({ mode }) => {
 bridge.onupdatemodelcontext = async params => {
   if (new URLSearchParams(location.search).get('closeMode') === 'deny-release'
     && (params.structuredContent as { kind?: string } | undefined)?.kind === 'agdf_cockpit_invalid_selection') throw Error('release_rejected');
+  await observer?.('context', params);
   logs.push({ kind: 'context-ack', params }); return {};
 };
 if (continuation) bridge.onmessage = async params => {
   logs.push({ kind: 'continuation-message', params });
+  await observer?.('message', params);
   if (continuation === 'withhold') await new Promise(() => {});
   return {};
 };

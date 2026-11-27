@@ -1,0 +1,26 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: Browser-only click tests for the Codex Companion
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Im Browser prüfen wir, ob „Run fortsetzen“ genau einen Auftrag für den ausgewählten Test-Run anstößt.
+- Umfang: Die Tests verwenden den gebauten Begleiter und lokale Wegwerf-Runs. Der Empfänger wird simuliert.
+- Entscheidungen: Der Bericht zählt gesendete Anfragen und übernommene Testaufträge getrennt. Über die native Freischaltung entscheidet weiterhin der verknüpfte Run.
+- AC-001: Der Tester erkennt den ausgewählten Wegwerf-Run. Eine fremde oder veraltete Auswahl darf keinen Testauftrag starten.
+- AC-002: Mausklick und Eingabetaste senden jeweils genau eine Anfrage. Übernimmt der simulierte Empfänger den Auftrag, meldet er die Kennung des Testfalls zurück.
+- AC-003: Bei zwei konkurrierenden Ansichten gewinnt ein Versuch. Soweit die Testumgebung es unterstützt, prüfen wir auch die Konkurrenz mit einer simulierten Fortsetzung aus dem Chat.
+- AC-004: Nach erneutem Öffnen bleibt dieselbe Übergabe sichtbar. „Übergabe prüfen“ sendet keine weitere Anfrage. Ein neuer Versuch setzt einen bestätigten Nichtstart voraus.
+- AC-005: Bei Abbruch oder Wechsel der geprüften Fassung darf eine ungeklärte frühere Übergabe keinen zweiten Start zulassen.
+- AC-006: Für jeden Fall zeigt der Bericht, was der Browser tatsächlich getan hat, was simuliert wurde und welche Beobachtung fehlt.
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d` · Produktanforderungen · Revision: `29ecd386-0737-4beb-80bd-b333e90cdf90`
+
+SHA-256: `sha256:1cb73ce45013afb850556a611f75670f321e8cd6530bd3ea748ff7f9c057ffcc`

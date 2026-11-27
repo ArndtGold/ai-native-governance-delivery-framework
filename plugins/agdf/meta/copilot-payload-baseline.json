@@ -2,6 +2,6 @@
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
   "max_files": 462,
-  "max_bytes": 4875947,
-  "rationale": "Binds the updated shared MCP dispatch and both Codex continuation modules to the exact Copilot payload. Local duplicate dependency files are excluded from the measurement. Run run-71aa7dbb adds the single companion journal reader (read-companion-events.js), which run-view imports in every runtime profile (SD SDD-002)."
+  "max_bytes": 4877455,
+  "rationale": "Binds the updated shared MCP dispatch and both Codex continuation modules to the exact Copilot payload. Local duplicate dependency files are excluded from the measurement. PR #84 commit 9d967453 (no duplicate starts until cancellation is confirmed) adds 1,508 bytes; accepted when merging it into PR #85. Run run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320 ships the Core companion journal reader with run-view in every profile (one file, 9,253 bytes)."
 }

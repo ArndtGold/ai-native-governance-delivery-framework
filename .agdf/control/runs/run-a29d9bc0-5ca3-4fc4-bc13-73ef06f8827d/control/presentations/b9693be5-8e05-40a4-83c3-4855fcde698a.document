@@ -1,0 +1,39 @@
+## Nutzerabnahme prüfen und entscheiden
+
+Isolierter AGDF-Testmodus für native Codex-Desktop-Klicktests
+
+- Ziel: Wir prüfen „Run fortsetzen“ ausschließlich im Browser. Dafür verwenden wir den gebauten Codex-Begleiter und einen eigens angelegten Wegwerf-Run.
+- Geliefertes Ergebnis: Der Browser-Test ist bestanden. Zwei gleichzeitige Klicks auf „Run fortsetzen“ lösen genau einen Auftrag aus. Nach einem Abbruch bleibt der Start gesperrt, bis das Ende desselben Versuchs bestätigt ist. Dann erscheint „Run fortsetzen“ automatisch wieder.
+- Technische QA: pass
+- Nachweisgrenzen: Alle zwölf Szenarien wurden in Chromium geprüft. Der Empfänger und die Meldungen zu Abbruch und Ende waren simuliert. Die Prüfung in Codex Desktop gehört zum separaten Run.
+- Risiken und offene Punkte: Ein Reader-Test verpasste bei paralleler Ausführung einmal einen Hinweis. Alle 48 Tests der Datei und anschließend alle 441 UI-Tests im seriellen Lauf bestanden.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- ur ·  (exact cooperative association)
+- route · UR (exact cooperative association)
+- UX Intent Definition · UR, Brownfield Review (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 4
+
+- QA: .agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/QA_REPORT.md · sha256:e1483711fafed52344811777ef1b08a3badffcf09d63865d433918988b66fd26
+- Review: .agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/TP_REVIEW.md · sha256:fcc6be640acc08b3cc1046e775821721928d83da73224eb3eb5aa2a6f6b4dc4a
+- Review: .agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:933145a4715e46a8b615a05c70886d07a400b29401e718b16956c22b418b80c6
+- Review: .agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/CODE_REVIEW.md · sha256:9f5d5765caa91c2050ab448f760d9516c11cdfd547176806f780bb737aff0eb3
+- UR: .agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UR.md · sha256:eb946dfad0a25ecc58d3f2af8a530ecd3da53d016db32f22eca839ce77671e02
+
+Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UAT.
+
+### Fassung und Quellen
+
+Run: `run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d` · Nutzerabnahme · Revision: `5e04979e-6885-46b9-8c54-24ccbf572894`
+
+SHA-256: `sha256:d1eed247cb98e809827989a24e0aa8dcb52d83164eee613243c226140054008e`

@@ -78,12 +78,10 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       tp_action: { type: "string", enum: ["revise"], description: "Explicit user intent to revise the bound unapproved TP. Requires gate-check, intake true, intake_mode resume, run_id and expected_revision_id; never approval." },
       continue_delivery: { type: "boolean", description: "Set only with skill_id gate-check for an authorized bound delivery continuation, including after a valid UR, PRD, SD, TP or UAT approval. Requires run_id; incompatible with intake. Never set on a returned judgement skill or for status or advice. Allows canonical Brownfield Review / Mode-Slice recovery, implementation-preparation Brownfield Analysis after TP approval, missing PRD/SD/TP preparation before approval cards, permitted compact implementation/closeout, and OR closeout after UAT approval. Completed Runs stop; no VCS authority is implied." },
       continuation_attempt_id: { type: "string", pattern: REVISION_ID_PATTERN.source, description: "For a Codex Companion continuation only. Use the original attempt identity supplied in the accompanying context. Never create or reuse one independently." },
-      continuation_owner: { type: "string", pattern: REVISION_ID_PATTERN.source, description: "For work already admitted in this Codex turn. Use only the owner supplied by the accepted continuation of this exact Run." },
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
     dependentSchemas: {
-      continuation_attempt_id: { required: ["continue_delivery", "run_id"], properties: { continue_delivery: { const: true } }, not: { required: ["continuation_owner"] } },
-      continuation_owner: { required: ["continue_delivery", "run_id"], properties: { continue_delivery: { const: true } } },
+      continuation_attempt_id: { required: ["continue_delivery", "run_id"], properties: { continue_delivery: { const: true } } },
       planning: { required: ['primary_target', 'target_source'], properties: { skill_id: { enum: ['ur-definition', 'agdf:ur-definition', 'agdf-ur-definition', 'agdf-global-ur-definition'] } },
         not: { anyOf: ['run_id', 'expected_revision_id', 'intake', 'intake_mode', 'continue_delivery', 'ur_action', 'prd_action', 'sd_action', 'tp_action'].map(key => ({ required: [key] })) } },
       ur_action: { required: ["skill_id", "intake", "intake_mode", "run_id", "expected_revision_id"], properties: { skill_id: { enum: ["gate-check", "agdf:gate-check", "agdf-gate-check", "agdf-global-gate-check"] }, intake: { const: true }, intake_mode: { const: "resume" } } },
@@ -289,10 +287,9 @@ export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
       || (input.continueDelivery && (skill.dispatch_mode !== "deterministic_control" || !runId || input.intake || input.intakeMode)))) {
     throw new SkillDispatchInputError("continue_delivery", "continue_delivery requires skill_id gate-check and a bound run; it excludes intake");
   }
-  const custody = [input.continuationAttemptId, input.continuationOwner].filter(value => value !== undefined);
-  if (custody.length && (surface !== 'codex' || input.continueDelivery !== true || custody.length !== 1
-    || typeof custody[0] !== 'string' || !REVISION_ID_PATTERN.test(custody[0]))) {
-    throw new SkillDispatchInputError("continuation_attempt_id", "A Codex continuation requires one exact attempt or owner");
+  if (input.continuationAttemptId !== undefined && (surface !== 'codex' || input.continueDelivery !== true
+    || typeof input.continuationAttemptId !== 'string' || !REVISION_ID_PATTERN.test(input.continuationAttemptId))) {
+    throw new SkillDispatchInputError("continuation_attempt_id", "A Codex continuation requires one exact attempt");
   }
   return Object.freeze({
     schema_version: SKILL_DISPATCH_SCHEMA_VERSION,
@@ -313,7 +310,6 @@ export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
     tp_action: input.tpAction,
     continue_delivery: input.continueDelivery === true,
     ...(input.continuationAttemptId !== undefined ? { continuation_attempt_id: input.continuationAttemptId } : {}),
-    ...(input.continuationOwner !== undefined ? { continuation_owner: input.continuationOwner } : {}),
     expected_version: requireText(input.expectedVersion, "expected_version", 64),
     skill,
   });
@@ -354,7 +350,6 @@ export function parseSkillDispatchFunctionArguments(argumentsValue, trustedConte
     ...(argumentsValue.tp_action !== undefined ? { tpAction: argumentsValue.tp_action } : {}),
     ...(argumentsValue.continue_delivery !== undefined ? { continueDelivery: argumentsValue.continue_delivery } : {}),
     ...(argumentsValue.continuation_attempt_id !== undefined ? { continuationAttemptId: argumentsValue.continuation_attempt_id } : {}),
-    ...(argumentsValue.continuation_owner !== undefined ? { continuationOwner: argumentsValue.continuation_owner } : {}),
     surface: trustedContext.surface,
     expectedVersion: trustedContext.expectedVersion,
     skillSet: trustedContext.skillSet,

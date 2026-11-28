@@ -118,8 +118,12 @@ const continuationWriteOwners = new Map([
   // rotates its own file once. It never writes inside a project root or the control store.
   // appendFileSync is scanned too, so no other reachable module gains an append (CR finding C5).
   ["runtime/core/lib/companion/journal.js", ["renameSync", "mkdirSync", "appendFileSync"]],
-  // Continuation owns a private directory below the launcher-supplied Codex data root.
-  ["runtime/core/lib/companion/codex-continuation.js", ["mkdirSync", "openSync"]],
+  // Continuation owns a private directory below the launcher-supplied Codex data root and removes
+  // its own ended handoff records there.
+  ["runtime/core/lib/companion/codex-continuation.js", ["unlinkSync", "mkdirSync", "openSync"]],
+  // Fixed boot checkpoint below the launcher data root. No Run or executable
+  // retention file is changed. The one file-open helper is read-only/bounded.
+  ["runtime/core/lib/companion/executable-boot-boundary.js", ["openSync"]],
 ]);
 function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
   assert.deepEqual(writeSymbols.filter(symbol => new RegExp(`\\b${symbol === 'renameSync' ? 'renameSync(?:WithRetry)?' : symbol}\\b`, 'u').test(content)), owners.get(packagePath) ?? [],
@@ -138,6 +142,15 @@ function assertWriteBoundary(packagePath, content, owners = continuationWriteOwn
     assert.match(content, /const directory = 'codex-continuation';/u);
     assert.match(content, /if \(create\) mkdirSync\(join\(dataRoot, directory\), \{ recursive: true, mode: 0o700 \}\)/u,
       'continuation can create only its private directory');
+    assert.equal((content.match(/\bunlinkSync\s*\(/gu) ?? []).length, 1);
+    assert.match(content, /function removeFile\(path\) \{\n  try \{ unlinkSync\(path\); \}/u,
+      'continuation removes only record paths through its single helper');
+  }
+  if (packagePath === 'runtime/core/lib/companion/executable-boot-boundary.js') {
+    assert.equal((content.match(/\bopenSync\s*\(/gu) ?? []).length, 1);
+    assert.ok(content.includes("const file = 'mcp/executable-boot-boundary.json';"));
+    assert.ok(content.includes('openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0))'));
+    assert.equal(content.includes('unlinkSync'), false, 'boot reconciliation never deletes executable evidence');
   }
 }
 for (const [path, content] of visited) {
@@ -148,8 +161,16 @@ for (const [path, content] of visited) {
     assert.equal(content.includes(prohibited), false, `reachable module ${path} includes ${prohibited}`);
   }
   const isGitObservation = path === resolve(dispatcherRoot, 'lib/control-evaluation/git-observation.js');
-  assert.equal(content.includes('node:child_process') && path !== fileURLToPath(new URL('generation.js', sourceRoot)) && !isGitObservation, false,
+  const isBootObservation = path === resolve(dispatcherRoot, 'lib/mcp-lifecycle/system-boot.js');
+  assert.equal(content.includes('node:child_process') && path !== fileURLToPath(new URL('generation.js', sourceRoot)) && !isGitObservation && !isBootObservation, false,
     `No transitive module may acquire arbitrary process capability: ${path}`);
+  if (isBootObservation) {
+    assert.equal((content.match(/execFileSync\(/gu) ?? []).length, 1);
+    assert.ok(content.includes("execFileSync('/usr/sbin/sysctl', ['-n', 'kern.bootsessionuuid']"));
+    assert.ok(content.includes("readFileSync('/proc/sys/kernel/random/boot_id', 'utf8')"));
+    assert.equal(content.includes('process.env'), false, 'boot identity cannot be supplied through an environment override');
+    assert.equal(content.includes('shell:'), false);
+  }
   const packagePath = relative(dispatcherRoot, path).replaceAll("\\", "/");
   assertWriteBoundary(packagePath, content);
   if (path.startsWith(`${dispatcherRoot}${sep}`)) {

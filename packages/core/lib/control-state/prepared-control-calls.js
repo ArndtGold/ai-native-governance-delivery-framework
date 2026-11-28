@@ -10,8 +10,7 @@ import { MATERIAL_LIMITS } from './material-limits.js';
 export function continueDeliveryCall(input, runId = input.run_id) {
   return { tool: 'agdf_dispatch', arguments: { presentation_language: input.presentation_language,
     working_directory: input.working_directory, primary_target: input.primary_target, target_source: input.target_source,
-    skill_id: 'gate-check', run_id: runId, continue_delivery: true,
-    ...(input.continuation_owner && { continuation_owner: input.continuation_owner }) } };
+    skill_id: 'gate-check', run_id: runId, continue_delivery: true } };
 }
 
 // A source apply or its original receipt may continue only the revision it reopened.

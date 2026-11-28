@@ -1,23 +1,78 @@
 import { randomUUID } from 'node:crypto';
-import { constants, closeSync, fstatSync, lstatSync, mkdirSync, openSync, readdirSync, readSync } from 'node:fs';
-import { isAbsolute, join } from 'node:path';
+import { constants, closeSync, fstatSync, lstatSync, mkdirSync, openSync, readdirSync, readSync, realpathSync, unlinkSync } from 'node:fs';
+import { isAbsolute, join, resolve } from 'node:path';
 import { hasSymlinkComponent } from '../control-state/contained-file.js';
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from '../control-state/run-identity.js';
-import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
-import { inspectMutationClaims } from '../control-state/control-layout.js';
-import { pendingRunStepPath } from '../control-state/run-step-pending.js';
 import { atomicWrite, withOwnedFileLockWait } from '../owned-file-lock.js';
+import { createExecutableBootBoundary, isExecutablePublicationEntry } from './executable-boot-boundary.js';
 
 const directory = 'codex-continuation';
 const targetPattern = /^sha256:[a-f0-9]{64}$/;
 const operationPattern = /^[a-z][a-z0-9._-]{0,127}$/;
 const recordPattern = /^[a-f0-9]{64}-[a-z0-9][a-z0-9._-]{0,127}\.json$/;
 const maxBytes = 4096;
+// How long each handoff phase lasts after its last change. A reservation must be published, a published
+// handoff picked up by Codex, and a picked-up handoff is shown as running until the activity lease takes over.
+export const HANDOFF_BOUNDS = Object.freeze({ reserved: 2 * 60_000, pending: 10 * 60_000, claimed: 60_000 });
+const longest = HANDOFF_BOUNDS.pending;
+const fields = ['schema_version', 'target_id', 'run_id', 'revision_id', 'operation_key', 'attempt_id', 'view_id', 'phase', 'since'];
 const unavailable = Object.freeze({ state: 'unavailable' });
 const ready = Object.freeze({ state: 'ready' });
+const stale = Object.freeze({ state: 'stale' });
+const legacyRuntime = Object.freeze({ state: 'unavailable', legacy_runtime: true });
+
+// Owned plugin generations retain their executable before starting a facade. A different retained
+// generation may still serve a Companion with an older handoff rule, so a new Companion start waits
+// until its retention is released (or a full restart proves it ended). Retention is uncertainty, never
+// PID liveness or permission to erase claims. Only the current producer's verified root is exempt.
+// Ordinary chat continuations never consult this boundary.
+function predecessorsClear(dataRoot, runtimeRoot, executionBoundary) {
+  try {
+    executionBoundary.refresh();
+    let restart = false, seen = 0;
+    const relative = 'mcp/generations';
+    if (hasSymlinkComponent(dataRoot, relative)) return legacyRuntime;
+    const generations = join(dataRoot, relative);
+    let names;
+    try { names = readdirSync(generations); }
+    catch (error) { return error.code === 'ENOENT' ? ready : legacyRuntime; }
+    if (names.length > 512) return legacyRuntime;
+    for (const name of names) {
+      if (!/^[a-f0-9]{64}$/u.test(name)) return legacyRuntime;
+      const publication = join(generations, name);
+      if (!lstatSync(publication).isDirectory() || lstatSync(publication).isSymbolicLink()) return legacyRuntime;
+      const versions = readdirSync(publication);
+      if (versions.length > 32) return legacyRuntime;
+      for (const version of versions) {
+        if (isExecutablePublicationEntry(version)) {
+          if (++seen > 32768) return legacyRuntime;
+          const state = executionBoundary(publication, version);
+          if (state === 'unknown') return legacyRuntime;
+          if (state === 'same_boot') restart = true;
+          continue;
+        }
+        const root = join(publication, version);
+        if (!lstatSync(root).isDirectory() || lstatSync(root).isSymbolicLink()) return legacyRuntime;
+        if (root === runtimeRoot && realpathSync(root) === resolve(root)) continue;
+        const claims = join(root, '.agdf-executable-claims');
+        let stat;
+        try { stat = lstatSync(claims); }
+        catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+        if (!stat.isDirectory() || stat.isSymbolicLink()) return legacyRuntime;
+        const entries = readdirSync(claims);
+        if ((seen += entries.length) > 32768) return legacyRuntime;
+        for (const entry of entries) {
+          const state = executionBoundary(root, entry);
+          if (state === 'unknown') return legacyRuntime;
+          if (state === 'same_boot') restart = true;
+        }
+      }
+    }
+    return restart ? { ...legacyRuntime, boot_restart_required: true } : ready;
+  } catch { return legacyRuntime; }
+}
 
 function uuid(value) { return typeof value === 'string' && REVISION_ID_PATTERN.test(value); }
-function isTurnId(value) { return typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/u.test(value); }
 
 function runFile(scope) {
   if (!scope || typeof scope.target_id !== 'string' || !targetPattern.test(scope.target_id)
@@ -38,41 +93,46 @@ function matches(record, scope) {
 }
 
 function validateRecord(record, relative) {
+  if (!record || typeof record !== 'object' || Array.isArray(record) || Object.keys(record).length !== fields.length
+    || !fields.every(key => Object.hasOwn(record, key))) throw Error('continuation_record_invalid');
   binding(record);
-  if (record.schema_version !== 1 || runFile(record) !== relative || !uuid(record.attempt_id)
-    || typeof record.root !== 'string' || !isAbsolute(record.root)
-    || !['reserved', 'pending', 'running', 'settled'].includes(record.phase)
-    || (record.view_id !== null && !uuid(record.view_id))
-    || (record.owner !== null && !uuid(record.owner))
-    || (record.phase === 'running' && !uuid(record.owner))
-    || (['reserved', 'pending'].includes(record.phase) && (!uuid(record.view_id) || record.owner !== null))
-    || (record.ended !== undefined && (record.ended !== true || !record.turn || !['running', 'settled'].includes(record.phase)))
-    || (record.interrupt_requested !== undefined && (record.interrupt_requested !== true || !record.turn || !['running', 'settled'].includes(record.phase)))
-    || (record.turn !== null && (!isTurnId(record.turn?.session) || !isTurnId(record.turn?.id))))
+  if (record.schema_version !== 2 || runFile(record) !== relative || !uuid(record.attempt_id) || !uuid(record.view_id)
+    || !Object.hasOwn(HANDOFF_BOUNDS, record.phase) || !Number.isSafeInteger(record.since) || record.since < 0)
     throw Error('continuation_record_invalid');
   return record;
 }
 
+// Reads one record: null when there is none, the record, a record of the PR #84 format (`legacy`), or content
+// this build cannot judge (`foreign`, with its file time). A link or another file type is never judged or removed.
 function readRecord(dataRoot, relative) {
   if (hasSymlinkComponent(dataRoot, relative)) throw Error('continuation_path_invalid');
   const path = join(dataRoot, relative);
   let descriptor;
+  try { descriptor = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0)); }
+  catch (error) {
+    if (error.code === 'ENOENT') return null;
+    throw error;
+  }
   try {
-    descriptor = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0));
     const stat = fstatSync(descriptor), named = lstatSync(path);
-    if (!stat.isFile() || named.isSymbolicLink() || stat.ino !== named.ino || stat.dev !== named.dev || stat.size > maxBytes)
-      throw Error('continuation_record_invalid');
+    if (!stat.isFile() || named.isSymbolicLink() || stat.ino !== named.ino || stat.dev !== named.dev) throw Error('continuation_path_invalid');
+    const foreign = { foreign: true, modified: stat.mtimeMs };
     const bytes = Buffer.alloc(maxBytes + 1);
     let offset = 0, count;
     while (offset < bytes.length && (count = readSync(descriptor, bytes, offset, bytes.length - offset, null)) > 0) offset += count;
-    if (offset > maxBytes) throw Error('continuation_record_invalid');
-    return validateRecord(JSON.parse(bytes.subarray(0, offset).toString('utf8')), relative);
-  } catch (error) {
-    if (descriptor === undefined && error.code === 'ENOENT') return null;
-    throw error;
+    if (offset > maxBytes) return foreign;
+    let value;
+    try { value = JSON.parse(bytes.subarray(0, offset).toString('utf8')); } catch { return foreign; }
+    if (value?.schema_version === 1) return { legacy: true };
+    try { return { record: validateRecord(value, relative) }; } catch { return foreign; }
   } finally {
-    if (descriptor !== undefined) closeSync(descriptor);
+    closeSync(descriptor);
   }
+}
+
+function removeFile(path) {
+  try { unlinkSync(path); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
 }
 
 function readyRoot(dataRoot, create) {
@@ -81,134 +141,121 @@ function readyRoot(dataRoot, create) {
   if (create) mkdirSync(join(dataRoot, directory), { recursive: true, mode: 0o700 });
 }
 
-function canRelease(record) {
-  try {
-    if (resolveControlCommandTarget(record.root).target_id !== record.target_id
-      || inspectMutationClaims(record.root).some(row => row.resource === `run:${record.run_id}`)) return false;
-    try { lstatSync(pendingRunStepPath(record.root, record.run_id)); return false; }
-    catch (error) { return error.code === 'ENOENT'; }
-  } catch { return false; }
-}
-
 function status(record) {
-  if (!record || record.phase === 'settled') return ready;
-  if (record.phase === 'running' && record.ended === true && canRelease(record)) return ready;
-  if (record.phase === 'running' && record.interrupt_requested) return { state: 'running', interrupt_requested: true };
-  return { state: record.phase === 'running' ? 'running' : 'pending' };
+  if (!record) return ready;
+  return { state: record.phase === 'claimed' ? 'running' : 'pending' };
 }
 
-function newRecord(scope, phase, { viewId = null, owner = null } = {}) {
-  return { schema_version: 1, ...binding(scope), root: scope.root, attempt_id: randomUUID(), phase, view_id: viewId, owner, turn: null };
-}
+// The handoff from the Codex Companion to Codex chat: one record per target and Run, which exists only while a
+// handoff is reserved, published or just picked up. The lock protects one short read / check / write; every
+// phase ends on its own after its bound. Ordinary chat continuations never read or write this store.
+export function createCodexContinuationAdmission(dataRoot, { now = Date.now, runtimeRoot, bootId } = {}) {
+  const executionBoundary = createExecutableBootBoundary(dataRoot, bootId);
+  // Only a Companion start (status, reservation, publication) waits for older runtimes.
+  const startBoundary = () => predecessorsClear(dataRoot, runtimeRoot, executionBoundary);
+  const live = (record, at) => {
+    const bound = HANDOFF_BOUNDS[record.phase];
+    return at - record.since < bound && record.since - at <= bound;
+  };
+  // What a read means for the Run: a live record, absence (removing what is left), or a file that blocks
+  // Companion operations until it is older than the longest handoff bound.
+  function current(read, at) {
+    if (!read || read.legacy) return { record: null, remove: Boolean(read) };
+    // A file time further in the future than the bound cannot age; it counts as aged like a past one.
+    if (read.foreign) return at - read.modified >= longest || read.modified - at > longest ? { record: null, remove: true } : { blocked: true };
+    return live(read.record, at) ? { record: read.record } : { record: null, remove: true };
+  }
 
-// The lock protects a short read / check / write. The durable record, not the
-// lock or the Companion activity lease, protects the run while work is unresolved.
-export function createCodexContinuationAdmission(dataRoot) {
   function change(scope, transition) {
     try {
       const relative = runFile(scope);
       readyRoot(dataRoot, true);
-      return withOwnedFileLockWait(join(dataRoot, relative), () => {
-        const old = readRecord(dataRoot, relative);
-        const result = transition(old);
-        if (result.record) atomicWrite(join(dataRoot, relative), JSON.stringify(validateRecord(result.record, relative)));
+      const path = join(dataRoot, relative);
+      return withOwnedFileLockWait(path, () => {
+        const at = now();
+        const seen = current(readRecord(dataRoot, relative), at);
+        if (seen.blocked) return unavailable;
+        const result = transition(seen.record, at);
+        if (result.record) atomicWrite(path, JSON.stringify(validateRecord(result.record, relative)));
+        else if (result.remove || seen.remove) removeFile(path);
         return result.projection;
       }, { waitMs: 250 });
     } catch { return unavailable; }
   }
 
-  function observeRunning(scope, attemptId, turn, event) {
-    return change(scope, old => {
-      if (old?.phase !== 'running' || old.attempt_id !== attemptId
-        || old.turn?.session !== turn?.session || old.turn?.id !== turn?.id || !old.turn)
-        return { projection: status(old) };
-      if (event === 'Interrupt') {
-        if (old.interrupt_requested || old.ended) return { projection: status(old) };
-        const interrupted = { ...old, interrupt_requested: true };
-        return { record: interrupted, projection: status(interrupted) };
+  // Removes other Runs' records that can no longer be live. A record that is busy or cannot be read
+  // is left for a later reservation.
+  function prune(own) {
+    try {
+      for (const name of readdirSync(join(dataRoot, directory))) {
+        const relative = `${directory}/${name}`;
+        if (relative === own || !recordPattern.test(name)) continue;
+        try {
+          const path = join(dataRoot, relative);
+          if (now() - lstatSync(path).mtimeMs < longest) continue;
+          withOwnedFileLockWait(path, () => {
+            const seen = current(readRecord(dataRoot, relative), now());
+            if (!seen.blocked && !seen.record) removeFile(path);
+          }, { waitMs: 0 });
+        } catch { /* Busy, linked or unreadable: never removed here. */ }
       }
-      if (event !== 'Stop') return { projection: status(old) };
-      const ended = { ...old, ended: true };
-      return canRelease(ended)
-        ? { record: { ...ended, phase: 'settled' }, projection: ready }
-        : { record: ended, projection: status(ended) };
-    });
+    } catch { /* Pruning is best effort. */ }
   }
 
   return Object.freeze({
     inspect(scope) {
-      try { readyRoot(dataRoot, false); return status(readRecord(dataRoot, runFile(scope))); }
-      catch { return unavailable; }
+      try {
+        readyRoot(dataRoot, false);
+        const seen = current(readRecord(dataRoot, runFile(scope)), now());
+        if (seen.blocked) return unavailable;
+        return seen.record ? status(seen.record) : startBoundary();
+      } catch { return unavailable; }
     },
     reserve(scope, viewId, eligible) {
       if (!uuid(viewId)) return unavailable;
-      return change(scope, old => {
-        const prior = status(old);
-        if (prior.state !== 'ready') return { projection: prior };
-        if (eligible() !== true) return { projection: { state: 'stale' } };
-        const record = newRecord(scope, 'reserved', { viewId });
+      const result = change(scope, (old, at) => {
+        if (old) return { projection: status(old) };
+        if (eligible() !== true) return { projection: stale };
+        const boundary = startBoundary();
+        if (boundary.state !== 'ready') return { projection: boundary };
+        const record = { schema_version: 2, ...binding(scope), attempt_id: randomUUID(), view_id: viewId, phase: 'reserved', since: at };
         return { record, projection: { state: 'pending', attempt_id: record.attempt_id, reserved: true } };
       });
+      if (result.reserved) prune(runFile(scope));
+      return result;
     },
     publish(scope, viewId, attemptId, eligible) {
-      return change(scope, old => {
+      return change(scope, (old, at) => {
         if (old?.phase !== 'reserved' || old.view_id !== viewId || old.attempt_id !== attemptId || !matches(old, scope))
           return { projection: status(old) };
-        if (eligible() !== true) return { record: { ...old, phase: 'settled' }, projection: { state: 'stale' } };
+        if (eligible() !== true) return { remove: true, projection: stale };
+        const boundary = startBoundary();
+        if (boundary.state !== 'ready') return { remove: true, projection: boundary };
         // Persist pending before issuing the sole permission to send. The same
         // response cannot be produced again, including after a lost reply.
-        return { record: { ...old, phase: 'pending' }, projection: { state: 'pending', attempt_id: attemptId, send: true } };
+        return { record: { ...old, phase: 'pending', since: at }, projection: { state: 'pending', attempt_id: attemptId, send: true } };
       });
     },
     cancelReservation(scope, viewId, attemptId) {
       return change(scope, old => old?.phase === 'reserved' && old.view_id === viewId && old.attempt_id === attemptId && matches(old, scope)
-        ? { record: { ...old, phase: 'settled' }, projection: ready } : { projection: status(old) });
+        ? { remove: true, projection: ready } : { projection: status(old) });
     },
-    claim(scope, { attemptId, owner } = {}, eligible) {
-      if ((attemptId !== undefined && !uuid(attemptId)) || (owner !== undefined && !uuid(owner))
-        || (attemptId !== undefined && owner !== undefined)) return unavailable;
-      return change(scope, old => {
-        if (eligible() !== true) return { projection: { state: 'stale' } };
-        if (owner !== undefined) {
-          if (old?.phase !== 'running' || old.ended === true || old.interrupt_requested === true || old.owner !== owner) return { projection: status(old).state === 'ready' ? { state: 'stale' } : status(old) };
-          if (matches(old, scope)) return { projection: status(old) };
-          const record = { ...old, ...binding(scope) };
-          return { record, projection: { state: 'running', attempt_id: record.attempt_id, owner, admitted: true } };
-        }
-        if (attemptId !== undefined) {
-          if (old?.phase !== 'pending' || old.attempt_id !== attemptId || !matches(old, scope))
-            return { projection: status(old).state === 'ready' ? { state: 'stale' } : status(old) };
-        } else if (status(old).state !== 'ready') return { projection: status(old) };
-        const token = randomUUID();
-        const record = attemptId === undefined ? newRecord(scope, 'running', { owner: token }) : { ...old, phase: 'running', owner: token };
-        return { record, projection: { state: 'running', attempt_id: record.attempt_id, owner: token, admitted: true } };
+    // A pickup that has nothing to continue (a terminal result) ends its published handoff at once.
+    release(scope, attemptId) {
+      if (!uuid(attemptId)) return unavailable;
+      return change(scope, old => old?.phase === 'pending' && old.attempt_id === attemptId
+        ? { remove: true, projection: ready } : { projection: status(old) });
+    },
+    // Codex picks up a published handoff exactly once. Any other attempt, a changed Run or an ended
+    // handoff is stale; a handoff whose Run is no longer eligible is removed.
+    claim(scope, attemptId, eligible) {
+      if (!uuid(attemptId)) return unavailable;
+      return change(scope, (old, at) => {
+        if (old?.attempt_id !== attemptId) return { projection: stale };
+        if (old.phase !== 'pending' || !matches(old, scope)) return { remove: old.phase === 'pending', projection: stale };
+        if (eligible() !== true) return { remove: true, projection: stale };
+        return { record: { ...old, phase: 'claimed', since: at }, projection: { state: 'running', attempt_id: attemptId, admitted: true } };
       });
-    },
-    associateTurn(scope, attemptId, owner, turn) {
-      if (!isTurnId(turn?.session) || !isTurnId(turn?.id)) return unavailable;
-      return change(scope, old => {
-        if (old?.phase !== 'running' || old.attempt_id !== attemptId || old.owner !== owner
-          || old.turn && (old.turn.session !== turn.session || old.turn.id !== turn.id)) return { projection: unavailable };
-        return { record: { ...old, turn }, projection: { state: 'running', matched: true } };
-      });
-    },
-    settleRunning: (scope, attemptId, turn) => observeRunning(scope, attemptId, turn, 'Stop'),
-    observeRunning,
-    settleTurn(turn, event = 'Stop') {
-      if (!isTurnId(turn?.session) || !isTurnId(turn?.id)) return;
-      try {
-        readyRoot(dataRoot, false);
-        const names = readdirSync(join(dataRoot, directory));
-        if (names.length > 512) return;
-        for (const name of names) {
-          if (!recordPattern.test(name)) continue;
-          let old;
-          try { old = readRecord(dataRoot, `${directory}/${name}`); }
-          catch { continue; }
-          if (old?.phase === 'running' && old.turn?.session === turn.session && old.turn?.id === turn.id)
-            observeRunning(old, old.attempt_id, turn, event);
-        }
-      } catch { /* A missing or unreadable record cannot prove a release. */ }
     },
   });
 }

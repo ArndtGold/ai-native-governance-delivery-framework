@@ -123,11 +123,22 @@ export function validatePortableProfile(root, { profile, validateSchema } = {}) 
   if (profile === "runtime") {
     declaredPath(root, settings.hooks, "effective hooks");
     declaredPath(root, settings.mcpServers, "effective MCP");
-    declaredPath(root, "./mcp.json", "portable MCP discovery");
+    declaredPath(root, "./mcp.json", "native MCP discovery");
     const mcp = JSON.parse(readFileSync(join(root, "mcp.json"), "utf8"));
-    if (validateSchema) validateSchema("mcp", mcp);
     const cockpit = Object.hasOwn(mcp.mcpServers ?? {}, 'agdf-cockpit');
-    if (!isDeepStrictEqual(mcp, JSON.parse(renderCodexPluginMcpConfig({ cockpit })))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: portable MCP differs from canonical projection");
+    const portable = Object.hasOwn(mcp, '$schema');
+    const transportProjection = portable ? mcp : {
+      ...mcp,
+      $schema: 'https://agent-plugins.org/schemas/1.0.0/mcp.schema.json',
+      mcpServers: Object.fromEntries(Object.entries(mcp.mcpServers ?? {}).map(([name, entry]) => {
+        // Leave invalid entries intact so the schema reports the contract error.
+        if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) return [name, entry];
+        const { startup_timeout_sec, ...transport } = entry;
+        return [name, startup_timeout_sec === 90 ? transport : entry];
+      })),
+    };
+    if (validateSchema) validateSchema("mcp", transportProjection);
+    if (!isDeepStrictEqual(mcp, JSON.parse(renderCodexPluginMcpConfig({ cockpit, portable, nativeStartup: !portable })))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: MCP differs from canonical projection");
     if (cockpit) for (const path of ['mcp/server/ui/cockpit.html', 'mcp/server/ui/manifest.json']) declaredPath(root, `./${path}`, path);
     for (const path of ["mcp/claude.mcp.json", "mcp/agdf-mcp-launch.js", "runtime/agdf-session-check.js"]) declaredPath(root, `./${path}`, path);
     if (!isDeepStrictEqual(fallback, createCodexPluginManifest(definition, { runtimeProfile: true, companionActivity: cockpit }))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: runtime fallback differs from canonical projection");

@@ -17,7 +17,7 @@ export const HOST_RUNTIME_MARKER_DIRECTORIES = Object.freeze([".in_use"]);
 export const DECISION_APP_OBSERVATIONS = Object.freeze(['initialize', 'app_only_visibility', 'model_call_denied',
   'deliberate_approve', 'deliberate_change', 'deliberate_reject', 'permission_denial', 'document_return', 'teardown']);
 export const CODEX_CONTINUATION_OBSERVATIONS = Object.freeze(['matched_dispatch_and_companion', 'app_only_visibility', 'model_call_denied', 'click_to_bound_turn',
-  'competing_companions', 'competing_normal_continuation', 'pending_across_reopen', 'native_terminal', 'predecessor_excluded']);
+  'competing_companions', 'ordinary_continuation_unblocked', 'pending_across_reopen', 'running_from_activity', 'predecessor_excluded']);
 // The boolean and read-only diagnosis deliberately share one validator. Host/candidate
 // values are owner supplied, never caller credentials or qualification writes.
 export function inspectDecisionAppQualification(root, record, expected = {}) {
@@ -81,19 +81,22 @@ export const CODEX_PLUGIN_MCP_FILE = "mcp.json";
 const CODEX_ROOT_TOKEN = "{{AGDF_PLUGIN_ROOT}}";
 const CODEX_DATA_TOKEN = "{{AGDF_MCP_DATA}}";
 
-export function renderCodexPluginMcpConfig({ pluginRoot = CODEX_ROOT_TOKEN, dataRoot = CODEX_DATA_TOKEN, portable = true, cockpit = false } = {}) {
+export function renderCodexPluginMcpConfig({ pluginRoot = CODEX_ROOT_TOKEN, dataRoot = CODEX_DATA_TOKEN, portable = true, cockpit = false, nativeStartup = false } = {}) {
+  if (portable && nativeStartup) throw Error('AGDF_CODEX_NATIVE_STARTUP_REQUIRES_NATIVE_MANIFEST');
   const root = pluginRoot.replaceAll("\\", "/");
   return `${JSON.stringify({
     ...(portable ? { $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json" } : {}),
     mcpServers: {
       agdf: {
-        ...(portable ? { type: "stdio" } : {}),
+        ...(portable || nativeStartup ? { type: "stdio" } : {}),
         command: "node",
         args: [`${root}/mcp/agdf-mcp-launch.js`, "--surface", "codex", "--data", dataRoot.replaceAll("\\", "/")],
+        ...(nativeStartup ? { startup_timeout_sec: 90 } : {}),
       },
       ...(cockpit ? { 'agdf-cockpit': {
-        ...(portable ? { type: 'stdio' } : {}), command: 'node',
+        ...(portable || nativeStartup ? { type: 'stdio' } : {}), command: 'node',
         args: [`${root}/mcp/agdf-mcp-launch.js`, '--surface', 'codex', '--data', dataRoot.replaceAll('\\', '/'), '--cockpit'],
+        ...(nativeStartup ? { startup_timeout_sec: 90 } : {}),
       } } : {}),
     },
   }, null, 2)}\n`;
@@ -123,8 +126,9 @@ export function normalizeCodexPluginMcpConfig(content) {
         && args[0].endsWith("/mcp/agdf-mcp-launch.js") && typeof args[4] === "string" && args[4]) {
       const portable = Object.hasOwn(config, "$schema");
       const cockpit = Object.hasOwn(config.mcpServers, 'agdf-cockpit');
-      const expected = renderCodexPluginMcpConfig({ pluginRoot: args[0].slice(0, -"/mcp/agdf-mcp-launch.js".length), dataRoot: args[4], portable, cockpit });
-      if (JSON.stringify(config) === JSON.stringify(JSON.parse(expected))) return renderCodexPluginMcpConfig({ portable, cockpit });
+      const nativeStartup = !portable && config.mcpServers.agdf.startup_timeout_sec === 90;
+      const expected = renderCodexPluginMcpConfig({ pluginRoot: args[0].slice(0, -"/mcp/agdf-mcp-launch.js".length), dataRoot: args[4], portable, cockpit, nativeStartup });
+      if (JSON.stringify(config) === JSON.stringify(JSON.parse(expected))) return renderCodexPluginMcpConfig({ portable, cockpit, nativeStartup });
     }
   } catch {}
   return content;
@@ -212,7 +216,8 @@ const OWNER_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...WORKER_MCP_DISPAT
   'lib/mcp-lifecycle/owner-client.js', 'lib/mcp-lifecycle/thread-owner.js']);
 const DEFAULT_RESOURCE_ENTRIES = Object.freeze(['generated/plugins/agdf/meta/agdf-defaults.json', 'generated/plugins/agdf/meta/agdf-defaults.schema.json']);
 const PREPARED_JOURNAL_ENTRY = 'lib/mcp-lifecycle/prepared-call-journal.js';
-export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...OWNER_MCP_DISPATCHER_RUNTIME_ENTRIES, PREPARED_JOURNAL_ENTRY, ...DEFAULT_RESOURCE_ENTRIES]);
+const SYSTEM_BOOT_ENTRY = 'lib/mcp-lifecycle/system-boot.js';
+export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([...OWNER_MCP_DISPATCHER_RUNTIME_ENTRIES, PREPARED_JOURNAL_ENTRY, SYSTEM_BOOT_ENTRY, ...DEFAULT_RESOURCE_ENTRIES]);
 function declaresOwnerEntry(root) {
   const entry = readJson(join(root, 'package.json'))?.exports?.['./mcp-owner-protocol'];
   if (entry !== undefined && entry !== './lib/mcp-owner-protocol.js') throw Error('AGDF_MCP_OWNER_EXPORT_INVALID');
@@ -243,9 +248,11 @@ const dispatcherEntries = root => {
   // The already-digested consuming module selects this new dependency. Older
   // images keep their original digest; deleting a required new helper cannot
   // masquerade as a historical image or silently downgrade its inventory.
-  return entries.includes('lib/mcp-lifecycle/package.js')
+  const withJournal = entries.includes('lib/mcp-lifecycle/package.js')
     && readFileSync(join(root, 'lib/mcp-lifecycle/package.js'), 'utf8').includes("from './prepared-call-journal.js'")
     ? [...withResources, PREPARED_JOURNAL_ENTRY] : withResources;
+  return readFileSync(join(root, 'lib/mcp-dispatch-runtime.js'), 'utf8').includes("from './mcp-lifecycle/system-boot.js'")
+    ? [...withJournal, SYSTEM_BOOT_ENTRY] : withJournal;
 };
 
 // Projection and digesting select the same actual declared image. Old packages

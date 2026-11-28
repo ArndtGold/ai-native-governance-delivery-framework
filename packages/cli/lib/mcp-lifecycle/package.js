@@ -28,6 +28,7 @@ import { defaultNpmInstallRoot, npmInvocation } from "../npm-invocation.js";
 import { renameSyncWithRetry } from "#agdf-core/fs-swap.js";
 import { fsyncDirectory, withOwnedFileLock } from '#agdf-core/owned-file-lock.js';
 import { createPreparedCallJournal } from './prepared-call-journal.js';
+import { readSystemBootId } from './system-boot.js';
 
 const CLAIMS = '.agdf-executable-claims';
 
@@ -76,7 +77,15 @@ export function acquireMcpExecutableClaim(runtime, { ownerEpoch = randomUUID(), 
     mkdirSync(dir, { recursive: true });
     if (lstatSync(dir).isSymbolicLink() || realpathSync(dir) !== dir) throw Error('AGDF_MCP_EXECUTABLE_CLAIM_INVALID');
     const token = randomUUID(), path = join(dir, `${token}.json`);
-    const body = JSON.stringify({ schema_version: 1, owner: OWNER, token, owner_epoch: ownerEpoch, generation,
+    const bootId = readSystemBootId();
+    // The lock-bound full runtime inspection above authenticates the producer
+    // bytes, not a client flag. Only this declared dispatcher contract can
+    // participate in the same per-Run admission across a subsequent update.
+    const sharedAdmission = readFileSync(join(fresh.dispatcherRoot, 'lib/mcp-dispatch-runtime.js'), 'utf8')
+      .includes("export const CODEX_SHARED_ADMISSION_PROTOCOL = 'codex-shared-v1';");
+    const body = JSON.stringify({ schema_version: bootId || sharedAdmission ? 2 : 1,
+      ...((bootId || sharedAdmission) && { boot_id: bootId }), ...(sharedAdmission && { admission_protocol: 'codex-shared-v1' }),
+      owner: OWNER, token, owner_epoch: ownerEpoch, generation,
       root, server_digest: runtime.digest, dispatcher_digest: runtime.dispatcherDigest, sdk_digest: runtime.sdkDigest });
     const fd = openSync(path, 'wx', 0o600);
     try { writeFileSync(fd, body); fsyncSync(fd); } finally { closeSync(fd); }

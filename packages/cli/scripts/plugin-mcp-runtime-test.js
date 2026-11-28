@@ -30,6 +30,25 @@ import { npmCalls, offlineNpm, pluginRoot, version } from "../../../scripts/supp
   assert.equal(result.stdout.trim(), 'minimal_bootstrap');
 }
 
+// The launcher passes a finite startup allowance through to preparation.
+// In particular, a slow desktop startup must have room beyond 30 seconds.
+{
+  const started = performance.now();
+  let remaining;
+  const runtime = await launchPluginMcpServer({
+    pluginRoot,
+    argv: ['--surface', 'codex', '--data', '/unused-startup-test', '--prepare'],
+    env: {},
+    stdout: { write() {} },
+    ensure({ publicationDeadline }) {
+      remaining = publicationDeadline - started;
+      return { status: 'matched', version, root: '/unused-startup-test', changed: false };
+    },
+  });
+  assert.equal(runtime.status, 'matched');
+  assert.ok(remaining >= 60_000 && remaining < 61_000, 'preparation inherits the bounded 60-second allowance');
+}
+
 // Shared plugin-local MCP runtime used by every host whose runtime plugin declares the server itself.
 const root = mkdtempSync(join(tmpdir(), "agdf-plugin-mcp-runtime-"));
 try {
@@ -478,7 +497,7 @@ try {
     const started = performance.now();
     assert.throws(() => ensurePluginMcpRuntime({ pluginRoot, dataRoot: limitedRoot,
       // Leave room for real full source proof before this child-focused probe.
-      // The production allowance stays 30000ms; short claim arithmetic is separate.
+      // The production allowance is 60000ms; short claim arithmetic is separate.
       publicationDeadline: started + 3000, env: {},
       exec(_command, _args, options) {
         observedTimeout = options.timeout;

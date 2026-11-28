@@ -615,6 +615,8 @@ function prepareLocalMarketplaceFromSource({
         pluginRoot: join(stableRoot, "plugins", MARKETPLACE_ID),
         dataRoot: join(dataRoot, "mcp", "codex-plugin"),
         cockpit: Object.hasOwn(readJson(codexMcpPath, 'built MCP declaration').mcpServers, 'agdf-cockpit'),
+        portable: Object.hasOwn(readJson(codexMcpPath, 'built MCP declaration'), '$schema'),
+        nativeStartup: readJson(codexMcpPath, 'built MCP declaration').mcpServers.agdf.startup_timeout_sec === 90,
       }), "utf8");
     }
     sourceStaged();

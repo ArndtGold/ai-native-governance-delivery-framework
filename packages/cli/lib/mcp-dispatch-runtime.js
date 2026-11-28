@@ -10,11 +10,13 @@ import { assertMcpControlReadBoundary } from "#agdf-core/control-read-boundary.j
 import { knownExecutionCode, validExecutionFacts } from '#agdf-core/mcp-tool-errors.js';
 import { COMPANION_DATA_ROOT_ENV, createCompanionJournal } from '#agdf-core/companion/journal.js';
 import { createCodexContinuationAdmission } from '#agdf-core/companion/codex-continuation.js';
+import { readSystemBootId } from './mcp-lifecycle/system-boot.js';
 import { isCurrentContinuation } from '#agdf-core/companion/codex-continuation-binding.js';
 import { resolveControlCommandTarget } from '#agdf-core/control-state/approval-command-contract.js';
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
-import { isAbsolute } from 'node:path';
+import { isAbsolute, resolve } from 'node:path';
 import { composeMcpProtocolRuntime, errorSupport, inspectMcpDispatcherRuntime, configuredMcpCommandGroups } from './mcp-protocol-runtime.js';
+export const CODEX_SHARED_ADMISSION_PROTOCOL = 'codex-shared-v1';
 export { inspectMcpDispatcherRuntime, configuredMcpCommandGroups, CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION,
   parseControlInspectFunctionArguments, parseSkillDispatchFunctionArguments, serializeSkillDispatchResult, DECISION_UI_URI, OWNED_LOCK_CHANNEL, releaseAbandonedOwnedLock } from './mcp-protocol-runtime.js';
 // Core reasons that the tool-error contract names differently. Core's command service maps
@@ -34,8 +36,11 @@ export function preDispatchFailure(error) {
   const code = knownExecutionCode(PREPARATION_REASONS.find(([pattern]) => pattern.test(reason))?.[1] ?? reason);
   return Object.assign(new Error(code), { facts: { code, dispatch: 'not_dispatched' } });
 }
+// Native qualification reports test results. It cannot be a prerequisite for
+// exposing the first test gesture. Both routes require the same owned runtime;
+// the App additionally checks host capabilities and the displayed Run binding.
 export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode, inspected = inspectMcpDispatcherRuntime(),
-  continuationQualified = inspected.continuationQualified, companionDataRoot } = {}) {
+  continuationQualified = inspected.provenanceStatus === 'matched' && !!inspected.generationIdentity, companionDataRoot } = {}) {
   const pluginMode = cockpitMode === 'plugin';
   if (cockpitMode !== undefined && !pluginMode || pluginMode && (surface !== 'codex' || cockpitDir !== undefined)
     || !pluginMode && (!['codex', 'claude'].includes(surface) || typeof cockpitDir !== 'string' || !isAbsolute(cockpitDir))) throw new TypeError('AGDF_COCKPIT_TARGET_INVALID');
@@ -48,7 +53,9 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
     import("#agdf-core/control-inspect/cockpit-session.js"),
     import("#agdf-core/control-read/snapshot.js"),
   ]);
-  const session = createCockpitSessionService(root, { pluginMode, integrationSurface: surface, continuationQualified, companionDataRoot });
+  const session = createCockpitSessionService(root, { pluginMode, integrationSurface: surface, continuationQualified, companionDataRoot,
+    continuationRuntimeRoot: inspected.packageRoot ? resolve(inspected.packageRoot, '..', '..') : undefined,
+    continuationBootId: readSystemBootId() });
   const renderDefinition = pluginMode ? COCKPIT_PLUGIN_RENDER_DEFINITION : COCKPIT_RENDER_DEFINITION;
   const continuationHost = inspected.continuationHost;
   const matchingClient = host => !continuationHost || host?.client?.name === continuationHost.name && host.client.version === continuationHost.version;
@@ -83,37 +90,37 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
 
 function stopCodexContinuation(result, decision, language) {
   const de = language?.toLowerCase().split('-')[0] === 'de';
-  const { state } = decision;
-  const text = decision.interrupt_requested ? de ? 'Der Abbruch wurde angefordert.' : 'Cancellation has been requested.'
-    : state === 'running' ? de ? 'Codex arbeitet bereits an diesem Run.' : 'Codex is already working on this Run.'
-    : state === 'pending' ? de ? 'Die Bestätigung von Codex steht noch aus.' : 'Codex has not confirmed the original handoff yet.'
-    : state === 'stale' ? de ? 'Der Run hat sich geändert. Öffne den aktuellen Stand.' : 'The Run has changed. Open its current state.'
+  const text = decision.state === 'stale'
+    ? de ? 'Diese Übergabe aus dem Begleiter wurde schon verwendet, ist abgelaufen oder der Run hat sich geändert. Setze den Run im Chat fort, um weiterzumachen.'
+      : 'This Companion handoff was already used, has expired or the Run has changed. Continue the Run in chat to proceed.'
     : de ? 'Die Fortsetzung für diesen Run ist gerade nicht verfügbar.' : 'Continuation is unavailable for this Run.';
   return { ...result, outcome: 'control_result', terminal: true, presentation: { markdown: text, authorizes: false }, continuation: null, recovery: null,
     host_action: { mode: 'transmit_presentation_verbatim_and_stop', source: 'presentation.markdown',
       allow_surrounding_text: false, may_request_run_or_evidence: false, text } };
 }
 
+// Only a dispatch that names a Companion handoff touches the handoff store: it picks the handoff up once or
+// stops. Every other continuation returns unchanged; the revision check of each write keeps them consistent.
 function admitCodexContinuation(admission, input, result) {
-  if (!input.continueDelivery || result.terminal || !result.continuation || !result.control?.next_operation) return result;
-  const operation = result.control.next_operation, root = result.target?.governance_target;
-  if (operation.actor !== 'agent' && !(input.continuationAttemptId && operation.operation_key === 'approval.record')) return result;
-  if (!admission) return input.continuationAttemptId || input.continuationOwner
-    ? stopCodexContinuation(result, { state: 'unavailable' }, input.presentationLanguage) : result;
-  const scope = { root, target_id: resolveControlCommandTarget(root).target_id,
+  if (!input.continuationAttemptId) return result;
+  const root = result.target?.governance_target;
+  if (result.terminal || !result.continuation || !result.control?.next_operation) {
+    // Nothing to continue: the handoff ends now instead of showing as pending until its bound.
+    try { if (admission && root) admission.release({ target_id: resolveControlCommandTarget(root).target_id, run_id: input.runId }, input.continuationAttemptId); }
+    catch { /* The handoff still ends with its bound. */ }
+    return result;
+  }
+  if (!admission) return stopCodexContinuation(result, { state: 'unavailable' }, input.presentationLanguage);
+  const operation = result.control.next_operation;
+  const scope = { target_id: resolveControlCommandTarget(root).target_id,
     run_id: input.runId, revision_id: result.continuation.revision_id ?? result.control.revision_id,
     operation_key: operation.operation_key, actor: operation.actor };
-  const decision = admission.claim(scope, { attemptId: input.continuationAttemptId, owner: input.continuationOwner },
-    () => isCurrentContinuation(root, scope));
-  if (!decision.admitted) return stopCodexContinuation(result, decision, input.presentationLanguage);
-  return { ...result, continuation: { ...result.continuation,
-    work_admission: { attempt_id: decision.attempt_id, owner: decision.owner, target_id: scope.target_id, run_id: scope.run_id },
-    instruction: `${result.continuation.instruction} After a canonical write, use the owner-bound resume_call from this dispatch when its ready next action is to continue this Run. Never reuse it outside this turn.`,
-  } };
+  const decision = admission.claim(scope, input.continuationAttemptId, () => isCurrentContinuation(root, scope));
+  return decision.admitted ? result : stopCodexContinuation(result, decision, input.presentationLanguage);
 }
 
 export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispatcherRuntime(), commandGroups = configuredMcpCommandGroups(), runtimeControl, materialGrants, verifyRuntime, inputContext, executionContext,
-  continuationQualified = inspected.continuationQualified, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV] } = {}) {
+  continuationQualified = inspected.provenanceStatus === 'matched' && !!inspected.generationIdentity, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV] } = {}) {
   const readBudget = createReadWorkerBudget();
   const delivery = createPresentationDelivery();
   const verifyProducer = verifyRuntime ?? (() => {
@@ -134,7 +141,8 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
   // once, below the data root the launcher hands over; review facts read the sealed material here.
   const journal = createCompanionJournal({ sealedFiles: transferId => services.material.sealedFiles(transferId) });
   const admission = surface === 'codex' && continuationQualified === true && companionDataRoot
-    ? createCodexContinuationAdmission(companionDataRoot) : null;
+    ? createCodexContinuationAdmission(companionDataRoot, { runtimeRoot: inspected.packageRoot ? resolve(inspected.packageRoot, '..', '..') : undefined,
+      bootId: readSystemBootId() }) : null;
   const execute = input => {
     const result = services.dispatch(input);
     const admitted = admitCodexContinuation(admission, input, result);

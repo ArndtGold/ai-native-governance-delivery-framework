@@ -10,6 +10,8 @@ import { planGlobalUninstall, applyLifecyclePlan } from '../lib/lifecycle/operat
 import { mcpPackageConstants, acquireMcpExecutableClaim, mcpRuntimeRetirementState } from "../lib/mcp-lifecycle/package.js";
 import { COMPANION_JOURNAL, ensurePluginMcpRuntime, inspectPluginMcpDataRoot, launchPluginMcpServer, launcherFailureLine, parseLauncherArguments, retirePluginMcpDataRoot, supervisePluginMcpFacade } from "../lib/mcp-lifecycle/plugin-runtime.js";
 import { JOURNAL_DIRECTORY, JOURNAL_FILE, JOURNAL_LIMIT_BYTES, JOURNAL_ROTATED_FILE, appendJournalEvent } from "../../core/lib/companion/journal.js";
+import { EXECUTABLE_BOOT_BOUNDARY_NAME, checkpointExecutableBootBoundary } from "../../core/lib/companion/executable-boot-boundary.js";
+import { randomUUID } from "node:crypto";
 import { npmCalls, offlineNpm, pluginRoot, version } from "../../../scripts/support/plugin-mcp-fixture.js";
 
 // Bootstrap needs generic file ownership, not Run semantics. Reject a future
@@ -214,6 +216,16 @@ try {
   rmSync(join(journalData, JOURNAL_DIRECTORY, "notes.txt"));
   assert.equal(retirePluginMcpDataRoot(journalData), true);
   assert.equal(existsSync(journalData), false, "retirement removes the journal with the runtime");
+
+  // The Codex launcher's boot checkpoint (written only where the OS reports a boot id, so not on
+  // Windows) belongs to the owned root and is retired with it; a linked one stays foreign.
+  const bootData = join(root, "boot");
+  ensurePluginMcpRuntime({ pluginRoot: updateablePluginRoot, dataRoot: bootData, exec: offlineNpm });
+  assert.equal(checkpointExecutableBootBoundary(realpathSync(bootData), randomUUID()).state, "checkpointed");
+  assert.equal(existsSync(join(bootData, "mcp", EXECUTABLE_BOOT_BOUNDARY_NAME)), true);
+  assert.equal(inspectPluginMcpDataRoot(bootData), "owned", "the boot checkpoint keeps the data root owned");
+  assert.equal(retirePluginMcpDataRoot(bootData), true);
+  assert.equal(existsSync(bootData), false, "retirement removes the boot checkpoint with the runtime");
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

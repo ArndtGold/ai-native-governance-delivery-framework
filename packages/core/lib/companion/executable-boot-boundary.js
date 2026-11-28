@@ -4,6 +4,9 @@ import { isAbsolute, join, relative, resolve } from 'node:path';
 import { atomicWrite, withOwnedFileLockWait } from '../owned-file-lock.js';
 
 const file = 'mcp/executable-boot-boundary.json';
+// The checkpoint describes only claims below mcp/generations; the launcher's
+// data-root ownership and retirement recognize it by this name.
+export const EXECUTABLE_BOOT_BOUNDARY_NAME = file.slice('mcp/'.length);
 const owner = 'create-agdf:mcp-runtime';
 const uuid = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/u;
 const digest = /^[a-f0-9]{64}$/u;

@@ -1,0 +1,20 @@
+## Qualitätssicherung prüfen und entscheiden
+
+QA Report: Single Core reader for the companion event journal
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ergebnis: Das Companion-Ereignisjournal wird nur noch vom Core-Leser `readCompanionEvents` gelesen; `run-view` liefert mit `--companion-data` die Ereignisse des Roots (vor den Runs gelesen), der Claude-Begleiter nutzt sie und beobachtet das Journal nur noch über Größe und Änderungszeit, die Codex-Karte nutzt denselben Leser und dieselben Regeln für Bestätigung, haftende Ereignisse und Datumsanzeige; ein Contract-Test prüft Leser und beide Verbraucher auf gemeinsamen Fixtures. Alle Tasks T-001 bis T-008 und Szenarien SCN-001 bis SCN-013 sind erfüllt, die vier Code-Review-Befunde behoben und nachgeprüft; alle Suiten des Testplans und `compatibility:check` (56/56) laufen durch.
+- Grenzen: Die echte Claude-Desktop-Pane und die Codex-App wurden nicht geöffnet (Nachweis über gerenderte Module in Testhosts); zwei Cockpit-Core-Tests scheitern an Windows-Hostgrenzen (Symlink-Recht, Dateisperre unter Last) unabhängig von dieser Änderung; die CI des Pull Requests steht noch aus.
+- Risiken: Jede Journaländerung, auch aus anderen Projekten, startet einen `run-view` je offenem Claude-Begleiter (vom Owner akzeptiert, Root-Filter im Observer als mögliche Folgeaufgabe); bei einem Prozessausfall von `run-view` kommen Ereignisse verzögert; die nativen Claude-CLI-Beobachtungen waren schon vorher veraltet; der Branch baut auf PR #85 auf, der derzeit Konflikte mit seiner Basis hat.
+
+Die Nutzerabnahme vorbereiten; die Veröffentlichung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: QA.
+
+### Fassung und Quellen
+
+Run: `run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320` · Qualitätssicherung · Revision: `b17bd10c-d183-4bcb-a82b-1e2d2a91e9b7`
+
+SHA-256: `sha256:5aac63d29abeeabfe54cf97183a23dde758a084bae9589bcaa0db5920906eb38`

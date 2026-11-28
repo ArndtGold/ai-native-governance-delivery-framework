@@ -1,0 +1,26 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Single Core reader for the companion event journal
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Problem: Das Companion-Ereignisjournal hat einen Schreiber in Core, wird aber von zwei unabhängigen Implementierungen gelesen (Claude-Companion-Template und Codex-Cockpit-Leser aus PR #85). Die Abweichung zwischen beiden hat bereits einen Fehler verursacht (256- statt 512-KiB-Grenze); weitere Unterschiede bestehen bei Rotation, Root-Vergleich, Bestätigung dauerhafter Ereignisse, haftenden unsicheren Ereignissen und der Datumsanzeige.
+- Ziel: Der Core-Journal-Leser ist die einzige Implementierung, die das Journal liest; der Claude-Begleiter erhält die Ereignisse seines Projekt-Roots über den bereits genutzten read-only Befehl `run-view`, und beide Begleiter zeigen für dasselbe Journal dieselben Ereignisse.
+- Betroffene Nutzer: Nutzer des AGDF-Begleiters in Claude und der Codex-Cockpit-Karte sowie Maintainer des Journalformats, von `run-view` und beider Begleiter.
+- Umfang: (1) Core-Leser auf Ereignisse eines Projekt-Roots, optional eines Runs, verallgemeinern und dabei Lesegrenze, Lesereihenfolge, Überspringen übergroßer Rotationsdatei, Cache und Windows-Identitätsprüfung erhalten; (2) `run-view` liefert die Ereignishistorie des Roots mit; (3) Claude-`pollEvents` behält nur die günstige Änderungserkennung und die UI-Logik, der eigene Parser samt Root-Normalisierung entfällt; (4) Codex-Karte zeigt `approval_recorded`/`run_completed` nur bestätigt und hält `effect_unknown`/`recovery_required` sichtbar, Claude-Pane datiert Ereignisse früherer Tage; (5) Contract-Test auf gemeinsamen Journal-Fixtures für beide Verbraucher.
+- Nicht-Ziele: keine Änderung an Schreiber, Zeilenformat, Grenze oder Rotation; Push vs. Pull und alle Runs vs. ausgewählter Run bleiben hostspezifisch; kein build-time generiertes Modul (Owner-Entscheid 2026-11-27); keine Änderung an Gate-Regeln oder Statuskarte; kein Merge von PR #84/#85, die Arbeit wird auf `codex/companion-run-events` gestapelt und als eigener PR geliefert.
+- Akzeptanzsignale: Das Journalformat wird nur noch in Core geparst; der neue Contract-Test läuft und zeigt gleiche Ereignisse für beide Verbraucher; `cockpit-session-test.js`, `claude-companion-test.js`, control-ui-vitest und `npm run compatibility:check` laufen durch; bei Änderungen unter `plugins/agdf` wird die Änderungskette eingehalten.
+- Quellen: `journal.js`, `events.js`, `read-cockpit-events.js`, `cockpit-session.js`, `run-view.js`, das CLI-Kommando `run-view`, die Claude-Templates `register.mjs`, `events.mjs`, `run-state.mjs`, `view.mjs`, `CompanionCard.tsx` sowie die bestehenden Tests und früheren CR-Befunde (B3, B4, B6, B7, CIR-04, RV-1).
+- Risiken und offene Punkte: Jede Journal-Änderung, auch aus anderen Projekten, startet künftig einen `run-view` (hier etwa 1,6 s im Hintergrund), vom Owner akzeptiert; der Root-Vergleich wechselt bei Claude auf den Realpath-Vergleich von Core; Ausgabegrößen von Prüfangaben brauchen Grenzen; wie `run-view` die Datenwurzel erfährt und ob das neue Feld eine Schema-Version braucht, entscheidet das SD; Änderungen unter `plugins/agdf` ziehen die Änderungskette nach sich; PR #85 hat derzeit Konflikte mit seiner Basis.
+- Nächster Schritt: Dieses UR prüfen und nur mit `Approval: UR` freigeben.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320` · Nutzeranforderungen · Revision: `25fdcb15-a23f-481c-8f7f-ec43b33cb4e5`
+
+SHA-256: `sha256:c1afd327459838910850c4632e96db339c664b9a3f755586d93a1657079abd60`

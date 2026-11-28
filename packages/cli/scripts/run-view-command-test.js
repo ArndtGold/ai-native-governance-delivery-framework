@@ -5,11 +5,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { lstatSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCompanionFixtures } from '../../core/test/fixtures/companion-fixtures.js';
 import { evaluateGateCheck } from '../../core/lib/control-evaluation/gate-check.js';
+import { createCompanionJournal, journalPath } from '../../core/lib/companion/journal.js';
+import { COMPANION_EVENTS_READ_LIMIT } from '../../core/lib/companion/read-companion-events.js';
 
 const validator = fileURLToPath(new URL('../bin/agdf-validator.js', import.meta.url));
 const runView = (root, args) => spawnSync(process.execPath, [validator, 'run-view', '--dir', root, '--json', ...args], { encoding: 'utf8' });
@@ -76,4 +79,43 @@ test('CIR-05: without --language an unresolvable configuration never hides the s
   const entry = JSON.parse(invalid.stdout).runs.find(run => run.run_id === current.runId);
   assert.deepEqual([entry.evaluated, entry.evaluation_error, entry.figure.mood], [false, 'control_invalid', 'blockiert'],
     'an invalid configuration shows as a blocked, unreadable run, never as a normal run in a default language');
+});
+
+// Run run-71aa7dbb (TP SCN-007, SD SDD-003): with --companion-data the view carries the root's event
+// history from the single journal reader; without it the document is unchanged. The option is unique,
+// absolute and limited to run-view.
+test('SCN-007: --companion-data adds the event history of the root and nothing else', t => {
+  const [current] = buildCompanionFixtures(t, ['F02']);
+  const dataRoot = mkdtempSync(join(tmpdir(), 'run-view-companion-data-'));
+  t.after(() => rmSync(dataRoot, { recursive: true, force: true }));
+  const plain = JSON.parse(runView(current.root, ['--language', 'en']).stdout);
+  assert.equal('events' in plain, false, 'without the option the view has no events field');
+  const missing = JSON.parse(runView(current.root, ['--language', 'en', '--companion-data', dataRoot]).stdout);
+  assert.deepEqual(missing.events, { state: 'available', items: [] }, 'a missing journal is an empty, available history');
+  const { events: _, ...withoutEvents } = missing;
+  assert.deepEqual(withoutEvents, plain, 'the option changes nothing but the events field');
+
+  const journal = createCompanionJournal({ dataRoot, now: () => new Date('2026-11-27T09:00:00Z') });
+  assert.equal(journal.observe('agdf_approve', { primary_target: current.root, run_id: current.runId,
+    command: { kind: 'approval.record', payload: { gate: 'UR' } } }, { outcome: 'accepted' }), true);
+  assert.equal(journal.observe('agdf_approve', { primary_target: dataRoot, run_id: 'elsewhere',
+    command: { kind: 'approval.record', payload: { gate: 'UR' } } }, { outcome: 'accepted' }), true);
+  const ran = runView(current.root, ['--language', 'en', '--companion-data', dataRoot]);
+  assert.equal(ran.status, 0);
+  const { events } = JSON.parse(ran.stdout);
+  assert.equal(events.state, 'available');
+  assert.deepEqual(events.items.map(({ run_id, kind, gate, at }) => ({ run_id, kind, gate, at })),
+    [{ run_id: current.runId, kind: 'approval_recorded', gate: 'UR', at: '2026-11-27T09:00:00.000Z' }], 'only the events of this root');
+
+  writeFileSync(journalPath(dataRoot), Buffer.alloc(COMPANION_EVENTS_READ_LIMIT + 1, 0x20));
+  assert.deepEqual(JSON.parse(runView(current.root, ['--companion-data', dataRoot]).stdout).events, { state: 'unavailable', items: [] },
+    'an oversized journal is unavailable');
+
+  for (const args of [['--companion-data', 'relative/data'], ['--companion-data', dataRoot, '--companion-data', dataRoot]]) {
+    const usage = runView(current.root, args);
+    assert.equal(usage.status, 1, `${args.join(' ')} is a usage error`);
+    assert.equal(usage.stdout, '', `${args.join(' ')} prints no run view`);
+  }
+  const other = spawnSync(process.execPath, [validator, 'project-state', '--dir', current.root, '--json', '--companion-data', dataRoot], { encoding: 'utf8' });
+  assert.equal(other.status, 1, '--companion-data belongs to run-view only');
 });

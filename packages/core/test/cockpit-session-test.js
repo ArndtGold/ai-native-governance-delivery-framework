@@ -8,7 +8,7 @@ import { createCockpitReader } from '../lib/control-inspect/cockpit.js';
 import { parseCockpitArguments, COCKPIT_LIMITS, COCKPIT_RENDER_DEFINITION } from '../lib/control-inspect/cockpit-contract.js';
 import { fixture, treeBytes } from './control-cockpit-fixtures.js';
 import { createCompanionJournal, journalPath, JOURNAL_LIMIT_BYTES } from '../lib/companion/journal.js';
-import { COCKPIT_EVENTS_READ_LIMIT } from '../lib/companion/read-cockpit-events.js';
+import { COMPANION_EVENTS_READ_LIMIT } from '../lib/companion/read-companion-events.js';
 import { observeCodexActivity } from '../lib/companion/codex-activity.js';
 import { tmpdir } from 'node:os';
 import { createRun } from '../lib/control-state/run-state-repository.js';
@@ -498,8 +498,11 @@ test('Codex updates selected Run events without invalidating the current snapsho
   assert.equal(record('fixture-a', dataRoot), true);
   const refreshed = await refresh();
   assert.equal(refreshed.snapshot_id, snapshot.snapshot_id);
-  assert.deepEqual(refreshed.companion_observation.events.items.map(({ kind, gate, at }) => ({ kind, gate, at })),
-    [{ kind: 'approval_recorded', gate: 'UR', at: '2026-11-16T11:13:00.000Z' }]);
+  assert.deepEqual(refreshed.companion_observation.events.items.map(({ run_id, kind, gate, at }) => ({ run_id, kind, gate, at })),
+    [{ run_id: 'fixture-a', kind: 'approval_recorded', gate: 'UR', at: '2026-11-16T11:13:00.000Z' }]);
+  // Run run-71aa7dbb (SDD-006): the card's rule for uncertain outcomes reads the run's newest receipt time.
+  assert.ok(Number.isFinite(Date.parse(snapshot.data.run.last_activity)), 'the detail carries the newest receipt time');
+  assert.equal(new Date(snapshot.data.run.last_activity).toISOString(), snapshot.data.run.last_activity);
   fs.copyFileSync(journalPath(dataRoot), join(dataRoot, 'companion', 'events.1.jsonl'));
   assert.equal((await refresh()).companion_observation.events.items.length, 1);
   const entries = Array.from({ length: 6 }, (_, index) => ({
@@ -507,8 +510,11 @@ test('Codex updates selected Run events without invalidating the current snapsho
     kind: 'document_recorded', gate: 'UR', root: f.root, run_id: 'fixture-a',
   }));
   fs.appendFileSync(journalPath(dataRoot), ['incomplete', ...entries.map(event => JSON.stringify(event)), ''].join('\n'));
-  assert.deepEqual((await refresh()).companion_observation.events.items.map(event => event.id),
-    ['event-5', 'event-4', 'event-3', 'event-2', 'event-1']);
+  // The whole history of the selected run (up to 32), newest first; the card picks its lines (SDD-006).
+  const history = (await refresh()).companion_observation.events.items;
+  assert.deepEqual(history.map(event => event.id).slice(0, 6), ['event-5', 'event-4', 'event-3', 'event-2', 'event-1', 'event-0']);
+  assert.equal(history.length, 7, 'the earlier approval of the run stays in its history');
+  assert.ok(history.every(event => event.run_id === 'fixture-a' && !('review' in event)), 'run-scoped items without review facts');
   fs.rmSync(journalPath(dataRoot));
   fs.mkdirSync(journalPath(dataRoot));
   const failure = await refresh();
@@ -542,11 +548,11 @@ test('Codex events tolerate a journal that concurrent writers pushed past the wr
   fs.writeFileSync(journalPath(dataRoot), filler(JOURNAL_LIMIT_BYTES) + line('current', 2));
   assert.deepEqual((await events()).items.map(item => item.id), ['current', 'rotated'],
     'both files above the writer bound but within the read headroom stay readable');
-  fs.writeFileSync(rotated, filler(COCKPIT_EVENTS_READ_LIMIT) + line('rotated', 1));
+  fs.writeFileSync(rotated, filler(COMPANION_EVENTS_READ_LIMIT) + line('rotated', 1));
   const skipped = await events();
   assert.equal(skipped.state, 'available', 'an oversized rotation file does not hide the current history');
   assert.deepEqual(skipped.items.map(item => item.id), ['current'], 'an oversized rotation file is skipped');
-  fs.writeFileSync(journalPath(dataRoot), filler(COCKPIT_EVENTS_READ_LIMIT) + line('current', 2));
+  fs.writeFileSync(journalPath(dataRoot), filler(COMPANION_EVENTS_READ_LIMIT) + line('current', 2));
   assert.deepEqual(await events(), { state: 'unavailable', items: [] }, 'an oversized current file is unavailable');
 });
 

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
-  "max_files": 463,
-  "max_bytes": 4888836,
-  "rationale": "The launcher data root counts its own executable boot checkpoint as owned and retires it with the generations it describes, so uninstall can remove a Codex runtime on hosts that report a boot id."
+  "max_files": 464,
+  "max_bytes": 4898089,
+  "rationale": "Merge of the #84 boot checkpoint retirement fix (the launcher data root owns and retires its own executable boot checkpoint) into PR #86 on top of the single Core journal reader: 464 files, 4,898,089 bytes."
 }

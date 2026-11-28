@@ -1,15 +1,11 @@
-// Companion events (companion core SDD-007, decision P1): reads the MCP server's journal of final AGDF
-// tool results (`companion-event/1`, written below the plugin data root) and turns the events of the
-// current project root into toasts and pane entries. The journal is a notification channel only: the
-// run view stays the source of every run state, and the companion never invents an event. It imports
-// no Core module; the format is the versioned journal format of SDD-009.
+// Companion events (companion core SDD-007, decision P1): turns the events of the current project
+// root into toasts and pane entries. The events come from the run view, which reads the MCP server's
+// journal through Core's single journal reader (run run-71aa7dbb, SD SDD-004); this module parses no
+// journal line. The journal is a notification channel only: the run view stays the source of every
+// run state, and the companion never invents an event. It imports no Core module.
 
-export const EVENT_SCHEMA = 'companion-event/1';
+// The journal file whose size and modification time tell the companion that new events may exist.
 export const JOURNAL_FILE = 'events.jsonl';
-// The writer's one rotation file; read only when the cursor left the current file (CR finding B6).
-export const JOURNAL_ROTATED_FILE = 'events.1.jsonl';
-// The writer bounds the journal to 256 KiB; a larger file is not read (bounded read).
-export const JOURNAL_READ_LIMIT = 512 * 1024;
 export const EVENT_KINDS = Object.freeze(['approval_requested', 'approval_recorded', 'write_rejected', 'effect_unknown',
   'recovery_required', 'run_completed', 'material_staged', 'document_recorded']);
 // Decision P1: these interrupt as a toast; approval recorded and write rejected stay in the pane.
@@ -40,37 +36,27 @@ export function isStillUncertain(event, runs = []) {
   return !run?.updatedAt || run.updatedAt <= event.at;
 }
 
-// One journal text as its valid events in file order; interleaved, cut or foreign lines are skipped.
-export function parseJournal(text) {
-  const events = [];
-  for (const line of String(text ?? '').split('\n')) {
-    if (!line.trim()) continue;
-    try {
-      const value = JSON.parse(line);
-      if (value?.schema_version === EVENT_SCHEMA && EVENT_KINDS.includes(value.kind) && typeof value.id === 'string' && typeof value.at === 'string') events.push(value);
-    } catch { /* an interleaved or cut line */ }
-  }
-  return events;
-}
-
-// Roots compare after normalizing separators and a trailing separator, and case for a drive path.
-export function normalizeRoot(root) {
-  const text = String(root ?? '').replaceAll('\\', '/').replace(/\/+$/u, '');
-  // Windows roots (drive letter or UNC) compare without case, like Core's sameRoot on win32 (CR finding CIR-04).
-  return /^(?:[a-z]:(?:\/|$)|\/\/)/iu.test(text) ? text.toLowerCase() : text;
-}
-export const sameRoot = (left, right) => Boolean(left) && Boolean(right) && normalizeRoot(left) === normalizeRoot(right);
-
-// The events of `root` after the cursor ({ id, at } of the last event seen in the file). Without a
-// cursor the read is a baseline: nothing is fresh. A cursor that left the file (rotation) falls back
-// to the event time.
-export function unseenEvents(events, { root, cursor }) {
+// The run view's events of this root after the cursor ({ id, at } of the last event seen), in journal
+// order. Without a cursor the read is a baseline: nothing is fresh. A cursor that left the history
+// (rotation, history limit) falls back to the event time. A view read before the cursor's event (an
+// overlapping read applied later) never moves the cursor back, so no event is announced twice.
+export function unseenEvents(events, { cursor }) {
   const last = events.at(-1);
-  const next = last ? { id: last.id, at: last.at } : cursor;
-  if (!cursor) return { fresh: [], cursor: next };
+  if (!cursor) return { fresh: [], cursor: last ? { id: last.id, at: last.at } : cursor };
   const at = events.findIndex(event => event.id === cursor.id);
-  const after = at >= 0 ? events.slice(at + 1) : events.filter(event => event.at > cursor.at);
-  return { fresh: after.filter(event => sameRoot(event.root, root)), cursor: next };
+  const after = at >= 0 ? events.slice(at + 1) : events.filter(event => typeof event.at === 'string' && event.at > cursor.at);
+  const older = at < 0 && !after.length && typeof cursor.at === 'string' && !(typeof last?.at === 'string' && last.at > cursor.at);
+  return { fresh: after, cursor: last && !older ? { id: last.id, at: last.at } : cursor };
+}
+
+// The lines a history view of one run lists (Codex companion card, SD SDD-006): durable facts only
+// once `runs` confirm them, every still-uncertain outcome up to `limit`, then the newest others.
+// `events` are newest first; the result keeps that order.
+export function historyEvents(events, runs = [], { limit = PANE_EVENTS } = {}) {
+  const confirmed = events.filter(event => isConfirmed(event, runs));
+  const pinned = confirmed.filter(event => isStillUncertain(event, runs)).slice(0, limit);
+  const others = confirmed.filter(event => !pinned.includes(event)).slice(0, Math.max(0, limit - pinned.length));
+  return confirmed.filter(event => pinned.includes(event) || others.includes(event));
 }
 
 // A run id as people read it: a generated `run-<uuid>` id keeps its first block, a chosen id stays whole.

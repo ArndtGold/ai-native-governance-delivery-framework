@@ -22,6 +22,7 @@ import { boundedCode } from '../control-inspect/run-classification.js';
 import { localizeBlockingCondition, localizeOperationalValue } from '../interaction-presentation.js';
 import { interactionLocales, resolveArtifactPresentationLanguages } from '../resources/context.js';
 import { deriveFigureState } from './figure-state.js';
+import { readCompanionEvents } from './read-companion-events.js';
 
 export const RUN_VIEW_SCHEMA = 'run-view/1';
 export const DIAGNOSIS_REASONS = Object.freeze(['run_version_unsupported', 'run_state_invalid', 'too_large', 'missing']);
@@ -152,7 +153,9 @@ const withFigure = entry => ({ ...entry, figure: deriveFigureState(entry) });
 
 // Pure assembly of the versioned view from already evaluated parts. `canonical_root` is the realpath
 // MCP resolves for the same root, so a host can recognize its own dispatch results for this root.
-export function projectRunView({ root, canonicalRoot = null, language, store, entries, planned = [] }) {
+// `events` is the root's companion event history, present only when the caller named the companion
+// data root (run run-71aa7dbb, SD SDD-003); the schema stays run-view/1.
+export function projectRunView({ root, canonicalRoot = null, language, store, entries, planned = [], events }) {
   return {
     schema_version: RUN_VIEW_SCHEMA,
     root,
@@ -163,6 +166,7 @@ export function projectRunView({ root, canonicalRoot = null, language, store, en
     runs: entries,
     // Planned URs that are no run yet; empty when the planning store cannot be read.
     planned,
+    ...(events ? { events } : {}),
     authorizes: false,
   };
 }
@@ -216,8 +220,13 @@ export function captured(readRoot, project, capture = captureControlScope) {
 // limit) marks only that run and the readable runs stay listed (SDD-003, RV-2). The root is resolved
 // first, as MCP canonicalizes its target, so a junction or symlinked project root reads like its
 // target; the view keeps the caller's spelling (RV-3). A missing root has no control folder (RV-5).
-export function readRunView(root, { language = 'en', runIds = [] } = {}) {
-  const empty = store => projectRunView({ root, language, store, entries: [] });
+//
+// With `companionDataRoot` the root's event history is read first, before any run: every event the
+// view returns then refers to a write the run read below already sees, so a host can confirm a
+// durable event against the runs of the same view (SD SDD-003).
+export function readRunView(root, { language = 'en', runIds = [], companionDataRoot = null } = {}) {
+  const events = companionDataRoot ? readCompanionEvents(companionDataRoot, root, { review: true }) : undefined;
+  const empty = store => projectRunView({ root, language, store, entries: [], events });
   if (!existsSync(root)) return empty({ status: 'no_control', reason: null });
   let readRoot;
   try { readRoot = realpathSync(root); } catch (error) { return empty({ status: 'unavailable', reason: boundedCode(error) }); }
@@ -259,5 +268,5 @@ export function readRunView(root, { language = 'en', runIds = [] } = {}) {
   if (store.status === 'ok') {
     try { planned = captured(readRoot, base => readPlannedView(base, language)); } catch { /* shown without planned URs */ }
   }
-  return projectRunView({ root, canonicalRoot: readRoot, language, store, entries, planned });
+  return projectRunView({ root, canonicalRoot: readRoot, language, store, entries, planned, events });
 }

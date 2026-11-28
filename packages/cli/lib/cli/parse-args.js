@@ -69,6 +69,7 @@ export function parseArgs(argv, dependencies = {}) {
   let generationCostUnits = 5;
   let runId;
   const runIds = [];
+  let companionDataRoot;
   let gate;
   let revisionId;
   let response;
@@ -159,6 +160,12 @@ export function parseArgs(argv, dependencies = {}) {
       controlDir = next; i += 1; continue;
     }
 
+
+    // run-view: the companion data root whose event journal the view reads (SD SDD-003).
+    if (arg === '--companion-data') {
+      companionDataRoot = requiredValue(args, i, arg); i += 1;
+      continue;
+    }
 
     if (arg === "--run") {
       runId = requiredValue(args, i, arg);
@@ -366,10 +373,13 @@ export function parseArgs(argv, dependencies = {}) {
   }
   if (documentServer !== undefined && target !== 'render-document') throw new CliUsageError('--server requires render-document');
   if (['project-state', 'operation-status', 'run-view'].includes(target)) {
-    const allowed = new Set(['--dir', '--json', '--language', '--lang', ...(target === 'operation-status' ? ['--module'] : []), ...(target === 'run-view' ? ['--run'] : [])]);
+    const allowed = new Set(['--dir', '--json', '--language', '--lang', ...(target === 'operation-status' ? ['--module'] : []), ...(target === 'run-view' ? ['--run', '--companion-data'] : [])]);
     if ([...flagCounts].some(([flag, count]) => (count !== 1 && flag !== '--run') || !allowed.has(flag)))
-      throw new CliUsageError('Project reads accept only unique --dir, --json, --language, operation-status --module and repeatable run-view --run selectors.');
+      throw new CliUsageError('Project reads accept only unique --dir, --json, --language, operation-status --module, run-view --companion-data and repeatable run-view --run selectors.');
+    if (companionDataRoot !== undefined && !isAbsolute(companionDataRoot))
+      throw new CliUsageError('run-view --companion-data requires an absolute plugin data root.');
   }
+  if (companionDataRoot !== undefined && target !== 'run-view') throw new CliUsageError('--companion-data requires run-view');
   if (documentRequest && target !== 'render-document') throw new CliUsageError('--request requires render-document');
   if (target === 'render-document') {
     const allowed = new Set(['--dir', '--run', '--revision', '--gate', '--presentation', '--server', '--request']);
@@ -464,7 +474,7 @@ export function parseArgs(argv, dependencies = {}) {
       model,
       generateCandidates,
       runId,
-      ...(target === 'run-view' ? { runIds } : {}),
+      ...(target === 'run-view' ? { runIds, ...(companionDataRoot !== undefined ? { companionDataRoot } : {}) } : {}),
       gate,
       revisionId,
       response,

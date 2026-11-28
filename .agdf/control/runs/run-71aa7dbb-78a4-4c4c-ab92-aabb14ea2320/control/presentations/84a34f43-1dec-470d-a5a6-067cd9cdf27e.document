@@ -1,0 +1,29 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: Single Core reader for the companion event journal
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Das Companion-Ereignisjournal wird nur noch vom Core-Leser gelesen; der Claude-Begleiter bekommt die Ereignisse seines Projekt-Roots über `run-view`, und beide Begleiter zeigen für dasselbe Journal dieselben Ereignisse.
+- Umfang: Core-Leser für einen Projekt-Root (optional einen Run) mit den bisherigen Leseregeln und Alias-/Laufwerksbuchstaben-Erkennung; `run-view` liefert mit der Companion-Datenwurzel die Ereignishistorie des Roots, ohne sie unverändert; der Claude-Begleiter behält Änderungserkennung, Cursor, Toasts, Bestätigung und haftende Ereignisse, parst das Journal aber nicht mehr selbst; die Codex-Karte zeigt erfasste Freigaben und Abschlüsse nur bestätigt und hält unsichere Ergebnisse sichtbar; die Claude-Pane datiert Ereignisse früherer Tage; ein Contract-Test prüft Leser und beide Verbraucher auf gemeinsamen Fixtures.
+- AC-001: Nur Core parst das Journalformat; die Claude-Templates enthalten keinen eigenen Parser, keine Root-Normalisierung und keine eigene Lesegrenze.
+- AC-002: Der Core-Leser liefert die gültigen Ereignisse eines Roots (optional eines Runs) einmalig in Journalreihenfolge, überspringt kaputte, fremde und fremd-rootige Zeilen, erkennt Alias-Schreibweisen und Laufwerksbuchstaben-Groß-/Kleinschreibung, meldet eine zu große aktuelle Datei als nicht verfügbar und überspringt eine zu große oder unlesbare Rotationsdatei.
+- AC-003: `run-view` mit Companion-Datenwurzel liefert die begrenzte Ereignishistorie des Roots als verfügbar oder nicht verfügbar; ohne Datenwurzel bleibt die Ausgabe wie bisher.
+- AC-004: Bei einer Journaländerung liefert genau ein `run-view`-Lesevorgang Run-Zustand und Ereignisse; Toasts und Pane-Zeilen bleiben wie bisher (Baseline ohne Toast, Rotation, Bestätigung dauerhafter Fakten); ohne Journaländerung startet kein `run-view` für Ereignisse.
+- AC-005: Die Claude-Pane zeigt bei Ereignissen früherer Tage Datum und Uhrzeit (Deutsch „26.11. 14:05“, mit Jahr bei früherem Jahr; Englisch „2026-11-26 14:05“), bei heutigen nur die Uhrzeit.
+- AC-006: Die Codex-Karte zeigt „Freigabe erfasst“ nur bei erfülltem Gate im Gate-Pfad und „Run abgeschlossen“ nur bei abgeschlossenem Lebenszyklus.
+- AC-007: Die Codex-Karte hält „Wirkung unbekannt“ und „Wiederherstellung nötig“ über die fünf neuesten Ereignisse hinaus sichtbar, bis der Run eine spätere Operation erfasst hat.
+- AC-008: Für dieselben Fixtures erhalten Claude-Begleiter (über `run-view`) und Codex-Cockpit dieselben Ereignisse, abgesehen von Umfang (alle Runs vs. ausgewählter Run) und Anzahl.
+- AC-009: `cockpit-session-test.js`, `claude-companion-test.js` samt Adapter-Suiten, control-ui-vitest und `npm run compatibility:check` laufen durch; die Änderungskette für `plugins/agdf` ist abgeschlossen.
+- Entscheidungen: Route über `run-view` (Owner-Entscheid 2026-11-27); unsichere Ergebnisse bleiben in der Codex-Karte sichtbar, bis der Run eine spätere Operation erfasst, danach normale Historie; Datumsformat Deutsch wie Codex-Karte, Englisch ISO; Eingabeform der Datenwurzel, Grenzen, Schema-Version und das Zeitfeld der letzten Operation in der Codex-Run-Ansicht entscheidet das SD.
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-71aa7dbb-78a4-4c4c-ab92-aabb14ea2320` · Produktanforderungen · Revision: `1c9ed27e-73e5-4ba4-892c-a76b118f97b8`
+
+SHA-256: `sha256:38bcd377de8c3b429d8f2394f2cb3b711cfa648489364b9b506316b6097c5da2`

@@ -1,16 +1,16 @@
 // AGDF Companion host adapter (SDD-07 to SDD-10; follow-up SDD-05 to SDD-12; companion core SDD-007, SDD-010):
 // the `/agdf-companion` command, the persisted choices, main-loop turn observation, the scoped observation stream,
 // the own pane, the status line and toasts. Run state comes only from the plugin runtime's read-only
-// `run-view` command through `$.process`, called on a Core wake-up, a new journal event
-// of this root or a changed binding; the companion imports no Core module. Observation only: no
+// `run-view` command through `$.process`, called on a Core wake-up, a changed journal (whose events
+// of this root the same read carries) or a changed binding; the companion imports no Core module. Observation only: no
 // gating hook, every hook passes its event on through a catch path, and nothing is written under
 // .agdf/control. Session state lives in this module and is
 // redrawn through `$.ui.invalidate`. Elements come from the surface table and are built with the
 // host's global `h`.
 
 import { assignRun, namedRun, openRuns, stepSelection } from './assignment.mjs';
-import { JOURNAL_FILE, JOURNAL_READ_LIMIT, JOURNAL_ROTATED_FILE, PANE_EVENTS, STICKY_KINDS, TOAST_KINDS, eventText,
-  isConfirmed, isStillUncertain, journalDirectory, namedEventText, parseJournal, unseenEvents } from './events.mjs';
+import { JOURNAL_FILE, PANE_EVENTS, STICKY_KINDS, TOAST_KINDS, eventText,
+  isConfirmed, isStillUncertain, journalDirectory, namedEventText, unseenEvents } from './events.mjs';
 import { figureSvg, observeFigure } from './figure.mjs';
 import { chatLocale, companionLabels, gateTitle, label } from './localization.mjs';
 import { CHIME, chimeClip, noticeText, observeNotice, observedRun, statusText } from './notice.mjs';
@@ -138,11 +138,14 @@ function silence($) {
 // Reads the run view of the current project root, which `/cd` or a worktree move can change; a
 // remembered selection is requested by id, so a selected completed run is shown in full.
 // Only the newest of overlapping reads is applied. A snapshot without any runs, as during a branch
-// switch, never drops the remembered selection.
-async function refresh($, { quiet } = {}) {
+// switch, never drops the remembered selection. With the plugin data directory the same read carries
+// this root's journal events (run run-71aa7dbb, SD SDD-004): they become toasts and pane entries here,
+// confirmed against the runs of the same read.
+async function refresh($) {
   const root = session.root, read = ++session.reads;
   const stillCurrent = async () => session.choices.enabled && read >= session.appliedRead
     && root === session.root && root === await $.session.root();
+  let next, fresh = [];
   try {
     const remembered = session.choices.selections[root];
     // Keep evaluating the run already followed in this project when it leaves the active list;
@@ -150,8 +153,11 @@ async function refresh($, { quiet } = {}) {
     const observed = root === session.root ? observedRun({ snapshot: session.snapshot, sessionStartedAt: session.startedAt,
       selection: remembered, mention: session.chatMention }).runId : null;
     const runIds = [...new Set([remembered, observed].filter(Boolean))];
-    const next = await readSnapshot(processes($), { pluginRoot: $.plugin.root, root, language: session.locale,
-      runIds, now: await $.clock.now(), clock: () => $.clock.now() });
+    // The journal stamp before the read: the run view reads at least these events, so the journal
+    // signal of a change this read already covers finds the stamp unchanged.
+    const stamp = session.dataDir ? await journalStamp($) : null;
+    next = await readSnapshot(processes($), { pluginRoot: $.plugin.root, root, language: session.locale,
+      runIds, dataDir: session.dataDir, now: await $.clock.now(), clock: () => $.clock.now() });
     if (!(await stillCurrent())) return;
     session.appliedRead = read;
     session.snapshot = settleSnapshot(session.snapshot, next);
@@ -163,6 +169,8 @@ async function refresh($, { quiet } = {}) {
       const { dropSelection } = assignRun({ runs: next.runs, sessionStartedAt: session.startedAt, selection: chosen });
       if (dropSelection && !next.unreadable.some(item => item.id === chosen)) await persist($, choices => { delete choices.selections[root]; });
     }
+    // Taken last: a failure above leaves the cursor where it was, so the next read offers these events again.
+    fresh = receiveEvents($, next, stamp);
   } catch {
     if (!(await stillCurrent().catch(() => false))) return;
     session.appliedRead = read;
@@ -170,8 +178,52 @@ async function refresh($, { quiet } = {}) {
     return;
   }
   if (root !== session.root || !session.choices.enabled) return;
-  announce($, { quiet });
+  // A run whose own event raises a toast in this read gets no second state toast (decision P1).
+  announce($, { quiet: new Set(fresh.filter(event => TOAST_KINDS.includes(event.kind)).map(event => event.run_id)) });
+  showEvents($, fresh, next);
   redraw($);
+}
+
+// The run view's events of one read (SD SDD-004): the stamp the read covers, the availability and the
+// cursor. Returns the events after the cursor. A view without events (no data directory, failed read)
+// changes nothing, so its events are read again with the next view.
+function receiveEvents($, next, stamp) {
+  if (!next.events) return [];
+  session.journalStamp = stamp;
+  eventsAvailable($, next.events.state === 'available');
+  if (next.events.state !== 'available') return [];
+  const unseen = unseenEvents(next.events.items, { cursor: session.journalCursor });
+  session.journalCursor = unseen.cursor;
+  return unseen.fresh;
+}
+
+// A durable fact is shown, in the pane and as a toast, only once the run view confirms it (SD 2, CR
+// finding B4); events and runs come from the same read, which read the events first. A view whose
+// runs are not usable (failed or unreadable store) still shows the other events and keeps the durable
+// facts waiting for one that is (CR delta review RV-1); a readable view that does not confirm them
+// drops them.
+function showEvents($, fresh, next) {
+  if (!next || (!fresh.length && !session.unconfirmed.length)) return;
+  const current = next.status === 'ok';
+  const runs = current ? next.runs : [];
+  const candidates = session.unconfirmed.concat(fresh);
+  const shown = candidates.filter(event => isConfirmed(event, runs));
+  session.unconfirmed = current ? [] : candidates.filter(event => !shown.includes(event)).slice(-PANE_EVENTS);
+  if (!shown.length) return;
+  session.events = [...shown].reverse().concat(session.events).slice(0, PANE_EVENTS);
+  const gate = value => gateTitle(session.registry, session.locale, value);
+  const naming = eventNaming();
+  for (const event of shown.filter(item => TOAST_KINDS.includes(item.kind))) toast($, eventText(event, t, { gateTitle: gate, ...naming }));
+}
+
+const eventsAvailable = ($, value) => { if (session.eventsAvailable !== value) { session.eventsAvailable = value; redraw($); } };
+
+// The journal file's `size:mtimeMs` from the directory listing; `absent` without the file or folder.
+async function journalStamp($) {
+  try {
+    const entry = (await $.fs.list(journalDirectory(session.dataDir))).find(item => item.name === JOURNAL_FILE && item.kind === 'file');
+    return entry ? `${entry.size}:${entry.mtimeMs}` : 'absent';
+  } catch { return 'absent'; }
 }
 
 async function check($) {
@@ -188,61 +240,21 @@ async function check($) {
   return true;
 }
 
-// Reads the journal (SDD-007): a bounded read of its own file in the plugin data directory, only when
-// its size or time changed. New events of this root are kept for the pane, read the run view once and
-// raise the toasts of decision P1. A missing or unreadable journal shows "events unavailable".
+// Watches the journal (SDD-007; run run-71aa7dbb, SD SDD-004): only its size and modification time
+// from the plugin data directory's listing, never its content. A changed stamp reads the run view
+// again, whose events of this root become toasts and pane entries in `refresh`. Without a data
+// directory the pane shows "events unavailable".
 async function pollEvents($) {
-  const available = value => { if (session.eventsAvailable !== value) { session.eventsAvailable = value; redraw($); } };
   try {
-    if (!session.dataDir) { available(false); return; }
+    if (!session.dataDir) { eventsAvailable($, false); return; }
     // The current root, which `/cd` or a worktree move can change since the last read (CR finding B3).
     const root = session.root, observer = session.liveStream;
     const currentScope = () => session.choices.enabled && root === session.root && observer === session.liveStream;
     if (root !== await $.session.root() || !currentScope()) return;
-    const directory = journalDirectory(session.dataDir);
-    const listing = await $.fs.list(directory);
-    const entry = listing.find(item => item.name === JOURNAL_FILE && item.kind === 'file');
-    if (!entry || entry.size > JOURNAL_READ_LIMIT) { available(false); return; }
-    const stamp = `${entry.size}:${entry.mtimeMs}`;
-    let fresh = [];
-    if (stamp !== session.journalStamp) {
-      let events = parseJournal(await $.fs.read(`${directory}/${JOURNAL_FILE}`));
-      // Lines written after the last read but before a rotation sit in the rotation file (CR finding B6).
-      const cursorId = session.journalCursor?.id;
-      const rotated = listing.find(item => item.name === JOURNAL_ROTATED_FILE && item.kind === 'file');
-      if (cursorId && !events.some(event => event.id === cursorId) && rotated && rotated.size <= JOURNAL_READ_LIMIT) {
-        events = parseJournal(await $.fs.read(`${directory}/${JOURNAL_ROTATED_FILE}`)).concat(events);
-      }
-      if (!currentScope() || root !== await $.session.root()) return;
-      session.journalStamp = stamp;
-      const unseen = unseenEvents(events, { root, cursor: session.journalCursor });
-      fresh = unseen.fresh;
-      session.journalCursor = unseen.cursor;
-    }
-    available(true);
-    if (!fresh.length && !session.unconfirmed.length) return;
-    if (fresh.length) {
-      const toasts = fresh.filter(event => TOAST_KINDS.includes(event.kind));
-      await refresh($, { quiet: new Set(toasts.map(event => event.run_id)) });
-    }
-    // A durable fact is shown, in the pane and as a toast, only once the run view confirms it (SD 2,
-    // CR finding B4). Without a fresh view it waits for one instead of being dropped (CR delta review
-    // RV-1); a fresh view that does not confirm it drops it.
-    if (!currentScope() || root !== await $.session.root()) return;
-    const current = session.snapshot?.status === 'ok' && !session.snapshot.stale;
-    const runs = current ? session.snapshot.runs : [];
-    const candidates = session.unconfirmed.concat(fresh);
-    const shown = candidates.filter(event => isConfirmed(event, runs));
-    session.unconfirmed = current ? [] : candidates.filter(event => !shown.includes(event)).slice(-PANE_EVENTS);
-    if (!shown.length) return;
-    session.events = [...shown].reverse().concat(session.events).slice(0, PANE_EVENTS);
-    if (!session.choices.enabled) { redraw($); return; }
-    const gate = value => gateTitle(session.registry, session.locale, value);
-    const naming = eventNaming();
-    for (const event of shown.filter(item => TOAST_KINDS.includes(item.kind))) toast($, eventText(event, t, { gateTitle: gate, ...naming }));
-    redraw($);
+    if ((await journalStamp($)) === session.journalStamp || !currentScope()) return;
+    await refresh($);
   } catch {
-    available(false);
+    eventsAvailable($, false);
   }
 }
 

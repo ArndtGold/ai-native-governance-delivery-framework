@@ -2,7 +2,7 @@ export type Availability = 'available' | 'empty' | 'partial' | 'invalid' | 'miss
 export interface Target { target_id: string; display_path: string }
 export interface ActivityScope { target_id: string; run_id: string; revision_id: string; gate: string }
 export interface CompanionActivity extends ActivityScope { expires_at: number }
-export interface CompanionEvent { id: string; at: string | null; kind: string; gate: string | null; reason: string | null }
+export interface CompanionEvent { id: string; at: string | null; run_id?: string | null; kind: string; gate: string | null; reason: string | null }
 export interface CompanionObservation {
   run_id?: string; revision_id?: string; activity?: CompanionActivity; liveness?: 'unknown';
   events?: { state: 'available' | 'unavailable'; items: CompanionEvent[] };
@@ -45,6 +45,8 @@ export interface CompanionStatus { route: string; path: { gate: string; status: 
   uat_presentation?: { resource_id: string; content_digest: string }; closeout_report?: { resource_id: string; content_digest: string };
   finding?: { resource_id: string; content_digest: string } }
 export interface Detail { run_id: string; title?: string; title_source?: 'ur' | 'objective' | 'run_id'; revision_id: string | null; lifecycle: string | null; objective?: string | null; resources: Resource[]; diagnostics?: Diagnostic[];
+  // The newest receipt time of the run, for the companion card's rule on uncertain outcomes.
+  last_activity?: string | null;
   active_run_ids?: string[];
   figure?: CompanionFigure;
   companion?: CompanionStatus;

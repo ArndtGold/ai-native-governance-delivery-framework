@@ -606,11 +606,11 @@ it('dates earlier events of the selected Codex Run and hides the history once th
   vi.setSystemTime(new Date(2026, 10, 17, 12, 0));
   width(650);
   const run = runData('run-a');
-  const event = (id: string, at: Date, kind: string, gate: string | null) => ({ id, at: at.toISOString(), kind, gate, reason: null });
+  const event = (id: string, at: Date, kind: string, gate: string | null) => ({ id, at: at.toISOString(), run_id: run.run_id, kind, gate, reason: null });
   let observation: Record<string, unknown> = { run_id: run.run_id, revision_id: run.revision_id, events: { state: 'available', items: [
-    event('e-3', new Date(2026, 10, 17, 9, 5), 'approval_recorded', 'PRD'),
+    event('e-3', new Date(2026, 10, 17, 9, 5), 'approval_requested', 'PRD'),
     event('e-2', new Date(2026, 10, 14, 16, 30), 'document_recorded', 'UR'),
-    event('e-1', new Date(2025, 11, 31, 23, 59), 'run_completed', null),
+    event('e-1', new Date(2025, 11, 31, 23, 59), 'material_staged', null),
   ] } };
   let expired = false;
   const read: ReadTransport = async path => {
@@ -622,7 +622,9 @@ it('dates earlier events of the selected Codex Run and hides the history once th
   await screen.findByRole('heading', { name: run.run_id });
   const history = screen.getByRole('region', { name: 'Ereignisse' });
   expect([...history.querySelectorAll('time')].map(time => time.textContent)).toEqual(['09:05', '14.11. 16:30', '31.12.2025 23:59']);
-  expect(history.textContent).toContain('Freigabe erfasst für Produktanforderungen');
+  expect(history.textContent).toContain('Freigabe angefragt für Produktanforderungen');
+  // The selected run's own events name no run.
+  expect(history.textContent).not.toContain('run-a');
   observation = { ...observation, events: { state: 'unavailable', items: [] } };
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
   expect(screen.getByRole('region', { name: 'Ereignisse' }).textContent).toContain('Ereignisse nicht verfügbar');
@@ -631,6 +633,45 @@ it('dates earlier events of the selected Codex Run and hides the history once th
   expect(screen.getByRole('article', { name: 'Companion-Statuskarte' })).toBeTruthy();
   expect(screen.queryByRole('region', { name: 'Ereignisse' })).toBeNull();
   expect(screen.queryByText(/Ereignisse nicht verfügbar/)).toBeNull();
+});
+
+// Run run-71aa7dbb (SCN-010, SCN-011; SD SDD-006): the card lists a recorded approval or completion
+// only once the run detail confirms it, and keeps a still-uncertain outcome beyond the five newest
+// lines until the run recorded a later operation.
+it('lists confirmed durable events and keeps uncertain outcomes of the selected Codex Run', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(2026, 10, 17, 12, 0));
+  width(650);
+  const lines = async (lastActivity: Date, lifecycle = 'active') => {
+    const run = runData('run-a');
+    run.lifecycle = lifecycle;
+    run.last_activity = lastActivity.toISOString();
+    run.companion = { route: 'structured_slice', path: [{ gate: 'UR', status: 'fulfilled' }, { gate: 'PRD', status: 'current' }], next_text: '', blocking_text: '' };
+    const event = (id: string, minute: number, kind: string, gate: string | null) =>
+      ({ id, at: new Date(2026, 10, 17, 9, minute).toISOString(), run_id: run.run_id, kind, gate, reason: null });
+    const observation = { run_id: run.run_id, revision_id: run.revision_id, events: { state: 'available', items: [
+      event('p', 59, 'approval_recorded', 'PRD'), event('u', 58, 'approval_recorded', 'UR'), event('c', 57, 'run_completed', 'OR'),
+      ...[56, 55, 54, 53, 52].map(minute => event(`d${minute}`, minute, 'document_recorded', 'SD')),
+      event('x', 1, 'effect_unknown', 'EVIDENCE'),
+    ] } };
+    const read: ReadTransport = async path => (path.startsWith('/api/freshness')
+      ? { ...fixtureMeta, data: { unchanged: true }, companion_observation: observation }
+      : { ...runScope(run), companion_observation: observation }) as never;
+    render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+    await screen.findByRole('heading', { name: run.run_id });
+    const found = [...screen.getByRole('region', { name: 'Ereignisse' }).querySelectorAll('li')].map(item => item.textContent ?? '');
+    cleanup();
+    return found;
+  };
+  const uncertain = await lines(new Date(2026, 10, 17, 8, 0));
+  expect(uncertain).toHaveLength(5);
+  expect(uncertain.filter(line => line.includes('Freigabe erfasst für'))).toEqual(['09:58 Freigabe erfasst für Nutzeranforderungen']);
+  expect(uncertain.some(line => line.includes('Run abgeschlossen'))).toBe(false);
+  expect(uncertain.at(-1)).toBe('09:01 Wirkung unbekannt – Vorgangsstatus prüfen');
+  const resolved = await lines(new Date(2026, 10, 17, 10, 0), 'completed');
+  expect(resolved).toHaveLength(5);
+  expect(resolved.some(line => line.includes('Wirkung unbekannt'))).toBe(false);
+  expect(resolved.slice(0, 2)).toEqual(['09:58 Freigabe erfasst für Nutzeranforderungen', '09:57 Run abgeschlossen']);
 });
 
 it('polls the Codex card quickly only while the shown step waits for the agent', async () => {

@@ -71,6 +71,10 @@ function lastActivity(decoded) {
   return { at: null, source: "none", precision: null };
 }
 
+// The time of a Run document's newest receipt (ISO) or null: the run view's last_activity, shared
+// with the Codex companion card's rule for uncertain outcomes (run run-71aa7dbb, SD SDD-006).
+export const runLastActivity = text => (typeof text === "string" && text ? lastActivity(receipts(text)).at : null);
+
 function closureFacts(lifecycle, decoded) {
   if (!["superseded", "abandoned"].includes(lifecycle)) return null;
   const receipt = decoded.filter(row => row.kind === "lifecycle_close.record")

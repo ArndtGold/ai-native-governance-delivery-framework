@@ -3,7 +3,7 @@
 Generated dated evidence snapshot. Inspect existing AGDF local status for your own installation.
 
 AGDF canonical version: **0.32.0**.
-Observation dates: 2026-10-24T07:50:45.438Z to 2026-11-28T12:39:48.593Z.
+Observation dates: 2026-10-24T07:50:45.438Z to 2026-11-28T13:18:09.674Z.
 Source fingerprint: `ba13179714c34a22efdc6f101cb3e9f5ee4d4c8cc88155e7d495d55052526bab`.
 Report consistency: **valid**. Deterministic scenarios: **56 evaluated, 0 unexpected failures**.
 

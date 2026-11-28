@@ -941,8 +941,12 @@ it('shows a single recovery notice at the open draft and logs the operation and 
   const body = await screen.findByRole('article', { name: 'Originaldokument' });
   failing = true;
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
-  const notices = screen.getByRole('region', { name: 'Entwurf lesen' }).querySelectorAll('.companion-reader-notice');
-  expect(notices).toHaveLength(1);
+  // The failed capture settles after the freshness check; a loaded runner may need a further render.
+  const notices = await waitFor(() => {
+    const found = screen.getByRole('region', { name: 'Entwurf lesen' }).querySelectorAll('.companion-reader-notice');
+    expect(found).toHaveLength(1);
+    return found;
+  });
   expect(notices[0].textContent).toContain('Aktueller Stand nicht bestätigt.');
   expect(screen.queryByText('Aktualisierung fehlgeschlagen')).toBeNull();
   expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);

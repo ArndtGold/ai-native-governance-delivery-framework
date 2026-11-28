@@ -118,8 +118,9 @@ const continuationWriteOwners = new Map([
   // rotates its own file once. It never writes inside a project root or the control store.
   // appendFileSync is scanned too, so no other reachable module gains an append (CR finding C5).
   ["runtime/core/lib/companion/journal.js", ["renameSync", "mkdirSync", "appendFileSync"]],
-  // Continuation owns a private directory below the launcher-supplied Codex data root.
-  ["runtime/core/lib/companion/codex-continuation.js", ["mkdirSync", "openSync"]],
+  // Continuation owns a private directory below the launcher-supplied Codex data root and removes
+  // its own ended handoff records there.
+  ["runtime/core/lib/companion/codex-continuation.js", ["unlinkSync", "mkdirSync", "openSync"]],
 ]);
 function assertWriteBoundary(packagePath, content, owners = continuationWriteOwners) {
   assert.deepEqual(writeSymbols.filter(symbol => new RegExp(`\\b${symbol === 'renameSync' ? 'renameSync(?:WithRetry)?' : symbol}\\b`, 'u').test(content)), owners.get(packagePath) ?? [],
@@ -138,6 +139,9 @@ function assertWriteBoundary(packagePath, content, owners = continuationWriteOwn
     assert.match(content, /const directory = 'codex-continuation';/u);
     assert.match(content, /if \(create\) mkdirSync\(join\(dataRoot, directory\), \{ recursive: true, mode: 0o700 \}\)/u,
       'continuation can create only its private directory');
+    assert.equal((content.match(/\bunlinkSync\s*\(/gu) ?? []).length, 1);
+    assert.match(content, /function removeFile\(path\) \{\n  try \{ unlinkSync\(path\); \}/u,
+      'continuation removes only record paths through its single helper');
   }
 }
 for (const [path, content] of visited) {

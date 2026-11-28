@@ -65,7 +65,7 @@ assert.equal(Object.isFrozen(schema), true);
 assert.deepEqual(schema.required, ["skill_id"]);
 assert.deepEqual(Object.keys(schema.properties), [
   "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "planning", "expected_revision_id", "intake", "intake_mode", "ur_action", "prd_action", "sd_action", "tp_action", "continue_delivery",
-  "continuation_attempt_id", "continuation_owner",
+  "continuation_attempt_id",
 ]);
 assert.equal(schema.properties.intake.type, "boolean");
 assert.equal(schema.properties.intake.description, SKILL_DISPATCH_INTAKE_DESCRIPTION);
@@ -162,13 +162,14 @@ const deliveryInput = { skill_id: "gate-check", presentation_language: "de", wor
 const registry = buildSkillDispatchRegistry(pluginDefinition.skillSet);
 const expectedRevision = "12345678-1234-4123-8123-123456789abc";
 const validateDispatch = new Ajv2020({ strict: false }).compile(schema);
-for (const field of ["continuation_attempt_id", "continuation_owner"]) {
-  const value = { [field]: expectedRevision };
-  assert.equal(validateDispatch({ ...deliveryInput, ...value }), false);
-  assert.equal(validateDispatch({ ...deliveryInput, continue_delivery: true, ...value }), true);
-}
-assert.equal(validateDispatch({ ...deliveryInput, continue_delivery: true,
-  continuation_attempt_id: expectedRevision, continuation_owner: expectedRevision }), false);
+assert.equal(validateDispatch({ ...deliveryInput, continuation_attempt_id: expectedRevision }), false);
+assert.equal(validateDispatch({ ...deliveryInput, continue_delivery: true, continuation_attempt_id: expectedRevision }), true);
+// The owner chain of PR #84 is gone: the field is unknown to the schema and to the parser.
+assert.equal(validateDispatch({ ...deliveryInput, continue_delivery: true, continuation_owner: expectedRevision }), false);
+assert.throws(() => parseSkillDispatchFunctionArguments({ ...deliveryInput, continue_delivery: true, continuation_owner: expectedRevision },
+  transportContext), error => error.field === "continuation_owner");
+assert.throws(() => normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments({ ...deliveryInput, continue_delivery: true,
+  continuation_attempt_id: "not-a-uuid" }, transportContext), registry), /exact attempt/u);
 const initialIntake = { skill_id: 'gate-check', presentation_language: 'de', working_directory: '/tmp/agdf',
   primary_target: '/tmp/agdf', target_source: 'explicit_target', intake: true };
 assert.equal(validateDispatch(initialIntake), true);

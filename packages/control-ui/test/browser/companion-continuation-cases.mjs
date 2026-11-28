@@ -86,20 +86,25 @@ test('SCN-005 two ready cards share one handoff', async ({ context, page, lab })
   expect(new Set(lab.events.filter(e => e.kind === 'gesture').map(e => e.view)).size).toBe(2);
 });
 
-for (const first of ['companion', 'ordinary']) test('SCN-006 mixed continuation race, first ' + first, async ({ page, lab }) => {
+for (const first of ['companion', 'ordinary']) test('SCN-006 an ordinary continuation is never refused, first ' + first, async ({ page, lab }) => {
   const frame = await lab.open(page);
   await expect(start(frame)).toBeVisible();
   if (first === 'ordinary') {
-    lab.receive('ordinary');
-    await start(frame).click();
+    // Chat work shows through the activity lease; the card then offers no start.
+    const ordinary = lab.receive('ordinary');
+    expect(ordinary.terminal).toBe(false);
+    attachTurn(lab, ordinary);
+    await expect(running(frame)).toBeVisible({ timeout: 10000 });
+    await expect(start(frame)).toHaveCount(0);
   } else {
     await publish(lab, frame);
-    lab.receive('ordinary'); lab.receive();
+    expect(lab.receive('ordinary').terminal).toBe(false);
+    lab.receive();
+    await expect(running(frame)).toBeVisible({ timeout: 10000 });
   }
-  await expect(running(frame)).toBeVisible({ timeout: 10000 });
-  expect(lab.tally()).toMatchObject({ gesture: 1, permit: first === 'companion' ? 1 : 0,
-    message: first === 'companion' ? 1 : 0, grant: 1, reply: 1 });
-  expect(lab.events.find(e => e.kind === 'grant').route).toBe(first);
+  const companion = first === 'companion' ? 1 : 0;
+  expect(lab.tally()).toMatchObject({ gesture: companion, permit: companion, message: companion, grant: companion, reply: companion });
+  expect(lab.events.filter(e => e.kind === 'dispatch-refused')).toHaveLength(0);
 });
 
 test('SCN-007 reopening and checking pending cannot resend the original request', async ({ page, lab }) => {
@@ -111,7 +116,12 @@ test('SCN-007 reopening and checking pending cannot resend the original request'
   await pending(frame).click();
   await expect(frame.getByText('Der Begleiter hat den Status geprüft.', { exact: false })).toBeVisible();
   expect(lab.tally()).toMatchObject({ permit: 1, message: 1, grant: 0 });
-  expect(lab.receive().continuation.work_admission.attempt_id).toBe(original);
+  // The reopened card's original attempt is the one Codex picks up; the card then shows the work.
+  expect(lab.receive().terminal).toBe(false);
+  await expect(running(frame)).toBeVisible({ timeout: 10000 });
+  expect(lab.tally()).toMatchObject({ permit: 1, message: 1, grant: 1 });
+  expect(lab.messages).toHaveLength(1);
+  expect(lab.messages[0].call.arguments.continuation_attempt_id).toBe(original);
 });
 
 for (const variant of ['cancel', 'lost-publication', 'stale']) test('SCN-008 recovery after ' + variant, async ({ page, lab }) => {
@@ -144,26 +154,18 @@ for (const variant of ['cancel', 'lost-publication', 'stale']) test('SCN-008 rec
   }
 });
 
-for (const event of ['Stop', 'Interrupt']) test('SCN-009 keeps the attempt locked until its end is confirmed, ' + event, async ({ page, lab }) => {
+for (const event of ['Stop', 'Interrupt']) test('SCN-009 running follows Codex activity until its turn ends, ' + event, async ({ page, lab }) => {
   const frame = await lab.open(page);
   await publish(lab, frame);
   attachTurn(lab, lab.receive());
   await expect(running(frame)).toBeVisible({ timeout: 10000 });
+  // The picked-up handoff has ended; from here only the activity lease holds the start back.
+  lab.advance(61_000);
   lab.hook(event, { session_id: 'unrelated-chat' });
-  await page.reload(); await expect(running(frame)).toBeVisible();
+  await page.reload(); await expect(running(frame)).toBeVisible({ timeout: 10000 });
   await expect(start(frame)).toHaveCount(0);
+  expect(lab.receive('ordinary').terminal).toBe(false);
   lab.hook(event);
-  if (event === 'Interrupt') {
-    const stopping = frame.getByText(/Der Abbruch wurde angefordert/);
-    await expect(stopping).toBeVisible({ timeout: 10000 });
-    await expect(start(frame)).toHaveCount(0);
-    expect(lab.receive('ordinary').continuation).toBeNull();
-    lab.hook('Stop', { turn_id: 'another-turn' });
-    await page.reload();
-    await expect(stopping).toBeVisible();
-    await expect(start(frame)).toHaveCount(0);
-    lab.hook('Stop');
-  }
   await expect(start(frame)).toBeVisible({ timeout: 10000 });
   expect(lab.tally()).toMatchObject({ gesture: 1, permit: 1, message: 1, grant: 1 });
 });
@@ -172,7 +174,7 @@ for (const predecessor of ['pending', 'settled', 'unreadable']) test('SCN-010 si
   const frame = await lab.open(page);
   await publish(lab, frame);
   if (predecessor === 'settled') {
-    attachTurn(lab, lab.receive()); lab.hook('Stop');
+    attachTurn(lab, lab.receive()); lab.hook('Stop'); lab.advance(61_000);
     await expect(start(frame)).toBeVisible({ timeout: 10000 });
   } else if (predecessor === 'unreadable') {
     const directory = join(lab.root, 'codex-continuation');

@@ -17,7 +17,7 @@ export const HOST_RUNTIME_MARKER_DIRECTORIES = Object.freeze([".in_use"]);
 export const DECISION_APP_OBSERVATIONS = Object.freeze(['initialize', 'app_only_visibility', 'model_call_denied',
   'deliberate_approve', 'deliberate_change', 'deliberate_reject', 'permission_denial', 'document_return', 'teardown']);
 export const CODEX_CONTINUATION_OBSERVATIONS = Object.freeze(['matched_dispatch_and_companion', 'app_only_visibility', 'model_call_denied', 'click_to_bound_turn',
-  'competing_companions', 'competing_normal_continuation', 'pending_across_reopen', 'native_terminal', 'predecessor_excluded']);
+  'competing_companions', 'ordinary_continuation_unblocked', 'pending_across_reopen', 'running_from_activity', 'predecessor_excluded']);
 // The boolean and read-only diagnosis deliberately share one validator. Host/candidate
 // values are owner supplied, never caller credentials or qualification writes.
 export function inspectDecisionAppQualification(root, record, expected = {}) {

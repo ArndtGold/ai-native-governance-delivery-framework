@@ -20,7 +20,7 @@ export function createCockpitSessionService(root, {
 } = {}) {
   const target = pluginMode ? null : { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
   const continueRun = pluginMode && integrationSurface === 'codex' && continuationQualified === true && companionDataRoot
-    ? createCodexContinuationAdmission(companionDataRoot) : null;
+    ? createCodexContinuationAdmission(companionDataRoot, { now }) : null;
   const sessions = new Map();
   let closed = false, renderGeneration = 0, publication = null, resourceIdentity = null;
   const failure = (code, viewTarget = target) => ({ schema_version: '2', target: viewTarget, snapshot_id: null, observed_as_of: null,
@@ -83,14 +83,23 @@ export function createCockpitSessionService(root, {
         if (!session.continuation || signal?.aborted || !scope || session.snapshot !== input.snapshot_id
           || scope.run_id !== input.run_id || scope.revision_id !== input.revision_id || !session.displayed)
           return response({ state: 'stale' });
-        if (input.operation === 'status') return response(continueRun.inspect(scope));
+        // Codex work on the shown agent step comes from the activity lease, not from the handoff store.
+        const working = () => Boolean(session.companionBinding
+          && readCodexObservation(companionDataRoot, session.companionBinding, now()).activity);
+        if (input.operation === 'status') {
+          const held = continueRun.inspect(scope);
+          return response(held.state === 'ready' && working() ? { state: 'running' } : held);
+        }
         const eligible = () => !signal?.aborted && isCurrentContinuation(session.root, scope);
         if (input.operation === 'reserve') {
+          if (working()) return response({ state: 'running' });
           if (session.reservation) {
+            // A reservation of this view that the store no longer holds has ended (cancelled or expired).
             const held = continueRun.inspect(scope);
-            return response(held.state === 'ready' ? { state: 'unavailable' } : held);
+            if (held.state !== 'ready') return response(held);
+            session.reservation = null;
           }
-          const result = continueRun.reserve({ ...scope, root: session.root }, session.id, eligible);
+          const result = continueRun.reserve(scope, session.id, eligible);
           if (result.reserved) session.reservation = { scope, attempt: result.attempt_id };
           return response(result.reserved ? { ...result, target: session.target, ...scope } : result);
         }
@@ -100,7 +109,7 @@ export function createCockpitSessionService(root, {
           return response(result);
         }
         const result = continueRun.publish(scope, session.id, input.attempt_id, eligible);
-        if (result.send || result.state === 'stale') session.reservation = null;
+        if (result.send || result.state === 'stale' || result.state === 'ready') session.reservation = null;
         return response(result.send ? { ...result, target: session.target, ...scope } : result);
       } catch { return response({ state: 'unavailable' }); }
     },

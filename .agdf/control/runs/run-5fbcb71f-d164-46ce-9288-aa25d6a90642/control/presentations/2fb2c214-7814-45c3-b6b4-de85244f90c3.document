@@ -1,0 +1,27 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: Recoverable Codex continuation leases
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Die Codex-Fortsetzungssperre verhindert weiter einen doppelten Start desselben Runs, sperrt aber nie dauerhaft und lässt Codex seine eigene gesteuerte Arbeit fortsetzen.
+- Umfang: begrenzte Lebensdauer jeder offenen Sperre; der Folgeaufruf nach einem Schreibvorgang trägt die Owner-Kennung, wenn derselbe MCP-Server sie vergeben hat und die Sperre noch für sie läuft; derselbe Owner wird bei gleicher Revision erneut zugelassen; Turn-Enden werden unabhängig von der Anzahl der Sperrdateien ausgewertet und erledigte Sperren gelöscht; gewöhnliche Fortsetzungen scheitern nur an einer fremden, gültigen Sperre; die Schutzregeln des Begleiters bleiben unverändert.
+- AC-001: Eine Reservierung verfällt nach 2 Minuten, eine nicht angenommene Übergabe nach 10 Minuten und laufende Arbeit 60 Minuten nach der letzten Bestätigung; danach bietet die Karte wieder „Run fortsetzen“ an und Reservierung wie gewöhnliche Fortsetzung gelingen; alte Sperren ohne Zeitangabe altern nach ihrem letzten Schreibzeitpunkt.
+- AC-002: Nach einem zugelassenen Dispatch und einem Schreibvorgang im selben Turn trägt der zurückgegebene Folgeaufruf die Owner-Kennung und wird zugelassen.
+- AC-003: Derselbe Owner wird bei unveränderter Revision erneut zugelassen; ein anderer Owner oder ein Aufruf ohne Owner wird weiter abgewiesen.
+- AC-004: Bei 600 Sperrdateien setzt Stop die passende Sperre zurück; abgebrochene, veraltete, erledigte und abgelaufene Sperren werden gelöscht.
+- AC-005: Eine gewöhnliche Fortsetzung wird nur durch eine fremde, gültige Sperre abgewiesen, nicht mehr durch fehlende Begleiter-Eignung oder eine unlesbare Sperrdatei.
+- AC-006: Ein Sendeschein pro Run, Klick-Start, Eignungsprüfung für Reservierung, Veröffentlichung und Begleiter-Claim sowie „keine Freigabe durch den Begleiter“ bleiben unverändert.
+- AC-007: Sperr-, MCP-Server-, control-ui- und run-view-Suiten sowie `npm run compatibility:check` laufen durch; die Änderungskette ist abgeschlossen.
+- Entscheidungen: Grenzen 2 / 10 / 60 Minuten als feste Werte; bei unlesbarer oder gesperrter Sperrdatei läuft eine gewöhnliche Fortsetzung ohne Sperre weiter, der Begleiter lehnt weiter ab; nur eine fremde, gültige Sperre weist ab, die Begleiter-Eignung gilt nur für Reservierung, Veröffentlichung und Begleiter-Claim; Weg der Owner-Kennung, Zeitfeld, Migration und Aufräumen entscheidet das SD.
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-5fbcb71f-d164-46ce-9288-aa25d6a90642` · Produktanforderungen · Revision: `e354b73a-efcf-4deb-9c7e-24041dcea419`
+
+SHA-256: `sha256:35222217ca5f900ff725d525fca67233ca6992d2a23639af78cbd6120e4896eb`

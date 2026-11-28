@@ -46,7 +46,10 @@ export const test = base.extend({
     const fixture = buildCompanionFixtures({ after: fn => cleanups.push(fn) }, ['F04'])[0];
     const root = realpathSync(mkdtempSync(join(tmpdir(), 'agdf-browser-admission-')));
     const target = { working_directory: fixture.root, primary_target: fixture.root, target_source: 'explicit_target' };
-    const options = { integrationSurface: 'codex', pluginMode: true, continuationQualified: true, companionDataRoot: root };
+    // The Cockpit clock can run ahead of the dispatch clock, so a picked-up handoff ends without waiting.
+    let offset = 0;
+    const options = { integrationSurface: 'codex', pluginMode: true, continuationQualified: true, companionDataRoot: root,
+      now: () => Date.now() + offset };
     let session = createCockpitSessionService(undefined, options);
     const tool = (definition, parse, method) => ({ name: definition.name, definition, parse: value => parse(value),
       execute: (value, signal) => session[method](value, signal) });
@@ -159,12 +162,13 @@ export const test = base.extend({
       const args = route === 'ordinary' ? { ...target, run_id: fixture.runId, skill_id: 'gate-check', continue_delivery: true }
         : bound.call.arguments;
       const result = gate.execute(gate.parse({ ...args, presentation_language: 'en' }));
-      const grant = result.continuation?.work_admission;
-      if (grant) {
-        assert.equal(grant.target_id, targetId);
-        assert.equal(grant.run_id, fixture.runId);
-        if (route === 'companion') assert.equal(grant.attempt_id, args.continuation_attempt_id);
-        const attempt = grant.attempt_id;
+      assert.equal(result.continuation?.work_admission, undefined);
+      if (!result.terminal && route === 'ordinary') {
+        assert.ok(result.continuation);
+        add('ordinary', { route });
+      } else if (!result.terminal) {
+        assert.equal(result.continuation?.run_id ?? fixture.runId, fixture.runId);
+        const attempt = args.continuation_attempt_id;
         add('grant', { route, attempt });
         const status = lookup();
         assert.equal(status.run_id, fixture.runId);
@@ -190,7 +194,8 @@ export const test = base.extend({
     }
     try {
       await server.connect(b); await client.connect(a);
-      await use({ open, receive, hook, rollover, synchronizeStarts, events, observed, tally, messages, faults, marker, fixture, root, targetId,
+      const advance = ms => { offset += ms; };
+      await use({ open, receive, hook, rollover, advance, synchronizeStarts, events, observed, tally, messages, faults, marker, fixture, root, targetId,
         current: lookup, candidate: () => candidate });
     } finally {
       race?.resolve();

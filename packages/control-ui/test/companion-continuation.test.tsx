@@ -79,18 +79,20 @@ it('preserves pending when the host response is lost and the card reopens', asyn
   expect(app.sendMessage).toHaveBeenCalledTimes(1);
 });
 
-it('keeps the cancellation notice through a failed poll and restores the action on confirmed readiness', async () => {
+it('keeps the running notice through a failed poll and restores the action on confirmed readiness', async () => {
   const { app, port, setState } = fixture();
-  const interrupted = { schema_version: '1', authorizes: false, state: 'running', interrupt_requested: true };
-  app.callServerTool.mockResolvedValueOnce({ structuredContent: interrupted });
+  // An earlier build also sent interrupt_requested; it no longer selects a separate state.
+  const working = { schema_version: '1', authorizes: false, state: 'running', interrupt_requested: true };
+  app.callServerTool.mockResolvedValueOnce({ structuredContent: working });
   vi.useFakeTimers();
   try {
     render(<CompanionContinuationAction port={port} selection={selection} approval={false}/>);
     await act(async () => {});
-    expect(screen.getByText(/Der Abbruch wurde angefordert/)).toBeTruthy();
+    expect(screen.getByText('Codex arbeitet bereits an diesem Run.')).toBeTruthy();
+    expect(screen.queryByText(/Der Abbruch wurde angefordert/)).toBeNull();
     setState('unavailable');
     await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
-    expect(screen.getByText(/Der Abbruch wurde angefordert/)).toBeTruthy();
+    expect(screen.getByText('Codex arbeitet bereits an diesem Run.')).toBeTruthy();
     expect(screen.queryByRole('button')).toBeNull();
     setState('ready');
     await act(async () => { await vi.advanceTimersByTimeAsync(2500); });

@@ -60,6 +60,12 @@ async function buildWorker(packageRoot) {
     } }],
   });
   try { await scan.generate({ format: 'esm', codeSplitting: false }); } finally { await scan.close(); }
+  // Keep the fixed native boot observer at its audited process boundary rather
+  // than inlining process capability into the compiled domain factory.
+  const bootObserver = join(packageRoot, 'lib/mcp-lifecycle/system-boot.js');
+  if (readFileSync(join(packageRoot, 'lib/mcp-dispatch-runtime.js'), 'utf8').includes("from './mcp-lifecycle/system-boot.js'")) {
+    observe(bootObserver); shared.add(resolve(bootObserver));
+  }
   const sourceIdentity = {
     name: 'agdf-original-module-identity',
     async resolveId(specifier, importer, options) {

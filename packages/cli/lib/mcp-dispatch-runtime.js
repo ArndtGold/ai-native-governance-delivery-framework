@@ -10,11 +10,13 @@ import { assertMcpControlReadBoundary } from "#agdf-core/control-read-boundary.j
 import { knownExecutionCode, validExecutionFacts } from '#agdf-core/mcp-tool-errors.js';
 import { COMPANION_DATA_ROOT_ENV, createCompanionJournal } from '#agdf-core/companion/journal.js';
 import { createCodexContinuationAdmission } from '#agdf-core/companion/codex-continuation.js';
+import { readSystemBootId } from './mcp-lifecycle/system-boot.js';
 import { isCurrentContinuation } from '#agdf-core/companion/codex-continuation-binding.js';
 import { resolveControlCommandTarget } from '#agdf-core/control-state/approval-command-contract.js';
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
-import { isAbsolute } from 'node:path';
+import { isAbsolute, resolve } from 'node:path';
 import { composeMcpProtocolRuntime, errorSupport, inspectMcpDispatcherRuntime, configuredMcpCommandGroups } from './mcp-protocol-runtime.js';
+export const CODEX_SHARED_ADMISSION_PROTOCOL = 'codex-shared-v1';
 export { inspectMcpDispatcherRuntime, configuredMcpCommandGroups, CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION,
   parseControlInspectFunctionArguments, parseSkillDispatchFunctionArguments, serializeSkillDispatchResult, DECISION_UI_URI, OWNED_LOCK_CHANNEL, releaseAbandonedOwnedLock } from './mcp-protocol-runtime.js';
 // Core reasons that the tool-error contract names differently. Core's command service maps
@@ -34,8 +36,11 @@ export function preDispatchFailure(error) {
   const code = knownExecutionCode(PREPARATION_REASONS.find(([pattern]) => pattern.test(reason))?.[1] ?? reason);
   return Object.assign(new Error(code), { facts: { code, dispatch: 'not_dispatched' } });
 }
+// Native qualification reports test results. It cannot be a prerequisite for
+// exposing the first test gesture. Both routes require the same owned runtime;
+// the App additionally checks host capabilities and the displayed Run binding.
 export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode, inspected = inspectMcpDispatcherRuntime(),
-  continuationQualified = inspected.continuationQualified, companionDataRoot } = {}) {
+  continuationQualified = inspected.provenanceStatus === 'matched' && !!inspected.generationIdentity, companionDataRoot } = {}) {
   const pluginMode = cockpitMode === 'plugin';
   if (cockpitMode !== undefined && !pluginMode || pluginMode && (surface !== 'codex' || cockpitDir !== undefined)
     || !pluginMode && (!['codex', 'claude'].includes(surface) || typeof cockpitDir !== 'string' || !isAbsolute(cockpitDir))) throw new TypeError('AGDF_COCKPIT_TARGET_INVALID');
@@ -48,7 +53,9 @@ export async function createMcpCockpitRuntime({ surface, cockpitDir, cockpitMode
     import("#agdf-core/control-inspect/cockpit-session.js"),
     import("#agdf-core/control-read/snapshot.js"),
   ]);
-  const session = createCockpitSessionService(root, { pluginMode, integrationSurface: surface, continuationQualified, companionDataRoot });
+  const session = createCockpitSessionService(root, { pluginMode, integrationSurface: surface, continuationQualified, companionDataRoot,
+    continuationRuntimeRoot: inspected.packageRoot ? resolve(inspected.packageRoot, '..', '..') : undefined,
+    continuationBootId: readSystemBootId() });
   const renderDefinition = pluginMode ? COCKPIT_PLUGIN_RENDER_DEFINITION : COCKPIT_RENDER_DEFINITION;
   const continuationHost = inspected.continuationHost;
   const matchingClient = host => !continuationHost || host?.client?.name === continuationHost.name && host.client.version === continuationHost.version;
@@ -113,7 +120,7 @@ function admitCodexContinuation(admission, input, result) {
 }
 
 export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispatcherRuntime(), commandGroups = configuredMcpCommandGroups(), runtimeControl, materialGrants, verifyRuntime, inputContext, executionContext,
-  continuationQualified = inspected.continuationQualified, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV] } = {}) {
+  continuationQualified = inspected.provenanceStatus === 'matched' && !!inspected.generationIdentity, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV] } = {}) {
   const readBudget = createReadWorkerBudget();
   const delivery = createPresentationDelivery();
   const verifyProducer = verifyRuntime ?? (() => {
@@ -134,7 +141,8 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
   // once, below the data root the launcher hands over; review facts read the sealed material here.
   const journal = createCompanionJournal({ sealedFiles: transferId => services.material.sealedFiles(transferId) });
   const admission = surface === 'codex' && continuationQualified === true && companionDataRoot
-    ? createCodexContinuationAdmission(companionDataRoot) : null;
+    ? createCodexContinuationAdmission(companionDataRoot, { runtimeRoot: inspected.packageRoot ? resolve(inspected.packageRoot, '..', '..') : undefined,
+      bootId: readSystemBootId() }) : null;
   const execute = input => {
     const result = services.dispatch(input);
     const admitted = admitCodexContinuation(admission, input, result);

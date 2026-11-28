@@ -118,7 +118,15 @@ export async function installLocalPlugin(surface, forwardedArgsOrAdapters = [], 
 
   try {
     if (surface !== "opencode") {
-      return await cli([surface, ...forwardedArgs], { env, prepare, exec, ...interactionAdapters });
+      const result = await cli([surface, ...forwardedArgs], { env, prepare, exec, ...interactionAdapters });
+      if (surface === 'codex' && result === 0) {
+        const [{ checkpointExecutableBootBoundary }, { readSystemBootId }] = await Promise.all([
+          import('../../core/lib/companion/executable-boot-boundary.js'), import('../lib/mcp-lifecycle/system-boot.js'),
+        ]);
+        try { checkpointExecutableBootBoundary(join(dataRoot, 'mcp/codex-plugin'), readSystemBootId()); }
+        catch { console.warn('Historical executable ownership remains unconfirmed; no start was released.'); }
+      }
+      return result;
     }
 
     const openCodePackageSource = prepareLocalOpenCodePackage({

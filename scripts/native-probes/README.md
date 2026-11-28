@@ -4,6 +4,55 @@ Der [Wartungs- und Release-Vertrag](../../docs/maintenance/README.md) beschreibt
 Linux-/Windows-CLI-Release-Test, CI-Secrets, commitgebundene Artefakte und die Paketbudget-Pflege.
 Die interaktiven Desktop-/Hook-Probes weiter unten bleiben macOS-spezifisch.
 
+## Chat-Übergabe des Begleiters in Codex Desktop prüfen
+
+```bash
+node scripts/native-probes/codex-continuation-transport.mjs prepare
+```
+
+Der Befehl erstellt ein temporäres Codex-Profil und gibt `home`, `project` und die Test-Run-ID aus.
+Öffne `project` in einer separaten Desktop-Instanz mit diesem `CODEX_HOME` und eigenem Desktop-Datenverzeichnis.
+Bitte den ersten Testchat, den „AGDF-Übergabetest“ mit `open_fixture` zu öffnen. Öffne denselben Test im zweiten Chat.
+Klicke im ersten auf „Run fortsetzen“. Der Test verwendet die Schaltfläche und den Übergabecode des Begleiters.
+Der Empfänger darf genau einmal die Kennung des fiktiven Runs bestätigen.
+Wenn Codex für `agdf_dispatch` nachfragt, gilt die einmalige Bestätigung nur für diesen Testaufruf.
+
+Prüfe im Desktop, welcher Chat den Auftrag erhalten hat. Im Profilverzeichnis unter `lab/observations.jsonl`
+stehen die Sendeberechtigung und die Annahme durch den Testempfänger mit derselben Versuchs-ID.
+Für eine neue, unabhängige Prüfung erzeugt `prepare` einen frischen Run.
+Ein vollständiger Plugin-Nachweis erfordert zusätzlich die Beobachtung am installierten Kandidaten.
+
+Beim Lebenszyklus-Test ist der passende native `Interrupt`-Hook das Abschlussereignis der
+unterbrochenen Runde. Ein zusätzliches `Stop` ist keine Voraussetzung. Die Fortsetzung bleibt
+gesperrt, solange noch zugehörige Schreibvorgänge oder eine ausstehende Run-Operation bestehen.
+Ein Abbruch über die Codex-App-Server-API prüft Engine und Hooks; er belegt keinen Klick auf
+die Stopp-Schaltfläche im Desktop.
+
+## Alte Codex-Laufzeiten beim lokalen Versionswechsel
+
+Ausführungsnachweise unter `.agdf-executable-claims` dienen weiterhin der Aufbewahrung unveränderlicher
+Pakete. Sie werden bei der Wiederherstellung weder gelöscht noch als laufende Modellrunde ausgegeben.
+Der Launcher erfasst alte, gültige Nachweise und Publikationsmarker getrennt unter
+`mcp/executable-boot-boundary.json`. Die erste beobachtete Betriebssystemsitzung bleibt dabei erhalten.
+Ein tatsächlich anderer Boot-Identifier beweist das Ende der damaligen ausführbaren Prozesse;
+ein abgelaufenes Zeitfenster, eine vermutete tote PID oder ein Codex-Neustart liefern diesen Nachweis nicht.
+
+Neue, frisch integritätsgeprüfte Produzenten deklarieren `codex-shared-v1`, wenn ihr Dispatcher
+die gemeinsame Startsperre unterstützt. Solche Generationen können dieselbe Run-Reservierung nutzen,
+ohne bei jedem Versionswechsel einen Systemneustart zu verlangen. Eine Änderung des gemeinsamen
+Speicherformats oder der verbindlichen Startprüfung erfordert ein neues, kompatibel geprüftes Protokoll.
+Ein Client kann diese Deklaration nicht über einen Tool-Aufruf setzen. Unbekannte Produzenten bleiben gesperrt.
+
+Unter macOS wird ausschließlich `kern.bootsessionuuid` gelesen, unter Linux der Kernel-Boot-Identifier.
+Andere Systeme behalten bei ungeklärten alten Prozessen die konservative Sperre.
+Der Boot-Nachweis gibt keine unbestätigte Chat-Übergabe oder ungeklärte Run-Schreiboperation frei.
+Für eine ausgebliebene Ende-Meldung kann ein akzeptierter nächster nativer Prompt die vorherige,
+zugeordnete Runde desselben Chats abschließen. Andere Chats, SessionStart/Compaction, doppelte oder
+bereits verworfene Prompts und fehlerhafte Aktivitätsdaten dürfen das nicht.
+
+`packages/core/test/executable-boot-boundary-test.js` simuliert Boot-Identifier in isolierten Daten.
+Diese Simulation ist kein Nachweis eines tatsächlich ausgeführten Systemneustarts.
+
 ## Standardtest: Codex CLI mit Luna
 
 ```bash

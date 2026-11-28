@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { createMcpCockpitRuntime, createMcpDispatchRuntime } from '../../cli/lib/mcp-dispatch-runtime.js';
+import { createMcpCockpitRuntime, createMcpDispatchRuntime, inspectMcpDispatcherRuntime } from '../../cli/lib/mcp-dispatch-runtime.js';
 import { approvalFixture, treeBytes } from '../../core/test/control-cockpit-fixtures.js';
 import { observeCodexActivity } from '../../core/lib/companion/codex-activity.js';
 import { createCodexContinuationAdmission } from '../../core/lib/companion/codex-continuation.js';
@@ -84,7 +84,10 @@ test('the approval handoff is picked up once, opens only the decision and carrie
   const f = await approvalFixture();
   const c = await companion(t, f);
   assert.equal(c.act('reserve').state, 'stale', 'action requires a displayed snapshot');
+  assert.equal(c.act('status').state, 'unavailable', 'a pending display acknowledgement is retryable');
+  assert.equal(c.act('status', { revision_id: randomUUID() }).state, 'stale', 'foreign bindings remain stale');
   await c.display();
+  assert.equal(c.act('status').state, 'ready', 'display acknowledgement makes the same binding usable');
   assert.equal(c.act('reserve', { revision_id: randomUUID() }).state, 'stale');
   const approval = c.start(c.act);
   assert.equal(approval.operation_key, 'approval.record');
@@ -156,4 +159,35 @@ test('ordinary continuations are never refused and running work comes from the a
   const stale = f.context.call('approval.record', { gate: 'UR', presentation_id: f.presentationId, response: 'Approval: UR' },
     { run_id: runId, expected_revision_id: before });
   assert.notEqual(stale.outcome, 'accepted', 'a write against an outdated revision is still rejected');
+});
+
+test('missing ownership or generation identity keeps continuation unavailable', async t => {
+  for (const observation of [
+    { provenanceStatus: 'unowned', generationIdentity: { server_digest: '1'.repeat(64) } },
+    { provenanceStatus: 'matched', generationIdentity: null },
+  ]) {
+    const inspected = { ...inspectMcpDispatcherRuntime(), ...observation, continuationQualified: false };
+    const runtime = await createMcpCockpitRuntime({ surface: 'codex', cockpitMode: 'plugin', companionDataRoot: dataRoot(t), inspected });
+    t.after(() => runtime.close());
+    assert.equal(runtime.tools.some(tool => tool.name === 'agdf_cockpit_continue'), false);
+  }
+});
+
+test('an unresolved predecessor blocks a Companion start but never an ordinary continuation', async t => {
+  const f = await approvalFixture();
+  assert.equal(f.approve().outcome, 'accepted');
+  const c = await companion(t, f);
+  await c.display();
+  const claims = join(c.root, 'mcp', 'generations', 'a'.repeat(64), '0.32.0', '.agdf-executable-claims');
+  mkdirSync(claims, { recursive: true });
+  const path = join(claims, randomUUID() + '.json');
+  writeFileSync(path, '{}');
+  assert.equal(c.act('status').legacy_runtime, true);
+  assert.equal(c.act('reserve').reserved, undefined);
+  const ordinary = c.dispatch({});
+  assert.equal(ordinary.terminal, false, ordinary.host_action?.text);
+  assert.ok(ordinary.continuation);
+  rmSync(path); // Fixture simulation of the retention owner's confirmed release.
+  assert.equal(c.act('status').state, 'ready');
+  assert.equal(c.act('reserve').reserved, true);
 });

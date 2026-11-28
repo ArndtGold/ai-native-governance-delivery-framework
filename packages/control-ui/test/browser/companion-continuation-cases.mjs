@@ -1,14 +1,58 @@
 import { expect } from '@playwright/test';
-import { readdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { counts, test } from './companion-continuation-fixture.mjs';
+import { checkpointExecutableBootBoundary } from '../../../core/lib/companion/executable-boot-boundary.js';
+import { readSystemBootId } from '../../../cli/lib/mcp-lifecycle/system-boot.js';
 
 const start = frame => frame.getByRole('button', { name: 'Run fortsetzen' });
 const pending = frame => frame.getByRole('button', { name: 'Übergabe prüfen' });
 const running = frame => frame.getByText('Codex arbeitet bereits an diesem Run.');
+
+test('SCN-015 the boot boundary explains the required recovery at 360 pixels without sending', async ({ page, lab }, info) => {
+  await page.setViewportSize({ width: 360, height: 900 });
+  const root = join(lab.root, 'mcp/generations', 'a'.repeat(64), '0.32.0');
+  mkdirSync(join(root, '.agdf-executable-claims'), { recursive: true });
+  const token = randomUUID(), path = join(root, '.agdf-executable-claims', token + '.json');
+  writeFileSync(path, JSON.stringify({ schema_version: 1, owner: 'create-agdf:mcp-runtime', token, root,
+    owner_epoch: randomUUID(), generation: 1, server_digest: '1'.repeat(64), dispatcher_digest: '2'.repeat(64), sdk_digest: '3'.repeat(64) }));
+  expect(checkpointExecutableBootBoundary(lab.root, readSystemBootId()).state).toBe('checkpointed');
+  const frame = await lab.open(page);
+  await expect(frame.getByText(/vollständiger Neustart des Computers/)).toBeVisible();
+  await expect(start(frame)).toHaveCount(0);
+  expect(await frame.locator('body').evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+  expect(lab.receive('ordinary').terminal, 'an ordinary chat continuation is never blocked').toBe(false);
+  expect(lab.tally()).toMatchObject({ permit: 0, message: 0, grant: 0 });
+  await page.screenshot({ path: info.outputPath('boot-boundary-360.png') });
+  rmSync(path); // Positive release of the fixture-owned executable, not a simulated native OS restart.
+  await expect(start(frame)).toBeVisible({ timeout: 10000 });
+  expect(lab.tally()).toMatchObject({ permit: 0, message: 0, grant: 0 });
+});
+
+test('SCN-013 legacy runtime blocks the narrow card and recovers without automatic send', async ({ page, lab }, info) => {
+  const claims = join(lab.root, 'mcp', 'generations', 'a'.repeat(64), '0.32.0', '.agdf-executable-claims');
+  mkdirSync(claims, { recursive: true });
+  const claim = join(claims, 'retained-fixture.json');
+  writeFileSync(claim, '{}');
+  const frame = await lab.open(page);
+  await expect(frame.getByText(/Der Abschluss einer älteren AGDF-Verbindung/)).toBeVisible();
+  await expect(start(frame)).toHaveCount(0);
+  await expect(frame.getByRole('button', { name: 'Run neu laden' })).toHaveCount(0);
+  expect(await frame.locator('body').evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+  expect(lab.receive('ordinary').terminal, 'an ordinary chat continuation is never blocked').toBe(false);
+  expect(lab.tally()).toMatchObject({ permit: 0, message: 0, grant: 0 });
+  await page.screenshot({ path: info.outputPath('legacy-blocked-360.png') });
+  rmSync(claim); // The fixture models acknowledged release by the old executable owner.
+  await expect(start(frame)).toBeVisible({ timeout: 10000 });
+  expect(lab.tally()).toMatchObject({ message: 0, grant: 0 });
+  await page.screenshot({ path: info.outputPath('legacy-released-360.png') });
+  await publish(lab, frame);
+  expect(lab.tally()).toMatchObject({ gesture: 1, permit: 1, message: 1, grant: 0 });
+});
 async function publish(lab, frame, keyboard = false) {
   const button = start(frame);
-  await expect(button).toBeVisible();
+  await expect(button).toBeVisible({ timeout: 10000 });
   if (keyboard) {
     await button.focus();
     await button.press('Enter');
@@ -21,6 +65,42 @@ function attachTurn(lab, result) {
   lab.hook('PostToolUse', { tool_name: 'mcp__agdf__agdf_dispatch', tool_use_id: 'fixture-tool',
     tool_input: { continue_delivery: true, run_id: lab.fixture.runId }, tool_response: { structuredContent: result } });
 }
+
+test.describe('Code Review activity', () => {
+  test.use({ subject: 'code-review' });
+  for (const ending of ['Stop', 'Interrupt']) test(`SCN-016 shows review work at 360 pixels and rests after ${ending}`, async ({ page, lab }, info) => {
+    await page.setViewportSize({ width: 360, height: 900 });
+    const frame = await lab.open(page);
+    await expect(frame.getByText('Codex ist als Nächstes dran', { exact: true })).toBeVisible();
+    await publish(lab, frame);
+    const received = lab.receive();
+    expect(received.continuation.skill_id).toBe('code-review');
+    expect(received.continuation.phase).toBeUndefined();
+    attachTurn(lab, received);
+    const turn = frame.locator('.companion-turn');
+    await expect(turn.getByText('Einen Augenblick', { exact: true })).toBeVisible();
+    await expect(turn.locator('strong + p')).toContainText('Ich arbeite gerade daran: Code-Prüfung');
+    await expect(running(frame)).toBeVisible();
+    await expect(frame.locator('.companion-signal')).toHaveText('Das Vorhaben ist in der Phase „Umsetzung und Tests“.');
+    await expect(frame.getByRole('list', { name: 'Gate-Fortschritt', exact: true }).locator('[aria-current="step"]'))
+      .toContainText('CD+Tests');
+    expect(await frame.locator('body').evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await page.screenshot({ path: info.outputPath('review-working-360.png') });
+    const attempt = lab.messages[0].call.arguments.continuation_attempt_id;
+    expect(lab.receive('ordinary').terminal).toBe(false);
+    expect(lab.tally()).toMatchObject({ permit: 1, message: 1, grant: 1 });
+    // The picked-up handoff display has ended; only the activity lease holds the start back.
+    lab.advance(61_000);
+    lab.hook(ending);
+    await expect(start(frame)).toBeVisible({ timeout: 10000 });
+    await expect(turn.getByText('Einen Augenblick', { exact: true })).toHaveCount(0);
+    await expect(turn.getByText('Codex ist als Nächstes dran', { exact: true })).toBeVisible();
+    await expect(turn).toContainText('Code Review');
+    const lastGrant = lab.events.findLast(e => e.kind === 'grant');
+    expect(lastGrant.attempt).toBe(attempt);
+    await page.screenshot({ path: info.outputPath('review-resting-360.png') });
+  });
+});
 
 for (const invalid of ['foreign', 'stale']) test('SCN-001 rejects ' + invalid + ' Run binding', async ({ page, context, lab }) => {
   if (invalid === 'foreign') {
@@ -62,6 +142,18 @@ for (const input of ['pointer', 'keyboard']) test('SCN-003 one request from ' + 
   expect(lab.tally()).toMatchObject({ gesture: 1, permit: 1, message: 1, grant: 0 });
   expect(lab.events).toContainEqual(expect.objectContaining({ kind: 'gesture', name: input }));
   expect(lab.messages[0].call.arguments.continuation_attempt_id).toBe(lab.events.find(e => e.kind === 'permit').attempt);
+});
+
+test('SCN-002 a delayed display acknowledgement offers the action without requiring a reload', async ({ page, lab }) => {
+  const acknowledge = lab.delayDisplayAcknowledgement();
+  const frame = await lab.open(page);
+  await expect.poll(() => lab.events.some(event => event.kind === 'service-status' && event.state === 'unavailable')).toBe(true);
+  await expect(start(frame)).toHaveCount(0);
+  expect(lab.tally()).toMatchObject({ permit: 0, message: 0, grant: 0 });
+  acknowledge();
+  await publish(lab, frame);
+  expect(lab.events).toContainEqual(expect.objectContaining({ kind: 'display-ack', state: 'available' }));
+  expect(lab.tally()).toMatchObject({ gesture: 1, permit: 1, message: 1, grant: 0 });
 });
 
 test('SCN-004 the receiving dispatch reads the original fixture and replies once on replay', async ({ page, lab }) => {
@@ -167,6 +259,22 @@ for (const event of ['Stop', 'Interrupt']) test('SCN-009 running follows Codex a
   expect(lab.receive('ordinary').terminal).toBe(false);
   lab.hook(event);
   await expect(start(frame)).toBeVisible({ timeout: 10000 });
+  expect(lab.tally()).toMatchObject({ gesture: 1, permit: 1, message: 1, grant: 1 });
+});
+
+test('SCN-009 an interrupt-only record of the PR #84 build never blocks the restored action', async ({ page, lab }) => {
+  const frame = await lab.open(page);
+  await publish(lab, frame);
+  attachTurn(lab, lab.receive());
+  await expect(running(frame)).toBeVisible({ timeout: 10000 });
+  lab.hook('Interrupt');
+  const directory = join(lab.root, 'codex-continuation');
+  const recordPath = join(directory, readdirSync(directory).find(name => name.endsWith('.json')));
+  const { ended, ...legacy } = JSON.parse(readFileSync(recordPath, 'utf8'));
+  writeFileSync(recordPath, JSON.stringify({ ...legacy, schema_version: 1, phase: 'running', interrupt_requested: true }));
+  await page.reload();
+  await expect(start(frame)).toBeVisible({ timeout: 10000 });
+  await expect(running(frame)).toHaveCount(0);
   expect(lab.tally()).toMatchObject({ gesture: 1, permit: 1, message: 1, grant: 1 });
 });
 

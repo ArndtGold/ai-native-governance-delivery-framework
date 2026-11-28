@@ -119,7 +119,7 @@ export function syncPluginMcp({ pluginRoot, profile = "shared", cockpitUi, decis
     expected.add(`sdk/${name}`);
   }
   writeFileSync(join(pluginRoot, CODEX_PLUGIN_MCP_FILE),
-    profile === "shared" ? renderCodexPluginMcpConfig({ cockpit: codexCockpit }) : renderCopilotPluginMcpConfig(), "utf8");
+    profile === "shared" ? renderCodexPluginMcpConfig({ cockpit: codexCockpit, portable: false, nativeStartup: true }) : renderCopilotPluginMcpConfig(), "utf8");
   for (const entry of SERVER_ENTRIES) {
     copyText(join(serverSourceRoot, entry), join(mcpRoot, "server", entry), expected, mcpRoot);
   }

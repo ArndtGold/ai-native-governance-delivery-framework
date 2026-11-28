@@ -226,3 +226,53 @@ test('a cancelled or stale reservation never earns a send permit and leaves no f
   assert.equal(admission.inspect(scope).state, 'ready');
   assert.deepEqual(admission.claim(scope, stale.attempt_id, eligible), { state: 'stale' });
 });
+
+// Older retained runtimes (dc68ef35): a new Companion start waits, a pickup and chat never do.
+const retainedClaim = (root, generation) => {
+  const claims = join(root, 'mcp', 'generations', generation.repeat(64), '0.32.0', '.agdf-executable-claims');
+  mkdirSync(claims, { recursive: true });
+  const claim = join(claims, randomUUID() + '.json');
+  writeFileSync(claim, '{}'); // Unknown retained executable: no assertion of PID liveness.
+  return claim;
+};
+const legacy = { state: 'unavailable', legacy_runtime: true };
+
+test('an unresolved predecessor executable blocks a new Companion start until its retention is released', t => {
+  const { root, scope, view, admission } = fixture(t);
+  const claim = retainedClaim(root, 'a');
+  assert.deepEqual(admission.inspect(scope), legacy);
+  assert.deepEqual(admission.reserve(scope, view, eligible), legacy);
+  assert.deepEqual(records(root), [], 'no reservation is written');
+  rmSync(claim); // Simulated acknowledged release by the executable owner, never by admission.
+  assert.equal(admission.inspect(scope).state, 'ready');
+  assert.equal(admission.reserve(scope, view, eligible).reserved, true);
+});
+
+test('a predecessor appearing before publication ends the reservation without a send; after publication the pickup still works', t => {
+  const { root, scope, view, admission } = fixture(t);
+  const first = admission.reserve(scope, view, eligible);
+  let claim = retainedClaim(root, 'b');
+  assert.deepEqual(admission.publish(scope, view, first.attempt_id, eligible), legacy);
+  rmSync(claim);
+  assert.equal(admission.inspect(scope).state, 'ready', 'no send was issued and the reservation is gone');
+  const second = admission.reserve(scope, view, eligible);
+  assert.equal(admission.publish(scope, view, second.attempt_id, eligible).send, true);
+  claim = retainedClaim(root, 'b');
+  assert.equal(admission.inspect(scope).state, 'pending', 'a published handoff stays visible');
+  assert.equal(admission.claim(scope, second.attempt_id, eligible).admitted, true, 'the pickup in chat does not consult the boundary');
+  rmSync(claim);
+});
+
+test('only the adapter-owned current runtime is exempt and unsafe claim directories stay protected', t => {
+  const { root, scope, view } = fixture(t);
+  const current = join(root, 'mcp', 'generations', 'c'.repeat(64), '0.32.0');
+  mkdirSync(join(current, '.agdf-executable-claims'), { recursive: true });
+  writeFileSync(join(current, '.agdf-executable-claims', randomUUID() + '.json'), '{}');
+  const admission = createCodexContinuationAdmission(root, { runtimeRoot: current });
+  assert.equal(admission.inspect(scope).state, 'ready');
+  const other = join(root, 'mcp', 'generations', 'd'.repeat(64), '0.32.0');
+  mkdirSync(other, { recursive: true });
+  writeFileSync(join(other, '.agdf-executable-claims'), 'not a directory');
+  assert.deepEqual(admission.reserve(scope, view, eligible), legacy);
+  assert.equal(readFileSync(join(other, '.agdf-executable-claims'), 'utf8'), 'not a directory');
+});

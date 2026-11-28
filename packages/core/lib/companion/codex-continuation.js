@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { constants, closeSync, fstatSync, lstatSync, mkdirSync, openSync, readdirSync, readSync, unlinkSync } from 'node:fs';
-import { isAbsolute, join } from 'node:path';
+import { constants, closeSync, fstatSync, lstatSync, mkdirSync, openSync, readdirSync, readSync, realpathSync, unlinkSync } from 'node:fs';
+import { isAbsolute, join, resolve } from 'node:path';
 import { hasSymlinkComponent } from '../control-state/contained-file.js';
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from '../control-state/run-identity.js';
 import { atomicWrite, withOwnedFileLockWait } from '../owned-file-lock.js';
+import { createExecutableBootBoundary, isExecutablePublicationEntry } from './executable-boot-boundary.js';
 
 const directory = 'codex-continuation';
 const targetPattern = /^sha256:[a-f0-9]{64}$/;
@@ -18,6 +19,58 @@ const fields = ['schema_version', 'target_id', 'run_id', 'revision_id', 'operati
 const unavailable = Object.freeze({ state: 'unavailable' });
 const ready = Object.freeze({ state: 'ready' });
 const stale = Object.freeze({ state: 'stale' });
+const legacyRuntime = Object.freeze({ state: 'unavailable', legacy_runtime: true });
+
+// Owned plugin generations retain their executable before starting a facade. A different retained
+// generation may still serve a Companion with an older handoff rule, so a new Companion start waits
+// until its retention is released (or a full restart proves it ended). Retention is uncertainty, never
+// PID liveness or permission to erase claims. Only the current producer's verified root is exempt.
+// Ordinary chat continuations never consult this boundary.
+function predecessorsClear(dataRoot, runtimeRoot, executionBoundary) {
+  try {
+    executionBoundary.refresh();
+    let restart = false, seen = 0;
+    const relative = 'mcp/generations';
+    if (hasSymlinkComponent(dataRoot, relative)) return legacyRuntime;
+    const generations = join(dataRoot, relative);
+    let names;
+    try { names = readdirSync(generations); }
+    catch (error) { return error.code === 'ENOENT' ? ready : legacyRuntime; }
+    if (names.length > 512) return legacyRuntime;
+    for (const name of names) {
+      if (!/^[a-f0-9]{64}$/u.test(name)) return legacyRuntime;
+      const publication = join(generations, name);
+      if (!lstatSync(publication).isDirectory() || lstatSync(publication).isSymbolicLink()) return legacyRuntime;
+      const versions = readdirSync(publication);
+      if (versions.length > 32) return legacyRuntime;
+      for (const version of versions) {
+        if (isExecutablePublicationEntry(version)) {
+          if (++seen > 32768) return legacyRuntime;
+          const state = executionBoundary(publication, version);
+          if (state === 'unknown') return legacyRuntime;
+          if (state === 'same_boot') restart = true;
+          continue;
+        }
+        const root = join(publication, version);
+        if (!lstatSync(root).isDirectory() || lstatSync(root).isSymbolicLink()) return legacyRuntime;
+        if (root === runtimeRoot && realpathSync(root) === resolve(root)) continue;
+        const claims = join(root, '.agdf-executable-claims');
+        let stat;
+        try { stat = lstatSync(claims); }
+        catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+        if (!stat.isDirectory() || stat.isSymbolicLink()) return legacyRuntime;
+        const entries = readdirSync(claims);
+        if ((seen += entries.length) > 32768) return legacyRuntime;
+        for (const entry of entries) {
+          const state = executionBoundary(root, entry);
+          if (state === 'unknown') return legacyRuntime;
+          if (state === 'same_boot') restart = true;
+        }
+      }
+    }
+    return restart ? { ...legacyRuntime, boot_restart_required: true } : ready;
+  } catch { return legacyRuntime; }
+}
 
 function uuid(value) { return typeof value === 'string' && REVISION_ID_PATTERN.test(value); }
 
@@ -96,7 +149,10 @@ function status(record) {
 // The handoff from the Codex Companion to Codex chat: one record per target and Run, which exists only while a
 // handoff is reserved, published or just picked up. The lock protects one short read / check / write; every
 // phase ends on its own after its bound. Ordinary chat continuations never read or write this store.
-export function createCodexContinuationAdmission(dataRoot, { now = Date.now } = {}) {
+export function createCodexContinuationAdmission(dataRoot, { now = Date.now, runtimeRoot, bootId } = {}) {
+  const executionBoundary = createExecutableBootBoundary(dataRoot, bootId);
+  // Only a Companion start (status, reservation, publication) waits for older runtimes.
+  const startBoundary = () => predecessorsClear(dataRoot, runtimeRoot, executionBoundary);
   const live = (record, at) => {
     const bound = HANDOFF_BOUNDS[record.phase];
     return at - record.since < bound && record.since - at <= bound;
@@ -151,7 +207,8 @@ export function createCodexContinuationAdmission(dataRoot, { now = Date.now } = 
       try {
         readyRoot(dataRoot, false);
         const seen = current(readRecord(dataRoot, runFile(scope)), now());
-        return seen.blocked ? unavailable : status(seen.record);
+        if (seen.blocked) return unavailable;
+        return seen.record ? status(seen.record) : startBoundary();
       } catch { return unavailable; }
     },
     reserve(scope, viewId, eligible) {
@@ -159,6 +216,8 @@ export function createCodexContinuationAdmission(dataRoot, { now = Date.now } = 
       const result = change(scope, (old, at) => {
         if (old) return { projection: status(old) };
         if (eligible() !== true) return { projection: stale };
+        const boundary = startBoundary();
+        if (boundary.state !== 'ready') return { projection: boundary };
         const record = { schema_version: 2, ...binding(scope), attempt_id: randomUUID(), view_id: viewId, phase: 'reserved', since: at };
         return { record, projection: { state: 'pending', attempt_id: record.attempt_id, reserved: true } };
       });
@@ -170,6 +229,8 @@ export function createCodexContinuationAdmission(dataRoot, { now = Date.now } = 
         if (old?.phase !== 'reserved' || old.view_id !== viewId || old.attempt_id !== attemptId || !matches(old, scope))
           return { projection: status(old) };
         if (eligible() !== true) return { remove: true, projection: stale };
+        const boundary = startBoundary();
+        if (boundary.state !== 'ready') return { remove: true, projection: boundary };
         // Persist pending before issuing the sole permission to send. The same
         // response cannot be produced again, including after a lost reply.
         return { record: { ...old, phase: 'pending', since: at }, projection: { state: 'pending', attempt_id: attemptId, send: true } };

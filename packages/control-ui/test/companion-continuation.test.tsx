@@ -11,7 +11,10 @@ function fixture(operationKey = 'review.code') {
   const identity = { attempt_id: crypto.randomUUID(), run_id: selection.run_id, revision_id: selection.revision_id,
     target: { target_id: targetId, display_path: '/disposable' }, operation_key: operationKey };
   let state = 'ready';
-  const callServerTool = vi.fn(async ({ arguments: args }: { arguments: Record<string, unknown> }) => {
+  const callServerTool = vi.fn(async ({ arguments: args }: { arguments: Record<string, unknown> }): Promise<{
+    structuredContent: { schema_version: string; authorizes: boolean; state: string; legacy_runtime?: boolean; boot_restart_required?: boolean;
+      interrupt_requested?: boolean; reserved?: boolean; send?: boolean } & Partial<typeof identity>;
+  }> => {
     let detail = {};
     if (args.operation === 'reserve' && state === 'ready') {
       state = 'pending';
@@ -31,6 +34,77 @@ function fixture(operationKey = 'review.code') {
 }
 
 afterEach(cleanup);
+
+it('explains the legacy runtime boundary, preserves it on read failure, and restores the action without sending', async () => {
+  const { app, port, setState } = fixture();
+  app.callServerTool.mockResolvedValueOnce({ structuredContent: {
+    schema_version: '1', authorizes: false, state: 'unavailable', legacy_runtime: true,
+  } });
+  vi.useFakeTimers();
+  try {
+    render(<CompanionContinuationAction port={port} selection={selection} approval={false}/>);
+    await act(async () => {});
+    expect(screen.getByText(/Der Abschluss einer älteren AGDF-Verbindung/)).toBeTruthy();
+    expect(screen.queryByRole('button')).toBeNull();
+    setState('unavailable');
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    expect(screen.getByText(/Der Abschluss einer älteren AGDF-Verbindung/)).toBeTruthy();
+    expect(screen.queryByRole('button')).toBeNull();
+    setState('ready');
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    expect(screen.getByRole('button', { name: 'Run fortsetzen' })).toBeTruthy();
+    expect(app.sendMessage).not.toHaveBeenCalled();
+  } finally { cleanup(); vi.useRealTimers(); }
+});
+
+it('never sends when the predecessor boundary closes between reservation and publication', async () => {
+  const { app, identity, port } = fixture();
+  app.callServerTool.mockResolvedValueOnce({ structuredContent: {
+    schema_version: '1', authorizes: false, state: 'pending', reserved: true, ...identity,
+  } });
+  app.callServerTool.mockResolvedValueOnce({ structuredContent: {
+    schema_version: '1', authorizes: false, state: 'unavailable', legacy_runtime: true,
+  } });
+  await expect(port.start(selection, new AbortController().signal)).resolves.toBe('legacy');
+  expect(app.sendMessage).not.toHaveBeenCalled();
+});
+
+it('explains a confirmed boot boundary and preserves that guidance through a failed read without sending', async () => {
+  const { app, port, setState } = fixture();
+  app.callServerTool.mockResolvedValueOnce({ structuredContent: {
+    schema_version: '1', authorizes: false, state: 'unavailable', legacy_runtime: true, boot_restart_required: true,
+  } });
+  vi.useFakeTimers();
+  try {
+    render(<CompanionContinuationAction port={port} selection={selection} approval={false}/>);
+    await act(async () => {});
+    expect(screen.getByText(/vollständiger Neustart des Computers/)).toBeTruthy();
+    expect(screen.queryByRole('button')).toBeNull();
+    setState('unavailable');
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    expect(screen.getByText(/vollständiger Neustart des Computers/)).toBeTruthy();
+    setState('ready');
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    expect(screen.getByRole('button', { name: 'Run fortsetzen' })).toBeTruthy();
+    expect(app.sendMessage).not.toHaveBeenCalled();
+  } finally { cleanup(); vi.useRealTimers(); }
+});
+
+it('offers the action after a delayed display acknowledgement without sending a request', async () => {
+  vi.useFakeTimers();
+  try {
+    const { app, port, setState } = fixture();
+    setState('unavailable');
+    render(<CompanionContinuationAction port={port} selection={selection} approval={false}/>);
+    await act(async () => {});
+    expect(screen.queryByRole('button', { name: 'Run fortsetzen' })).toBeNull();
+    setState('ready');
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    expect(screen.getByRole('button', { name: 'Run fortsetzen' })).toBeTruthy();
+    expect(app.callServerTool.mock.calls.map(([call]) => call.arguments.operation)).toEqual(['status', 'status']);
+    expect(app.sendMessage).not.toHaveBeenCalled();
+  } finally { vi.useRealTimers(); }
+});
 
 it('binds the click to the selected Run and never sends it twice', async () => {
   const { app, identity, port } = fixture();
@@ -89,7 +163,7 @@ it('keeps the running notice through a failed poll and restores the action on co
     render(<CompanionContinuationAction port={port} selection={selection} approval={false}/>);
     await act(async () => {});
     expect(screen.getByText('Codex arbeitet bereits an diesem Run.')).toBeTruthy();
-    expect(screen.queryByText(/Der Abbruch wurde angefordert/)).toBeNull();
+    expect(screen.queryByText(/Der Abbruch/)).toBeNull();
     setState('unavailable');
     await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
     expect(screen.getByText('Codex arbeitet bereits an diesem Run.')).toBeTruthy();

@@ -329,7 +329,8 @@ it('keeps the same decision and reading position through an unrelated background
   refreshed.document_states!.find(row => row.type === 'PRD')!.resource_id = prd.resource_id = 'new-scope-prd';
   refreshed.active_run_ids = [refreshed.run_id, 'other-run'];
   await act(async () => { finish(runScope(refreshed, 'after-change')); });
-  expect(screen.getByRole('navigation', { name: 'Aktive Runs' })).toBeTruthy();
+  // The switcher may need a further render after the capture settles; the checks below still pin the reader.
+  expect(await screen.findByRole('navigation', { name: 'Aktive Runs' })).toBeTruthy();
   expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
   expect(notices()).toHaveLength(0);
   expect(sourceReads(read)).toBe(1);
@@ -524,10 +525,10 @@ it.each(['CD+Tests', 'CR'])('shows confirmed %s work on the selected Codex card 
   const run = runData('run-a');
   run.persisted!.current_gate = gate;
   run.evaluation!.current_gate = gate;
-  if (gate === 'CR') run.companion = {
+  run.companion = gate === 'CR' ? {
     route: 'structured_slice', path: [{ gate: 'TP', status: 'fulfilled' }, { gate: 'QA', status: 'open' }],
     next_text: 'Code-Review durchführen.', blocking_text: 'none',
-  };
+  } : { route: 'structured_slice', path: [{ gate: 'TP', status: 'fulfilled' }], next_text: run.evaluation!.next_action_de!, blocking_text: 'none' };
   run.evaluation!.next_operation = { actor: 'agent', type: 'implement_approved_plan', operation_key: 'delivery.implementation.complete',
     effect: 'preparation', gate };
   const record = { target_id: fixtureMeta.target.target_id, run_id: run.run_id, revision_id: run.revision_id!, gate,
@@ -542,17 +543,25 @@ it.each(['CD+Tests', 'CR'])('shows confirmed %s work on the selected Codex card 
   activity = record;
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
   expect(screen.getByText('Das Vorhaben ist in der Phase „Umsetzung und Tests“.', { selector: '.companion-signal' })).toBeTruthy();
-  const working = screen.getByText(/Ich arbeite gerade daran/);
-  expect(working.previousElementSibling?.textContent).toBe('Einen Augenblick');
+  const work = screen.getByText(/Ich arbeite gerade daran/);
+  expect(screen.getByText('Einen Augenblick').nextElementSibling).toBe(work);
   if (gate === 'CR') {
-    expect(working.textContent).toContain('Code-Prüfung');
+    expect(work.textContent).toContain('Code-Prüfung');
     expect(screen.getByRole('list', { name: 'Gate-Fortschritt' }).querySelector('[aria-current="step"]')?.textContent)
       .toBe('CD+Tests Aktuell');
+  } else {
+    const next = screen.getByText('Nächster Schritt');
+    expect(next.nextElementSibling).toBe(screen.getByText(run.evaluation!.next_action_de!));
+    const progress = screen.getByRole('list', { name: 'Gate-Fortschritt' });
+    expect(work.compareDocumentPosition(progress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(progress.compareDocumentPosition(next) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   }
   activity = { ...record, expires_at: Date.now() - 1 };
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
   expect(screen.queryByText('Einen Augenblick')).toBeNull();
   expect(screen.getByText('Codex ist als Nächstes dran')).toBeTruthy();
+  expect(screen.queryByText(/Ich arbeite gerade daran/)).toBeNull();
+  expect(screen.queryByText('Nächster Schritt')).toBeNull();
 });
 
 // SCN-005 and SCN-023 (AC-003, AC-017): without a sign of life of the Codex hooks the card says that activity is
@@ -590,6 +599,38 @@ it('says that activity is unknown while the Codex hooks give no sign of life', a
   expect(screen.getByText('Das Vorhaben ist in der Phase „Umsetzung und Tests“.', { selector: '.companion-signal' })).toBeTruthy();
   expect(screen.queryByText('Aktivität unbekannt')).toBeNull();
   expect(card.getAttribute('data-tone')).toBe('working');
+});
+
+it('dates earlier events of the selected Codex Run and hides the history once the session expires', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(2026, 10, 17, 12, 0));
+  width(650);
+  const run = runData('run-a');
+  const event = (id: string, at: Date, kind: string, gate: string | null) => ({ id, at: at.toISOString(), kind, gate, reason: null });
+  let observation: Record<string, unknown> = { run_id: run.run_id, revision_id: run.revision_id, events: { state: 'available', items: [
+    event('e-3', new Date(2026, 10, 17, 9, 5), 'approval_recorded', 'PRD'),
+    event('e-2', new Date(2026, 10, 14, 16, 30), 'document_recorded', 'UR'),
+    event('e-1', new Date(2025, 11, 31, 23, 59), 'run_completed', null),
+  ] } };
+  let expired = false;
+  const read: ReadTransport = async path => {
+    if (!path.startsWith('/api/freshness')) return { ...runScope(run), companion_observation: observation } as never;
+    if (expired) throw Error('session_expired');
+    return { ...fixtureMeta, data: { unchanged: true }, companion_observation: observation } as never;
+  };
+  render(<App host="codex" compact transport={read} initialRunId={run.run_id}/>);
+  await screen.findByRole('heading', { name: run.run_id });
+  const history = screen.getByRole('region', { name: 'Ereignisse' });
+  expect([...history.querySelectorAll('time')].map(time => time.textContent)).toEqual(['09:05', '14.11. 16:30', '31.12.2025 23:59']);
+  expect(history.textContent).toContain('Freigabe erfasst für Produktanforderungen');
+  observation = { ...observation, events: { state: 'unavailable', items: [] } };
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(screen.getByRole('region', { name: 'Ereignisse' }).textContent).toContain('Ereignisse nicht verfügbar');
+  expired = true;
+  await act(async () => { fireEvent(document, new Event('visibilitychange')); });
+  expect(screen.getByRole('article', { name: 'Companion-Statuskarte' })).toBeTruthy();
+  expect(screen.queryByRole('region', { name: 'Ereignisse' })).toBeNull();
+  expect(screen.queryByText(/Ereignisse nicht verfügbar/)).toBeNull();
 });
 
 it('polls the Codex card quickly only while the shown step waits for the agent', async () => {
@@ -859,8 +900,12 @@ it('shows a single recovery notice at the open draft and logs the operation and 
   const body = await screen.findByRole('article', { name: 'Originaldokument' });
   failing = true;
   await act(async () => { fireEvent(document, new Event('visibilitychange')); });
-  const notices = screen.getByRole('region', { name: 'Entwurf lesen' }).querySelectorAll('.companion-reader-notice');
-  expect(notices).toHaveLength(1);
+  // The failed capture settles after the freshness check; a loaded runner may need a further render.
+  const notices = await waitFor(() => {
+    const found = screen.getByRole('region', { name: 'Entwurf lesen' }).querySelectorAll('.companion-reader-notice');
+    expect(found).toHaveLength(1);
+    return found;
+  });
   expect(notices[0].textContent).toContain('Aktueller Stand nicht bestätigt.');
   expect(screen.queryByText('Aktualisierung fehlgeschlagen')).toBeNull();
   expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);

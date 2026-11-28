@@ -3,6 +3,7 @@ import { createRun } from '../../core/lib/control-state/run-state-repository.js'
 import { sealRunState } from '../../core/lib/control-state/run-seal.js';
 import { runDocumentPath } from '../../core/lib/control-state/run-identity.js';
 import { clarifiedUr } from '../../core/test/planned-fixtures.js';
+import { renameSyncWithRetry } from '../../core/lib/fs-swap.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -147,7 +148,8 @@ test('authenticated change wait wakes on atomic current Run source replacement a
     assert.equal((await request(service, `/api/changes?snapshot=${snapshot.snapshot_id}`, { headers: { 'x-agdf-session': '0'.repeat(64) } })).status, 401);
     const pending = request(service, `/api/changes?snapshot=${snapshot.snapshot_id}`);
     const path = join(f.root, f.documentPath);
-    fs.writeFileSync(path + '.replacement', fs.readFileSync(path, 'utf8') + '\nChanged current source\n'); fs.renameSync(path + '.replacement', path);
+    // Windows scanners briefly lock the fresh replacement; the same bounded retry as the product's atomicWrite.
+    fs.writeFileSync(path + '.replacement', fs.readFileSync(path, 'utf8') + '\nChanged current source\n'); renameSyncWithRetry(path + '.replacement', path);
     const event = await pending;
     assert.equal(event.status, 200); assert.equal(event.body.data.changed, true);
     assert.equal(event.body.snapshot_id, snapshot.snapshot_id); assert.equal(event.body.authorizes, false);

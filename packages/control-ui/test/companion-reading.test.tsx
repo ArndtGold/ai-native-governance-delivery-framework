@@ -329,7 +329,8 @@ it('keeps the same decision and reading position through an unrelated background
   refreshed.document_states!.find(row => row.type === 'PRD')!.resource_id = prd.resource_id = 'new-scope-prd';
   refreshed.active_run_ids = [refreshed.run_id, 'other-run'];
   await act(async () => { finish(runScope(refreshed, 'after-change')); });
-  expect(screen.getByRole('navigation', { name: 'Aktive Runs' })).toBeTruthy();
+  // The switcher may need a further render after the capture settles; the checks below still pin the reader.
+  expect(await screen.findByRole('navigation', { name: 'Aktive Runs' })).toBeTruthy();
   expect(screen.getByRole('article', { name: 'Originaldokument' })).toBe(body);
   expect(notices()).toHaveLength(0);
   expect(sourceReads(read)).toBe(1);

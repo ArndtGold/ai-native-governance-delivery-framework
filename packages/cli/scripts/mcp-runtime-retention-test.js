@@ -83,6 +83,10 @@ try {
   await holderEnded;
   assert.equal(mcpRuntimeRetirementState(runtime.root), 'eligible');
   const first = acquireMcpExecutableClaim(runtime), second = acquireMcpExecutableClaim(runtime);
+  const firstRecord = JSON.parse(readFileSync(join(runtime.root, '.agdf-executable-claims', first.token + '.json'), 'utf8'));
+  assert.equal(firstRecord.schema_version, 2);
+  assert.equal(firstRecord.admission_protocol, 'codex-shared-v1', 'the verified current producer declares the shared Run protocol');
+  assert.ok(firstRecord.boot_id === null || /^[a-f0-9-]{36}$/u.test(firstRecord.boot_id));
   assert.equal(Object.isFrozen(first.verifiedRuntime), true);
   for (const key of ['root', 'entrypoint', 'packageRoot', 'dispatcherRoot', 'markerPath', 'version', 'digest', 'dispatcherDigest', 'sdkDigest'])
     assert.equal(first.verifiedRuntime[key], runtime[key], `claim retains its actual canonical inspection: ${key}`);

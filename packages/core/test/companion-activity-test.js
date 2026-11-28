@@ -54,6 +54,36 @@ test('every agent work phase binds the gate Core emits it for', () => {
   assert.equal(workBinding(request, phase('implementation', 'TP')), null, 'a phase never binds another gate');
 });
 
+test('named review and QA handoffs without a phase bind the current agent operation', () => {
+  for (const [gate, skill_id] of [['CR', 'code-review'], ['QA', 'task-plan-review'],
+    ['QA', 'clean-implementation-review'], ['QA', 'qa-gate']]) {
+    const response = {
+      ...result, skill: { skill_id, dispatch_mode: 'judgement_required' },
+      continuation: { governance_target: target, run_id: run, revision_id: revision, skill_id },
+      control: { current_gate: gate, next_operation: { actor: 'agent', gate, skill_id } },
+    };
+    assert.deepEqual(workBinding(request, response), { ...scope, gate }, skill_id);
+    for (const invalid of [
+      { ...response, skill: { ...response.skill, skill_id: 'another' } },
+      { ...response, skill: { ...response.skill, dispatch_mode: 'deterministic_control' } },
+      { ...response, skill: undefined },
+      { ...response, continuation: { ...response.continuation, phase: 'presentation_required' } },
+      { ...response, continuation: { ...response.continuation, phase: null } },
+      { ...response, continuation: { ...response.continuation, skill_id: undefined } },
+      ...[{ actor: 'human' }, { gate: 'UAT' }, { gate: undefined }, { skill_id: 'another' }]
+        .map(change => ({ ...response, control: { ...response.control,
+          next_operation: { ...response.control.next_operation, ...change } } })),
+    ]) assert.equal(workBinding(request, invalid), null, `${skill_id} rejects an unrelated or unconfirmed handoff`);
+  }
+  const evidence = {
+    ...result, skill: { skill_id: 'qa-gate', dispatch_mode: 'judgement_required' },
+    continuation: { governance_target: target, run_id: run, revision_id: revision, skill_id: 'qa-gate' },
+    control: { current_gate: 'QA', next_operation: { actor: 'agent', gate: 'QA', type: 'remediate_quality_findings' } },
+  };
+  assert.deepEqual(workBinding(request, evidence), { ...scope, gate: 'QA' },
+    'a QA evidence follow-up uses its confirmed named owner even when the operation has no skill_id');
+});
+
 test('host IDs are ASCII only', () => {
   assert.equal(isActivityId('toolu_01AbC-9'), true);
   for (const value of ['\u212A'.repeat(4), 'ſession', 'a'.repeat(129), '', 'a b']) assert.equal(isActivityId(value), false, value);

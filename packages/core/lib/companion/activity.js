@@ -38,8 +38,22 @@ const workPhases = new Map([
   ['post_uat_closeout', ['OR']],
 ]);
 
-function workGate(continuation, current) {
-  if (!workPhases.has(continuation?.phase) || typeof current !== 'string' || !current) return null;
+function workGate(result) {
+  const continuation = result?.continuation;
+  const current = result?.control?.current_gate;
+  if (typeof current !== 'string' || !current) return null;
+  // Named judgement handoffs (reviews and QA) have no phase. Use the dispatcher's
+  // confirmed owner and current operation instead of maintaining another skill/gate
+  // catalogue here. An explicit unknown phase never falls back to named work.
+  if (continuation?.phase === undefined) {
+    const operation = result?.control?.next_operation;
+    const skill = result?.skill;
+    return typeof continuation?.skill_id === 'string' && continuation.skill_id.length > 0
+      && skill?.dispatch_mode === 'judgement_required' && skill.skill_id === continuation.skill_id
+      && operation?.gate === current
+      && (operation.skill_id === undefined || operation.skill_id === continuation.skill_id) ? current : null;
+  }
+  if (!workPhases.has(continuation.phase)) return null;
   const gates = workPhases.get(continuation.phase);
   if (gates ? !gates.includes(current) : continuation.gate !== undefined && continuation.gate !== current) return null;
   return current;
@@ -50,7 +64,7 @@ function workGate(continuation, current) {
 export function workBinding(request, result) {
   const continuation = result?.continuation;
   const target = result?.target?.governance_target;
-  const gate = workGate(continuation, result?.control?.current_gate);
+  const gate = workGate(result);
   if (request?.continue_delivery !== true || result?.outcome !== 'skill_continuation' || result.terminal !== false
     || result.authorizes !== false || !gate || result.control?.next_operation?.actor !== 'agent'
     || result.target?.resolution_state !== 'resolved' || typeof target !== 'string' || !target

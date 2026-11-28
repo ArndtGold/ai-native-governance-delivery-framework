@@ -34,7 +34,6 @@ export function mcpControlContinuation(input, result, availableGroups = []) {
   const bound = { ...common, run_id: run, expected_revision_id: revision };
   const inspect = (operation, extra = {}, bind = true) => ({ tool: 'agdf_inspect', arguments: { operation, ...(bind ? bound : common), ...extra } });
   const { steps, template_path, artifact_path, ...retained } = continuation;
-  const owner = continuation.work_admission?.owner;
   if (continuation.phase === 'completed_delivery_closeout' && run && revision) {
     return { ...result, continuation: { ...retained, control_transport: 'typed_mcp', external_execution: ['Git operations'],
       instruction: 'Use the current control snapshot and the exact registered OR and QA evidence returned by the supplied read. Follow only its supplied evidence pages. Inspect Git separately for the explicitly requested handoff. This read grants no write or VCS authority.',
@@ -89,7 +88,7 @@ export function mcpControlContinuation(input, result, availableGroups = []) {
       transport_reason: 'required_mcp_group_unavailable' } };
   return { ...result, presentation: continuation.phase === 'presentation_required' ? null : result.presentation,
     continuation: { ...retained, instruction, control_transport: 'typed_mcp', external_execution: ['source edits', 'actual tests', 'Git operations'],
-      ...(run && revision ? { resume_call: continueDeliveryCall({ ...common, run_id: run, ...(owner && { continuation_owner: owner }) }) } : {}),
+      ...(run && revision ? { resume_call: continueDeliveryCall({ ...common, run_id: run }) } : {}),
       ...(recording ? { recording, instruction: instruction + ' ' + recording.instruction } : {}),
       ...(nextCalls ? { next_calls: nextCalls } : {}) } };
 }

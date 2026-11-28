@@ -1,0 +1,38 @@
+## Nutzerabnahme prüfen und entscheiden
+
+Lean Codex continuation handoff
+
+- Ziel: Die Codex-Fortsetzung aus dem Begleiter schützt nur noch die Übergabe selbst (ein Sendeschein pro Run, mit Ablaufzeit), gewöhnliche Fortsetzungen werden nie gesperrt, und „Codex arbeitet“ kommt aus dem vorhandenen Aktivitätsnachweis.
+- Geliefertes Ergebnis: Die Codex-Fortsetzungssperre aus PR #84 ist durch eine schlanke Begleiter-Übergabe ersetzt: ein Datensatz pro Run nur während Reservierung (2 Minuten), veröffentlichter Übergabe (10 Minuten) und Abholanzeige (1 Minute), danach keine Datei mehr; einmaliges Abholen per Versuchskennung, wiederholtes oder veraltetes Abholen wird im Chat mit einem Satz abgewiesen; gewöhnliche Chat-Fortsetzungen werden nie gesperrt; „Codex arbeitet bereits an diesem Run.“ kommt aus dem Aktivitätsnachweis, „Abbruch angefordert“ entfällt; die Owner-Kette ist entfernt. Alle Tasks T-001 bis T-010 und Szenarien SCN-001 bis SCN-013 sind erfüllt, die vier Code-Review-Befunde behoben und nachgeprüft; alle Suiten des Testplans und `compatibility:check` (56/56) laufen durch.
+- Technische QA: pass
+- Nachweisgrenzen: Die Browserfälle und die echte Codex-App wurden auf diesem Rechner nicht ausgeführt (Browserfälle nur geprüft und syntaktisch kontrolliert); der native Qualifizierungsnachweis muss auf einem echten Codex-Host neu aufgenommen werden; ein Cockpit-Core-Test scheitert an der Windows-Symlink-Grenze unabhängig von dieser Änderung; die CI des Pull Requests steht noch aus.
+- Risiken und offene Punkte: Nach der Abholanzeige hält nur der Aktivitätsnachweis einen neuen Start zurück, bei Freigabe-Übergaben oder ohne Hooks ist ein zweiter Klick möglich (in der PRD akzeptiert, Konsistenz über die Revisionsprüfung); das Dispatch-Schema verliert `continuation_owner` aus dem unveröffentlichten PR #84; #85 und #86 müssen den Stand erneut nachziehen.
+- Freigabewirkung: Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+- ur ·  (exact cooperative association)
+- route · UR (exact cooperative association)
+- Brownfield Analysis · UR, PRD, SD, TP, Brownfield Review, UX Intent Definition (exact cooperative association)
+- CD+Tests · UR, PRD, SD, TP, Brownfield Analysis (exact cooperative association)
+- CR · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- TP Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- Clean Implementation Review · UR, PRD, SD, TP, CD+Tests (exact cooperative association)
+- QA · UR, PRD, SD, TP, CD+Tests, TP Review, Clean Implementation Review, CR (exact cooperative association)
+- Ersetzte oder nicht zugeordnete Nachweise: 0
+
+- QA: .agdf/control/runs/run-fc64e714-ce09-40f1-934f-5593fbeed84e/documents/QA_REPORT.md · sha256:19150f7af6f26238d7d84d2c8df7e1790ea630ccb7f356d2d88c9ad1d3e83bd0
+- Review: .agdf/control/runs/run-fc64e714-ce09-40f1-934f-5593fbeed84e/documents/TP_REVIEW.md · sha256:8046ede2a05e42358f3c72e01cd1dc68bda95af8850f46aaa55838136f4d7d1d
+- Review: .agdf/control/runs/run-fc64e714-ce09-40f1-934f-5593fbeed84e/documents/CLEAN_IMPLEMENTATION_REVIEW.md · sha256:e7dcd0834a54971de239de668f357e372b80f8101833ee36c3f12f7c64dfdf76
+- Review: .agdf/control/runs/run-fc64e714-ce09-40f1-934f-5593fbeed84e/documents/CODE_REVIEW.md · sha256:478c72cfe402fe327636c7c30ecdf7a5292f959f79473001242165ac5eafa479
+- UR: .agdf/control/runs/run-fc64e714-ce09-40f1-934f-5593fbeed84e/documents/UR.md · sha256:86c3a5f47c27335802d2671085f4c9331a0337e2f5012e2291b85c1e8db1baee
+
+Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UAT.
+
+### Fassung und Quellen
+
+Run: `run-fc64e714-ce09-40f1-934f-5593fbeed84e` · Nutzerabnahme · Revision: `f064a265-7626-45a1-a6f4-01cc05c43258`
+
+SHA-256: `sha256:6199240c8b34b51494feff6928f85449bf1d5b716c3dbdae7346c61d6cad9cb2`

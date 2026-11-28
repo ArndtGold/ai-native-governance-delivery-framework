@@ -40,14 +40,14 @@ export function CompanionContinuationAction({ port, selection, approval, stepId,
         reading = false;
         if (!controller.signal.aborted && !inFlight.current && count === startCount.current) {
           setState(previous => previous === 'stale'
-            || (status === 'unavailable' && (previous === 'pending' || previous === 'running' || previous === 'stopping')) ? previous : status);
+            || (status === 'unavailable' && (previous === 'pending' || previous === 'running' || previous === 'legacy' || previous === 'legacy_restart')) ? previous : status);
           if (checkRequested) {
             setCheck(status === 'pending' || status === 'unavailable' ? status : null);
             checkRequested = false;
           } else if (status === 'pending') {
             setCheck(previous => previous === 'unavailable' ? null : previous);
           }
-          if (status === 'pending' || status === 'running' || status === 'stopping') setRetry(false);
+          if (status === 'pending' || status === 'running') setRetry(false);
         }
       }
       if (!controller.signal.aborted) timer = setTimeout(() => void poll(), 2500);
@@ -80,7 +80,8 @@ export function CompanionContinuationAction({ port, selection, approval, stepId,
   </button>;
   if (state === 'starting') return <p role="status">Der Begleiter bereitet die Übergabe an Codex vor.</p>;
   if (state === 'running') return <p role="status">Codex arbeitet bereits an diesem Run.</p>;
-  if (state === 'stopping') return <p role="status">Der Abbruch wurde angefordert. Sobald Codex das Ende bestätigt, kannst du den Run fortsetzen.</p>;
+  if (state === 'legacy_restart') return <p role="status">Für den Wechsel zur neuen AGDF-Fassung ist ein vollständiger Neustart des Computers erforderlich. Damit lässt sich das Ende älterer Verbindungen sicher bestätigen. Ein Neustart von Codex allein genügt dafür nicht.</p>;
+  if (state === 'legacy') return <p role="status">Der Abschluss einer älteren AGDF-Verbindung ist noch nicht bestätigt. Deshalb bleibt ein weiterer Start gesperrt.</p>;
   if (state === 'pending') return <>
     <p role="status"><span>Die Bestätigung von Codex steht noch aus.</span>{' '}
       {check ? checkMessage[check] : 'Der Begleiter prüft die Übergabe automatisch. Du musst gerade nichts tun.'}</p>

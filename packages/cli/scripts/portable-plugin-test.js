@@ -66,6 +66,7 @@ negative("runtime-portable-shadow", runtime, "runtime", (r) => write(r, "plugin.
 negative("runtime-hook-missing", runtime, "runtime", (r) => rmSync(join(r, local.hooks)), /AGDF_PUBLIC_PLUGIN_BUNDLE_PATH_MISSING/);
 negative("runtime-mcp-missing", runtime, "runtime", (r) => rmSync(join(r, "mcp.json")), /AGDF_PUBLIC_PLUGIN_BUNDLE_PATH_MISSING/);
 negative("runtime-mcp-type", runtime, "runtime", (r) => { const c = read(r, "mcp.json"); delete c.mcpServers.agdf.type; write(r, "mcp.json", c); }, /AGDF_PORTABLE_SCHEMA_INVALID/);
+negative("runtime-mcp-null-server", runtime, "runtime", (r) => { const c = read(r, "mcp.json"); c.mcpServers.agdf = null; write(r, "mcp.json", c); }, /AGDF_PORTABLE_SCHEMA_INVALID/);
 negative("runtime-mcp-extra-server", runtime, "runtime", (r) => { const c = read(r, "mcp.json"); c.mcpServers.other = c.mcpServers.agdf; write(r, "mcp.json", c); }, /AGDF_PORTABLE_PROFILE_INVALID/);
 negative("identity", publicRoot, "public", (r) => write(r, "plugin.json", { ...read(r, "plugin.json"), version: "0.0.0" }), /AGDF_PUBLIC_PLUGIN_VERSION_DRIFT/);
 negative("runtime-fallback-drift", runtime, "runtime", (r) => write(r, ".codex-plugin/plugin.json", { ...read(r, ".codex-plugin/plugin.json"), mcpServers: "./mcp/claude.mcp.json" }), /AGDF_PORTABLE_PROFILE_INVALID/);

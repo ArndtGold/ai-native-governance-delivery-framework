@@ -1,0 +1,26 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Recoverable Codex continuation leases
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Die Codex-Fortsetzungssperre aus PR #84 verhindert weiter einen doppelten Start, sperrt einen Run aber nie dauerhaft und hält den Agenten nicht bei seiner eigenen gesteuerten Arbeit auf.
+- Problem: Sperren verfallen nie (fehlender Hook, verlorene Nachricht oder Antwort, Lock-Timeout); der normale Folgeaufruf nach einem Schreibvorgang wird im selben Turn abgewiesen; der eigene Owner wird bei gleicher Revision abgewiesen; ab 512 Sperrdateien werden Turn-Enden nicht mehr ausgewertet; gewöhnliche Fortsetzungen ohne Begleiter scheitern an der Begleiter-Eignung.
+- Betroffene: Wer einen Run aus der Codex-Begleiterkarte oder im Codex-Chat fortsetzt, und wer einen fälschlich gesperrten Run wieder freibekommen muss.
+- Umfang: begrenzte Lebensdauer für reservierte, wartende und laufende Sperren; Owner-Kontinuität für Folgeaufrufe und gleiche Revision; Turn-Ende-Auswertung ohne feste Obergrenze und Aufräumen erledigter Sperren; gewöhnliche Fortsetzung nur bei echtem Konflikt abweisen; Tests und abgeleitete Nachweise.
+- Nicht-Ziele: keine neuen Kartentexte, keine Änderung an Freigaben, an der Qualifizierungsliste, am Claude-Begleiter oder an #85/#86 außer dem Nachziehen; kein Merge von #84.
+- Abnahmesignale: je ein Test für Verfall, Folgeaufruf nach Schreibvorgang, gleiche Revision, mehr als 512 Sperren und gewöhnliche Fortsetzung ohne Konflikt; bestehende Suiten und Kompatibilitätsprüfung grün.
+- Quellen: `codex-continuation.js`, `codex-continuation-binding.js`, `codex-activity.js`, `mcp-dispatch-runtime.js`, `run-command-service.js`, `prepared-control-calls.js`, `mcp-continuation.js`, `cockpit-session.js` und die zugehörigen Tests; Review-Befunde vom 27.11.2026.
+- Risiken: Sperrdauern und der Weg für die Owner-Kontinuität sind noch festzulegen; jede Codeänderung macht einen vorhandenen nativen Qualifizierungsnachweis ungültig; #85 und #86 müssen erneut nachgezogen werden.
+- Nächster Schritt: UR prüfen und mit `Approval: UR` freigeben; danach Brownfield Review und Festlegung der Lieferform.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-5fbcb71f-d164-46ce-9288-aa25d6a90642` · Nutzeranforderungen · Revision: `bc13bfee-94b4-4982-8b33-57067c909e3b`
+
+SHA-256: `sha256:e30e08ef8ef125543e9cd0727f69a871edbc61aa7d4b0e675b092871807bf496`

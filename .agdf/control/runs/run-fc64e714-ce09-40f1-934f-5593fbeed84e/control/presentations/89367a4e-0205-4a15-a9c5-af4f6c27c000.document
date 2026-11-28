@@ -1,0 +1,26 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Lean Codex continuation handoff
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Die Codex-Fortsetzung aus dem Begleiter schützt nur noch die Übergabe selbst (ein Sendeschein pro Run, mit Ablaufzeit), gewöhnliche Fortsetzungen werden nie gesperrt, und „Codex arbeitet“ kommt aus dem vorhandenen Aktivitätsnachweis.
+- Problem: Die Sperre aus PR #84 gilt für jede Codex-Fortsetzung, verfällt nie, braucht eine Owner-Kette durch Schema, Folgeaufrufe und Hooks und hält den Agenten bei seiner eigenen Arbeit auf; der Reparaturversuch run-5fbcb71f hat das Konstrukt nur vergrößert.
+- Betroffene: Wer einen Run aus der Codex-Begleiterkarte oder im Codex-Chat fortsetzt, und wer einen fälschlich gesperrten Run sonst freibekommen müsste.
+- Umfang: Zulassung nur für Reservieren, Senden und Abholen der Begleiter-Übergabe mit Ablaufzeiten und Aufräumen; Laufzustand aus dem Aktivitätsnachweis; gewöhnliche Fortsetzungen ohne Zulassung; Owner-Kette und Hook-Zuordnung entfernt; Qualifizierungsliste angepasst; Tests, Payload-Baseline und Kompatibilitätsnachweis; Nachziehen von #85 und #86.
+- Nicht-Ziele: keine Änderung an Freigaben oder am Aktivitätsnachweis selbst, kein neuer Kartenablauf, keine native Neuqualifizierung, kein Claude-Begleiter, kein Merge; der Code von run-5fbcb71f wird verworfen.
+- Abnahmesignale: Tests für einen Sendeschein über zwei Prozesse, Ablauf und Entfernen von Einträgen, einmaliges Abholen, keine Sperre gewöhnlicher Fortsetzungen bei weiter greifender Revisionsprüfung, Laufanzeige aus dem Aktivitätsnachweis, kein `continuation_owner` mehr; bestehende Suiten grün.
+- Quellen: `codex-continuation.js`, `codex-continuation-binding.js`, `codex-activity.js`, `activity.js`, `cockpit-session.js`, `mcp-dispatch-runtime.js`, `contract.js`, `mcp-continuation.js`, `prepared-control-calls.js`, `plugin-provenance.js`, die Begleiter-Komponenten und die zugehörigen Tests.
+- Risiken: Ablaufzeiten, Zuordnung des Aktivitätsnachweises (inklusive „Abbruch angefordert“) und Umgang mit alten Sperrdateien sind im SD festzulegen; ohne vertrauenswürdige Hooks ist doppelte Arbeit möglich, aber keine inkonsistente; das Dispatch-Schema ändert sich, der native Qualifizierungsnachweis passt danach nicht mehr; #85 und #86 müssen erneut nachgezogen werden.
+- Nächster Schritt: UR prüfen und mit `Approval: UR` freigeben; danach Brownfield Review und Festlegung der Lieferform.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-fc64e714-ce09-40f1-934f-5593fbeed84e` · Nutzeranforderungen · Revision: `4b41a7a8-8ba3-4ec0-a249-b21506d4e498`
+
+SHA-256: `sha256:86c3a5f47c27335802d2671085f4c9331a0337e2f5012e2291b85c1e8db1baee`

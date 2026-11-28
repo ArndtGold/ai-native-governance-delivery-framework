@@ -2,7 +2,7 @@ import type { CockpitBridge } from './transport';
 
 export type ContinuationSelection = { snapshot_id: string; run_id: string; revision_id: string };
 type ServiceState = 'ready' | 'pending' | 'running' | 'unavailable' | 'stale';
-export type ContinuationState = ServiceState | 'stopping';
+export type ContinuationState = ServiceState | 'legacy' | 'legacy_restart';
 export type CompanionContinuation = {
   status: (selection: ContinuationSelection, signal: AbortSignal) => Promise<ContinuationState>;
   start: (selection: ContinuationSelection, signal: AbortSignal) => Promise<ContinuationState>;
@@ -24,10 +24,10 @@ export function createCompanionContinuation(bridge: CockpitBridge, session: stri
     const result = await bridge.request(() => bridge.app.callServerTool({ name: 'agdf_cockpit_continue',
       arguments: { ...selection, session_id: session, operation, ...(attempt_id && { attempt_id }) },
     }, { timeout: 10_000, signal }));
-    const data = result.structuredContent as (Omit<Reply, 'state'> & { state: ServiceState; interrupt_requested?: boolean;
+    const data = result.structuredContent as (Omit<Reply, 'state'> & { state: ServiceState; legacy_runtime?: boolean; boot_restart_required?: boolean;
       schema_version: string; authorizes: boolean }) | undefined;
     if (result.isError || data?.schema_version !== '1' || data.authorizes !== false || !states.includes(data.state)) throw Error('continuation_unavailable');
-    return data.state === 'running' && data.interrupt_requested === true ? { ...data, state: 'stopping' } : data;
+    return data.state === 'unavailable' && data.legacy_runtime === true ? { ...data, state: data.boot_restart_required === true ? 'legacy_restart' : 'legacy' } : data;
   }
   function matches(reply: Reply, selection: ContinuationSelection, attempt: string) {
     return reply.attempt_id === attempt && reply.run_id === selection.run_id && reply.revision_id === selection.revision_id

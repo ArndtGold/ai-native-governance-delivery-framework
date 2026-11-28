@@ -17,10 +17,22 @@ import { offlineNpm, pluginRoot, version } from "../../../scripts/support/plugin
 // Codex: the runtime plugin declares the server in portable root mcp.json with installer-written absolute
 // paths, because Codex expands no plugin variables and passes no plugin data directory.
 assert.equal(JSON.parse(readFileSync(join(pluginRoot, ".codex-plugin", "plugin.json"), "utf8")).mcpServers, "./mcp.json");
-assert.equal(readFileSync(join(pluginRoot, "mcp.json"), "utf8"), renderCodexPluginMcpConfig({ cockpit: true }), "the generated file is the template");
+assert.equal(readFileSync(join(pluginRoot, "mcp.json"), "utf8"), renderCodexPluginMcpConfig({ cockpit: true, portable: false, nativeStartup: true }), "the generated file is the native template");
 assert.equal(JSON.parse(readFileSync(join(pluginRoot, "mcp.json"), "utf8")).mcpServers.agdf.type, "stdio");
 assert.equal(existsSync(join(pluginRoot, "mcp", "codex.mcp.json")), false, "portable discovery must have one canonical MCP declaration");
 assert.equal(existsSync(join(pluginRoot, ".mcp.json")), false, "Claude Code would load a plugin-root .mcp.json automatically");
+for (const entry of Object.values(JSON.parse(readFileSync(join(pluginRoot, 'mcp.json'), 'utf8')).mcpServers))
+  assert.equal(entry.startup_timeout_sec, 90);
+{
+  const options = { pluginRoot: '/installed/agdf', dataRoot: '/owned/data', portable: false, cockpit: true, nativeStartup: true };
+  const declaration = renderCodexPluginMcpConfig(options);
+  assert.equal(normalizeCodexPluginMcpConfig(declaration),
+    renderCodexPluginMcpConfig({ portable: false, cockpit: true, nativeStartup: true }));
+  const altered = JSON.parse(declaration);
+  altered.mcpServers['agdf-cockpit'].startup_timeout_sec = 1;
+  const text = JSON.stringify(altered);
+  assert.equal(normalizeCodexPluginMcpConfig(text), text, 'timeout drift stays visible to provenance');
+}
 
 // Already installed owned legacy declarations must retain their historical normalized digest.
 for (const portable of [false, true]) {
@@ -92,7 +104,7 @@ try {
   const { publicationDeadline, ...ensuredInput } = ensured[0];
   assert.deepEqual(ensuredInput, { pluginRoot, dataRoot: args[4], env: {} });
   assert.ok(Number.isFinite(publicationDeadline) && publicationDeadline > performance.now()
-    && publicationDeadline <= performance.now() + 30_000);
+    && publicationDeadline <= performance.now() + 60_000);
   const deadlines = [];
   await launchPluginMcpServer({ pluginRoot, argv: ['--surface', 'codex', '--data', args[4]], env: {},
     stdout: { write() {} }, stderr: { write() {} },
@@ -103,7 +115,7 @@ try {
 
   // The installer prewarm reuses exactly the installed declaration.
   const prewarm = [];
-  writeFileSync(join(staged.pluginRoot, "mcp.json"), renderCodexPluginMcpConfig({ pluginRoot: staged.pluginRoot, dataRoot: args[4], cockpit: true }));
+  writeFileSync(join(staged.pluginRoot, "mcp.json"), renderCodexPluginMcpConfig({ pluginRoot: staged.pluginRoot, dataRoot: args[4], cockpit: true, portable: false, nativeStartup: true }));
   assert.deepEqual(prepareCodexPluginMcp({ pluginRoot: staged.pluginRoot, execPath: "/node", exec(file, argv) { prewarm.push([file, argv]); return ""; } }),
     ["codex_plugin_mcp:prepared"]);
   assert.deepEqual(prewarm, [["/node", [...args, "--prepare"]]]);

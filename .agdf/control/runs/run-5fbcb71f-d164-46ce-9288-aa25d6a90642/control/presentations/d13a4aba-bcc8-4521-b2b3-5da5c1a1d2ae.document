@@ -1,0 +1,23 @@
+## Aufgaben- und Testplan prüfen und entscheiden
+
+TP: Recoverable Codex continuation leases
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Aufgaben: T-001 Sperrlogik in `codex-continuation.js` (Uhr-Option, `updated_at`, Grenzen, Ablauf, Löschen statt Ablegen, gealterte unlesbare Dateien, Eignung nur für Begleiter-Claims, gleicher Owner, `holds`, `settleTurn` ohne Obergrenze); T-002 Hook-Zeit in `codex-activity.js`; T-003 Dispatch-Runtime (gewöhnliche Fortsetzung ohne Abbruch bei unlesbarer Datei, Owner-Speicher, Owner im Folgeaufruf nach Schreibvorgängen); T-004 neue Sperr-Tests; T-005 neue MCP-Server-Tests; T-006 Änderungskette und alle Prüfungen.
+- Nachweise: SCN-001/004 Ablauf je Phase, alte Datei nach Dateizeit, Löschen beim Zugriff (AC-001); SCN-002/005 Owner im Folgeaufruf nach `agdf_record` und `holds` (AC-002); SCN-006 gleicher Owner bei gleicher Revision (AC-003); SCN-007/008 Löschen erledigter Dateien und Stop bei 600 Dateien (AC-004); SCN-009/010 gewöhnliche Fortsetzung ohne Eignung, bei unlesbarer Datei und gegen fremde Sperre (AC-005); SCN-003/011 bestehende Begleiter- und Hook-Fälle unverändert (AC-006); SCN-012 alle Suiten und `compatibility:check` (AC-007).
+- Prüfplan: lokal unter Windows in diesem Worktree vor QA mit kontrollierter Uhr statt Warten, CI wiederholt im Pull Request; native Codex-Prüfungen und Browserfälle bleiben eine benannte Lücke.
+- Planungsentscheidungen: Satzfälle im Sperr-Test, Dispatch-Fälle im MCP-Server-Test, Scan-Fall mit 600 Dateien anderer Runs (je zur Hälfte erledigt und abgelaufen); Payload-Baseline nur bei gemeldetem Wachstum mit Begründung anheben.
+- Nicht enthalten: Kartentexte und UI-Ablauf, Qualifizierungsliste und native Neuqualifizierung, Browserfälle, Merge von PR #84, Release-Notizen.
+- Risiken: fehlschlagende Szenarien oder `compatibility:check` blockieren QA; der native Qualifizierungsnachweis passt nicht mehr zum neuen Server-Digest; #85 und #86 müssen erneut nachgezogen werden.
+
+Die Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: TP.
+
+### Fassung und Quellen
+
+Run: `run-5fbcb71f-d164-46ce-9288-aa25d6a90642` · Aufgaben- und Testplan · Revision: `932af769-ce4f-44a4-87ed-f5e622def436`
+
+SHA-256: `sha256:2605894d5d87d3e963b004486f893c8a475e05491ca0ca91945e2e0b07013307`

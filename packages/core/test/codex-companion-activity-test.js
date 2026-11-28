@@ -50,6 +50,25 @@ test('Codex work is scoped and lasts until its turn ends', t => {
   assert.equal(observeCodexActivity(root, { ...post, tool_use_id: 'late' }, 60_002), false, 'a late result cannot revive it');
 });
 
+for (const ending of ['Stop', 'Interrupt']) test(`a phase-less Code Review is live until ${ending} and late results cannot revive it`, t => {
+  const { root, binding, common, post, activity } = fixture(t);
+  const gate = 'CR', skill_id = 'code-review';
+  const review = { ...post, tool_response: { structuredContent: {
+    ...post.tool_response.structuredContent,
+    skill: { skill_id, dispatch_mode: 'judgement_required' },
+    control: { current_gate: gate, next_operation: { actor: 'agent', gate, skill_id } },
+    continuation: { governance_target: root, run_id: binding.run_id, revision_id: binding.revision_id, skill_id },
+  } } };
+  assert.equal(observeCodexActivity(root, { ...common, hook_event_name: 'UserPromptSubmit' }, 1000), true);
+  assert.equal(observeCodexActivity(root, review, 1001), true);
+  assert.deepEqual(activity({ ...binding, gate }, 1002), { gate, expires_at: 1001 + HOUR });
+  assert.equal(activity(binding, 1002), null, 'work never attaches to another gate');
+  assert.equal(observeCodexActivity(root, { ...common, hook_event_name: ending }, 2000), true);
+  assert.equal(activity({ ...binding, gate }, 2001), null);
+  assert.equal(observeCodexActivity(root, { ...review, tool_use_id: 'late-review' }, 2002), false);
+  assert.equal(activity({ ...binding, gate }, 2003), null);
+});
+
 test('the hard bound ends abandoned work, and a later dispatch of the turn renews it', t => {
   const { root, binding, common, post, activity } = fixture(t);
   assert.equal(observeCodexActivity(root, post, 1000), true);

@@ -6,6 +6,8 @@ import { createHash, randomUUID } from 'node:crypto';
 import { digestDirectory, digestPluginMcpDispatcherSource, mcpDispatcherRuntimeEntries, mcpDispatcherPackageExports } from "#agdf-core/runtime/plugin-provenance.js";
 import { acquireMcpExecutableClaim, inspectMcpServerPackage, mcpPackageConstants, mcpRuntimeRetirementState, prepareMcpServerPackage, createMcpRuntimeRetirementTransaction } from "./package.js";
 import { inspectPreparedCallJournals, retirePreparedCallJournals } from './prepared-call-journal.js';
+import { checkpointExecutableBootBoundary } from '#agdf-core/companion/executable-boot-boundary.js';
+import { readSystemBootId } from './system-boot.js';
 
 // Plugin-local AGDF MCP runtime shared by the hosts whose runtime plugin declares the server itself:
 // Claude Code passes ${CLAUDE_PLUGIN_DATA}, which it deletes on uninstall; Codex receives an absolute
@@ -169,9 +171,10 @@ export function ensurePluginMcpRuntime({
 
 const CONCURRENT_REPLACEMENT_ATTEMPTS = 6;
 const CONCURRENT_REPLACEMENT_DELAY_MS = 150;
-// SDK acquisition and copying can exceed the old 2.25-second retry window on
-// Windows. Wait for the publication owner without taking or removing its lock.
-const CONCURRENT_PUBLICATION_WAIT_MS = 30_000;
+// Allow a loaded desktop to finish verification and concurrent publication.
+// Hosts must leave additional time for the MCP handshake after this deadline.
+// A waiter still never takes over or removes another publisher's lock.
+const CONCURRENT_PUBLICATION_WAIT_MS = 60_000;
 
 // Only states another launcher can cause: a runtime moved away mid-inspection or a lost stage rename.
 // npm, SDK and verification failures are never retried.
@@ -277,6 +280,10 @@ export async function launchPluginMcpServer({
         || digestDirectory(join(pluginRoot, 'runtime/create-agdf')) !== manifest.digest) throw Error('AGDF_MCP_PLUGIN_RUNTIME_INVALID');
     }
     runtime = ensure({ pluginRoot, dataRoot, env, publicationDeadline });
+    if (surface === 'codex' && ensure === ensurePluginMcpRuntime) {
+      try { checkpointExecutableBootBoundary(realpathSync(dataRoot), readSystemBootId()); }
+      catch { stderr.write('AGDF_MCP_BOOT_BOUNDARY_UNAVAILABLE: historical executable use remains unconfirmed; read-only tools remain available.\n'); }
+    }
   } catch (error) {
     if (waitingOwner) { waitingOwner.stop(); await waitingOwner.settled.catch(() => {}); }
     const code = /^AGDF_[A-Z_]+/.exec(error?.message ?? "")?.[0] ?? 'AGDF_MCP_PLUGIN_RUNTIME_FAILED';

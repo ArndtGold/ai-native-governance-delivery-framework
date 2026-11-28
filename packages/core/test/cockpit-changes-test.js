@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { createCockpitSessionService } from '../lib/control-inspect/cockpit-session.js';
+import { renameSyncWithRetry } from '../lib/fs-swap.js';
 import { fixture, treeBytes } from './control-cockpit-fixtures.js';
 
 const deadline = async promise => {
@@ -10,7 +11,8 @@ const deadline = async promise => {
   try { return await Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(Error('change notification missing')), 3000); })]); }
   finally { clearTimeout(timer); }
 };
-const replace = (path, text) => { fs.writeFileSync(path + '.replacement', text); fs.renameSync(path + '.replacement', path); };
+// Windows scanners briefly lock the fresh replacement; the same bounded retry as the product's atomicWrite.
+const replace = (path, text) => { fs.writeFileSync(path + '.replacement', text); renameSyncWithRetry(path + '.replacement', path); };
 test('atomic Run replacement makes every independent view stale and explicit refresh reissues only its selectors', async () => {
   const f=fixture(),service=createCockpitSessionService(f.root);
   try{

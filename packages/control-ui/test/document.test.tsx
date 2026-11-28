@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import { DocumentView } from '../src/DocumentView';
+import { DocumentView, OriginalDocumentDownload } from '../src/DocumentView';
 import { sourceSummary } from '../src/presentation';
 import type { Envelope, Detail, DocumentData, DocumentState } from '../src/types';
 const resource = { resource_id:'source', run_id:'run-a', type:'UR', path:'UR.md', registered_reference:'UR.md', status:'registered' };
@@ -106,4 +106,58 @@ it('simple reader never replaces a missing original with a summary', () => {
   render(<DocumentView simple result={{...result,state:'missing',code:'document_missing',data:{resource}}} detail={detail} onOpen={vi.fn()}/>);
   expect(screen.queryByRole('article',{name:'Originaldokument'})).toBeNull();
   expect(screen.getByText(/Das registrierte Dokument fehlt/)).toBeTruthy();
+});
+
+it.each([false, true])('groups source and artefact metadata in the Companion reader (different check digest: %s)', distinctDigest => {
+  const raw = '# UR: Clear reading\r\n\r\nStatus: draft\r\nGate: UR\r\nOwner: **Team A**\r\n'
+    + 'Based on: [Related document](related.md)\r\nTraceability contract: criteria-chain-v1\r\n\r\n'
+    + '## Goal\r\n\r\nStatus: words that belong to the document body.\r\n';
+  const contentDigest = 'a'.repeat(64);
+  const checkDigest = 'sha256:' + (distinctDigest ? 'b'.repeat(64) : contentDigest);
+  const check: DocumentState['check'] = { content_digest: contentDigest,
+    source: { run_id: 'run-a', gate: 'UR', revision_id: 'revision', artifact_path: 'UR.md', artifact_digest: checkDigest, available: true, reason: null },
+    display: { state: 'corrections_required', reason: null, recovery: 'authoring', findings: [{ code: 'goal', message: 'Ziel konkretisieren.' }] }, result: null };
+  const state: DocumentState = { schema_version: '1', resource_id: 'source', run_id: 'run-a', revision_id: 'revision', type: 'UR',
+    registered_reference: 'UR.md', source_state: 'available', content_digest: contentDigest, state: 'revision_required',
+    version_kind: 'draft', reason: null, recorded_approval: null, check, authorizes: false };
+  const doc = { ...result, data: { ...result.data!, content: raw, links: { 'related.md': 'registered-related' }, content_digest: contentDigest, document_state: state } };
+  const parent = { ...detail, data: { ...detail.data!, document_states: [state] } };
+  const onOpen = vi.fn();
+  render(<><OriginalDocumentDownload result={doc} detail={parent} current/><DocumentView companion result={doc} detail={parent} onOpen={onOpen}/></>);
+
+  const article = screen.getByRole('article', { name: 'Originaldokument' });
+  expect(article.querySelector('h1')?.nextElementSibling).toBe(within(article).getByRole('heading', { name: 'Goal' }));
+  expect(within(article).queryByText(/Traceability contract/)).toBeNull();
+  expect(within(article).getByText(/Status: words that belong/)).toBeTruthy();
+  expect(screen.getByRole('list', { name: 'Aktuelle Korrekturen' }).textContent).toBe('Ziel konkretisieren.');
+  const details = screen.getByText('Dokumentdetails').closest('details')!;
+  expect(details.open).toBe(false);
+  expect(screen.queryByText('Prüfdetails')).toBeNull();
+  expect(screen.queryByText('Quellenangaben')).toBeNull();
+  fireEvent.click(within(details).getByText('Dokumentdetails'));
+  expect(details.open).toBe(true);
+  for (const fact of ['revision', 'UR.md', base.observed_as_of, contentDigest]) {
+    expect(within(details).getAllByText(fact, { exact: true })).toHaveLength(1);
+  }
+  expect(within(details).getByText('criteria-chain-v1')).toBeTruthy();
+  expect(within(details).getByText('Team A').tagName).toBe('STRONG');
+  expect(within(details).getByText('Korrekturen erforderlich')).toBeTruthy();
+  if (distinctDigest) expect(within(details).getByText(checkDigest)).toBeTruthy();
+  else expect(within(details).queryByText('SHA-256 der Prüfung')).toBeNull();
+  fireEvent.click(within(details).getByRole('button', { name: 'Related document' }));
+  expect(onOpen).toHaveBeenCalledWith('registered-related');
+  const download = screen.getByRole('link', { name: 'Originaldatei herunterladen' });
+  expect(decodeURIComponent(download.getAttribute('href')!.split(',')[1])).toBe(raw);
+});
+
+it.each([
+  'Gate: UR\nStatus: Working label in a mixed paragraph\nPlease review this note before continuing.',
+  'Gate: PRD\nStatus: Draft for a different resource',
+  'Gate: UR\nStatus: draft\nStatus: Contents of an ambiguous block',
+])('keeps an unrecognised introductory block in the document', intro => {
+  const raw = '# Introduction\n\n' + intro + '\n\n## First Section\n\nContent.';
+  render(<DocumentView companion result={{ ...result, data: { ...result.data!, content: raw } }} detail={detail} onOpen={vi.fn()}/>);
+  const article = screen.getByRole('article', { name: 'Originaldokument' });
+  expect(article.querySelector('h1')?.nextElementSibling?.textContent).toContain(intro.split('\n').at(-1));
+  expect(screen.queryByText('Angaben im Dokument')).toBeNull();
 });

@@ -1,0 +1,26 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: Recoverable Codex continuation leases
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Die Fortsetzungssperre endet nach festen Grenzen, wird nach Abschluss gelöscht, weist nur noch bei einer fremden, gültigen Sperre ab und lässt Codex nach einem Schreibvorgang mit seiner Owner-Kennung weiterarbeiten.
+- Zeitfeld und Grenzen (SDD-001, SDD-002): optionales Feld `updated_at` unter unveränderter Schemaversion 1; alte Sperren ohne Feld altern nach dem Änderungszeitpunkt ihrer Datei; Grenzen 2 / 10 / 60 Minuten; abgelaufene oder erledigte Sperren gelten als nicht vorhanden und werden unter der Sperrdatei-Lock gelöscht; unlesbare Sperren blockieren nur bis zur 60-Minuten-Grenze.
+- Turn-Ende (SDD-003): `settleTurn` durchsucht alle Sperrdateien ohne feste Obergrenze und entfernt dabei erledigte, abgelaufene und gealterte unlesbare Dateien.
+- Claims (SDD-004): Begleiter-Eignung nur noch für Reservierung, Veröffentlichung und Begleiter-Claim; derselbe Owner wird bei gleicher Bindung erneut zugelassen und die Zeit erneuert; gewöhnliche Claims scheitern nur an einer gültigen Sperre; neue Abfrage `holds` prüft, ob eine Sperre noch für einen Owner läuft.
+- Dispatch (SDD-005, SDD-006): eine gewöhnliche Fortsetzung bei unlesbarer oder gesperrter Datei läuft ohne Sperre weiter; der Dispatch-Runtime merkt sich vergebene Owner und trägt `continuation_owner` in den `agdf_dispatch`-Folgeaufruf nach `agdf_run`, `agdf_record`, `agdf_revise` und `agdf_approve` ein, solange `holds` ihn bestätigt.
+- Hooks (SDD-007): die Hook-Zeit wird an die Sperrlogik übergeben, damit Zuordnung und Abschluss mit derselben Uhr altern.
+- Nachweis: neue Fälle in `codex-continuation-admission-test.js` (Ablauf je Phase, alte Datei, gleicher Owner, gewöhnlicher Claim, Löschen, 600 Dateien, `holds`, Grenze gleich `codexTurnBound`) und `companion-continuation.test.js` (Folgeaufruf mit Owner, unlesbare Datei, fremde Sperre); bestehende Tests bleiben; Build, Payload-Baseline und Kompatibilitätsnachweis.
+- Entscheidungen: optionales Zeitfeld mit Dateizeit-Rückfall; Löschen statt Ablegen erledigter Sperren; Owner-Kontinuität über den Speicher des Dispatch-Runtimes; Begleiter-Eignung nur im Begleiter-Pfad; Hook-Zeit als Uhr. Die genaue Aufteilung der Testfälle legt der TP fest.
+- Risiken: Uhrsprünge verschieben das Alter; ein Neustart des MCP-Servers vergisst die Owner, dann gilt die gewöhnliche Regel; ohne Sperre laufende Fortsetzungen sieht der Begleiter nicht.
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-5fbcb71f-d164-46ce-9288-aa25d6a90642` · Lösungsdesign · Revision: `b14527ee-ba9b-418d-b21c-fd854229adda`
+
+SHA-256: `sha256:667f4bd7fdc3a7a7396347d029d87c0182f04c0dcbc372feba580fc407956b37`

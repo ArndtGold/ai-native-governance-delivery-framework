@@ -1,0 +1,22 @@
+## Lösungsdesign prüfen und entscheiden
+
+SD: Lean Codex continuation handoff
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Die Begleiter-Übergabe wird ein kleiner Speicher mit drei Phasen und festen Ablaufzeiten; gewöhnliche Fortsetzungen berühren ihn nicht, und „Codex arbeitet“ kommt aus dem Aktivitätsnachweis.
+- Umfang: neues Datensatzformat Version 2 mit Zeitstempel (SDD-001); Ablauf 2 / 10 / 1 Minuten, Löschen beim Zugriff und Aufräumen alter Dateien bei jeder Reservierung (SDD-002); PR-#84-Dateien gelten als nicht vorhanden, unlesbare Dateien blockieren den Begleiter höchstens 10 Minuten (SDD-003); einmaliges Abholen per Versuchskennung, sonst „veraltet“ (SDD-004); Dispatch prüft nur noch Aufrufe mit Versuchskennung, neuer Abweisungssatz, kein `work_admission` (SDD-005); `continuation_owner` entfernt, Folgeaufruf-Bau und Hook-Beobachtung auf den Stand vor PR #84 zurückgesetzt (SDD-006); Laufanzeige und gesperrte Reservierung aus dem Aktivitätsnachweis in der Cockpit-Sitzung, Zustand „Abbruch angefordert“ entfernt (SDD-007); Qualifizierungsliste mit `ordinary_continuation_unblocked` und `running_from_activity` (SDD-008).
+- Nachweis: neue Core-Tests mit gesteuerter Uhr, MCP-Server-Tests durch echten Dispatch und Cockpit, Vertragstest, control-ui-Test, angepasste Browserfälle (hier nicht ausführbar), Build-Kette und Kompatibilitätsprüfung.
+- Entscheidungen: alle Designfragen sind geklärt; nur die genaue Aufteilung der Tests legt der TP fest.
+- Risiken: Uhrsprünge, eine zu kurze Abholanzeige auf langsamen Hosts, fehlende Hook-Lebenszeichen und nicht ausführbare Browserfälle; die Konsistenz sichert jeweils die Revisionsprüfung.
+
+Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: SD.
+
+### Fassung und Quellen
+
+Run: `run-fc64e714-ce09-40f1-934f-5593fbeed84e` · Lösungsdesign · Revision: `fce7aedd-d2d1-4410-827d-1c79da8df2e2`
+
+SHA-256: `sha256:4a6bbfa53e099dbbe9d3dd4a0fc5aeaacc0111ad7ec5c41e609f5928c212ceb7`

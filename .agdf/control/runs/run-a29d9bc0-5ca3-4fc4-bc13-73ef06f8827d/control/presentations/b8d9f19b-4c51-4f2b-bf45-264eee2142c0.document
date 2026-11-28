@@ -1,0 +1,26 @@
+## Produktanforderungen prüfen und entscheiden
+
+PRD: Isolated AGDF test mode for native Codex Desktop click tests
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Ziel: Den echten Klick auf „Run fortsetzen“ im isolierten Codex-Desktop-Testprofil prüfen und den gestarteten Modellturn dem richtigen Run zuordnen.
+- Umfang: Ausgewiesene Wegwerf-Runs, gemeinsamer Schutz vor Doppelstarts, Statusprüfung nach erneutem Öffnen und Nachweis für den bestehenden Begleiter-Run.
+- Entscheidungen: Der Desktop-Klick erfolgt manuell. Die Testfreigabe ist auf Profil und Wegwerf-Runs begrenzt. Der bestehende Run bewertet den nativen Nachweis.
+- AC-001: Profil und Run werden geprüft. Der Testkontext ist sichtbar. Fremde, normale oder veraltete Runs erhalten keine Testfreigabe.
+- AC-002: Ein Klick im Desktop-Begleiter löst genau einen Modellturn aus. Klick, Übergabe und Run sind zuordenbar.
+- AC-003: Zwei konkurrierende Chats lösen nur einen Start aus. Das gilt für zwei Begleiter und für Begleiter gegen normalen Chat.
+- AC-004: Nach erneutem Öffnen lässt sich dieselbe Übergabe prüfen. Ein erneuter Versuch ist erst nach bestätigtem Nichtstart und bei startbereitem Run möglich.
+- AC-005: Nach einem Upgrade müssen beide Wege dieselbe neue Fassung verwenden. Bei ungeklärter Arbeit aus der vorherigen Fassung bleibt ein weiterer Start gesperrt.
+- AC-006: Der Nachweis nennt Build, Testfall und beobachtete Vorgänge. Fehlende Beobachtungen bleiben erkennbar.
+
+Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: PRD.
+
+### Fassung und Quellen
+
+Run: `run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d` · Produktanforderungen · Revision: `d5d997fb-00a7-402f-84d2-fc8967a0216e`
+
+SHA-256: `sha256:bb954b17be0203425bc2c10b434b14a2328558c3be74d7a2777f66cfa5bb94d3`

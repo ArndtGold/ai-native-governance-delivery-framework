@@ -4,6 +4,8 @@ export interface ReadingState { generation: number; phase: 'idle' | 'loading' | 
   stale: boolean; sourceChanged: boolean; refreshing: boolean; problem: string | null; removed: boolean; requestedRunId: string | null; requestedRoute: Route | null }
 export const initialState: ReadingState = { generation: 0, phase: 'idle', route: { view: 'overview' }, scope: null, inventory: null, detail: null, document: null, stale: false, sourceChanged: false, refreshing: false, problem: null, removed: false, requestedRunId: null, requestedRoute: null };
 export const hasExpiredSession = (state: ReadingState) => state.problem === 'session_expired' || state.scope?.code === 'session_expired';
+export const hasInvalidSession = (state: ReadingState) => state.problem === 'session_invalid' || state.scope?.code === 'session_invalid';
+export const isTemporaryReadFailure = (code: string | null | undefined) => code === 'read_failed' || code === 'busy' || code === 'timeout';
 export type ReadingAction = { type: 'begin'; generation: number; route: Route; background?: boolean } | { type: 'ready'; generation: number; route: Route;
   scope: Envelope<ReadingScope>; inventory: Envelope<OverviewInventory> | null; detail: Envelope<Detail> | null; document: Envelope<DocumentData> | null; removed?: boolean }
   | { type: 'titles'; generation: number; inventory: Envelope<Inventory> }

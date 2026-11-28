@@ -28,7 +28,7 @@ import { creationRunId } from '#agdf-core/control-state/run-identity.js';
 import {
   digestMcpDispatcherPackage,
   inspectOwnedMcpRuntimeRoot, MCP_RUNTIME_OWNER, MCP_RUNTIME_MARKER,
-  evaluateDecisionAppQualification, inspectDecisionAppQualification,
+  evaluateDecisionAppQualification, inspectDecisionAppQualification, inspectCodexContinuationQualification,
 } from "#agdf-core/runtime/plugin-provenance.js";
 
 
@@ -87,7 +87,8 @@ function ownedInspection(inspection) {
       || marker.server_digest !== inspection.digest || marker.dispatcher_digest !== inspection.dispatcherDigest
       || marker.sdk_digest !== inspection.sdkDigest) return null;
     return Object.freeze({ root, markerPath, serverDigest: inspection.digest, dispatcherDigest: inspection.dispatcherDigest,
-      sdkDigest: inspection.sdkDigest, decisionQualification: marker.decision_app_qualification });
+      sdkDigest: inspection.sdkDigest, decisionQualification: marker.decision_app_qualification,
+      continuationQualification: marker.codex_continuation_qualification });
   } catch { return null; }
 }
 
@@ -146,13 +147,19 @@ export function inspectMcpDispatcherRuntime() {
 function dispatcherInspection(observation) {
   const runtimeDigest = observation?.dispatcherDigest ?? digestMcpDispatcherPackage(packageRoot);
   const owned = ownedInspection(observation);
+  const generationIdentity = owned ? { server_digest: owned.serverDigest, dispatcher_digest: owned.dispatcherDigest, sdk_digest: owned.sdkDigest } : null;
+  const continuationQualified = !!owned && inspectCodexContinuationQualification(owned.root, owned.continuationQualification, generationIdentity).qualified;
   return Object.freeze({
     expectedVersion: pluginDefinition.version,
     packageRoot,
     skillSet: pluginDefinition.skillSet,
     interactionLocales,
     provenanceStatus: owned ? "matched" : "unowned",
-    generationIdentity: owned ? { server_digest: owned.serverDigest, dispatcher_digest: owned.dispatcherDigest, sdk_digest: owned.sdkDigest } : null,
+    generationIdentity,
+    continuationQualified,
+    continuationHost: continuationQualified ? Object.freeze({
+      name: owned.continuationQualification.host.name, version: owned.continuationQualification.host.version,
+    }) : null,
     runtimeEvidence: Object.freeze({
       machine_validation: owned ? "local_exact_version_digest" : "unavailable",
       plugin_root: packageRoot,

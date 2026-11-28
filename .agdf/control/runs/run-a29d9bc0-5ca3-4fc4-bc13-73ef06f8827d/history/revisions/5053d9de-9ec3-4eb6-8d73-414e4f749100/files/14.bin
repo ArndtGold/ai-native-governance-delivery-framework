@@ -1,0 +1,48 @@
+# UX Intent Definition: Isolated AGDF test mode for native Codex Desktop click tests
+
+Status: ready
+- decision: ready
+Based on: approved UR and post-UR routing evidence
+Date: 2026-11-20
+Owner: AGDF maintainers
+
+## 1. Routing Evidence
+
+- delivery_context: brownfield
+- ui_ux_impact: high
+- ui_ux_impact_reason: The test scope changes the condition under which the Companion can start a real turn. The experience must convey the same effective status across the Companion and Codex chat.
+- ux_intent_definition_required: yes
+
+## 2. Intent And Success
+
+- primary_user_intent: An AGDF maintainer wants to exercise the native “Run fortsetzen” action for a disposable Run and collect attributable evidence for the linked continuation Run.
+- success_signal: The maintainer can see that the recognized profile and selected Run form a test scope, start the fixture deliberately, and distinguish the pending handoff and the winning turn from an attempted competing start. The evidence shows which actual candidate and attempt were exercised.
+- primary_decision_or_action: Where the scope and Run are eligible, click “Run fortsetzen” once. For an outstanding handoff, inspect the original status. Use the native evidence to decide which scenarios were observed.
+
+## 3. Working Modes And State
+
+- working_modes: Eligible test fixture, unavailable test action, pending handoff, work started, and settled or unresolved test result.
+- effective_state_by_mode: A current designated fixture in the recognized test profile can start bounded work. An out-of-scope, unavailable or stale selection cannot start by test authority. Pending preserves the first attempt. An associated active turn prevents a second admitted start. A terminal observation can settle the matching attempt. Missing host evidence leaves the result unresolved.
+- visible_state_types: A clear text indication of test scope alongside the selected Run and action. State text explains when the handoff awaits Codex and when work has actually begun. An ineligible or stale test view communicates the reason and the applicable next step. Test results distinguish observed and unresolved scenarios.
+- effective_state_authority_by_mode: The recognized test profile and explicit fixture scope determine test eligibility. Current Run evidence determines permissible work. Shared admission and correlated Codex events determine pending, active and settled work. Native qualification review determines whether the resulting evidence qualifies the linked Run.
+- primary_state_presentation_owner_by_mode: The Companion presents the selected Run and the permitted action. Codex chat presents the actual receiving turn. The test evidence record collects candidate and scenario-specific observations for qualification review.
+
+## 4. Activation, Blockers, Recovery And Transitions
+
+- activation_paths: Deliberately enter the supported isolated test profile and select a designated fixture. The native action requires a deliberate click. The ordinary chat path can act as the explicitly scoped competitor for the same fixture.
+- blockers: An absent, stale, mismatched or out-of-scope test identity prevents activation. An admitted or unresolved attempt prevents a second start. An unobserved host event prevents treating the scenario as complete.
+- recovery_paths: For an outdated view, reload the selected Run and act only on a newly confirmed state. For a pending handoff, keep its original status available on reopen. For a confirmed non-start, allow an explicit retry when the same scope is ready. For uncertain delivery or upgrade compatibility, keep the original outcome visible and withhold further work until it can be determined.
+- relevant_state_transitions: Recognized eligible fixture to original handoff pending to matching active turn to settled on matching terminal evidence. Stale or unavailable views can move to a fresh eligible state on verification. A competing action can move only to the existing winning or unresolved state. Profile exit, scope mismatch or deactivation removes test eligibility.
+
+## 5. Proposed PRD Acceptance Criteria
+
+- proposed_prd_acceptance_criteria: The eligible fixture visibly identifies the test scope and offers one deliberate action. Foreign, ordinary and stale cases withhold test activation. The exact winning click and receiving model turn can be correlated. Both contention cases produce a single admitted start. Pending survives reopen without a second request, and the upgrade scenario preserves the predecessor outcome or identifies the unresolved state. The evidence distinguishes completed observations from missing observations.
+
+## 6. Decision Evidence
+
+- blocking_reason: None for PRD drafting. The effective states and product boundaries follow the approved UR.
+- open_product_questions: No material product choice remains open for this draft. SD must define the exact test binding, native event capture and cleanup.
+- affected_outputs: Companion test indication and existing action states, ordinary Codex continuation for the contention case, test-operator instructions and candidate-specific evidence for the linked Run.
+- evidence: Approved UR and the bound Brownfield Review establish the isolated profile, designated disposable Runs and manual Desktop test. The declared AGDF brand context is `.agdf/control/BRAND.md`, owned by the AGDF maintainer for AGDF surfaces and communication, SHA-256 `960aeb2f12e3e17fea2fb8309045c76fb7b4c6d037f6cd62d59ecbbcf204d6f9`, registered in `.agdf/control/SOT_REGISTRY.md`. **Decision clarity** and **Calm information hierarchy** prioritize a textual test indication and the permitted action for the selected Run. Verify recognized scope and ordinary Run cases in the actual card. **Permitted next action** prioritizes a status check during a pending handoff and a deliberate retry after confirmed non-start. Exercise reopen and both contention paths and compare card text with sent requests. **Source visibility** makes candidate identity and the receiving turn reviewable in the evidence. **Visible uncertainty** requires incomplete host outcomes and upgrade uncertainty to stay discernible in the evidence and the Companion. Verify those cases against the recorded native events. The linked TP supplies the cases and current evidence. This analysis is based on repository and prior tool observations. No native start or user preview is claimed here.
+- missing_evidence: The exact native correlation and observed manual interactions are downstream test evidence. The approved UR requires no clarification preview.
+- required_next_step: Draft the bound PRD with stable criteria for test scope, direct start and contention, pending and upgrade recovery, and native evidence transfer.

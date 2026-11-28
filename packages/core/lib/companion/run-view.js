@@ -60,8 +60,8 @@ const bounded = value => (typeof value === 'string' && value.length > NAMING_TEX
 // the "UR:" prefix, the goal its localized approval summary states for the display language, the goal
 // it authors in the artefact language, and when the file last changed. A document outside the control
 // folder, behind a link or over the read limit yields nothing; only a changed source is passed on.
-function readUrFacts(root, path, language) {
-  const facts = { heading: '', localizedGoal: null, authoredGoal: null, changedAt: null };
+export function readUrFacts(root, path, language) {
+  const facts = { heading: '', localizedGoal: null, authoredGoal: null, sourceLanguage: null, changedAt: null };
   try {
     if (!isSafeControlRelativePath(path) || !path.startsWith('.agdf/control/') || hasSymlinkComponent(root, path)) return facts;
     const file = containedRegularFile(root, path);
@@ -71,6 +71,7 @@ function readUrFacts(root, path, language) {
     const text = readFileSync(file.path, 'utf8');
     facts.heading = (text.match(/^#\s+(.+)$/mu)?.[1] ?? '').replace(/^UR:\s*/iu, '').trim();
     const sourceLanguage = resolveArtifactPresentationLanguages(root, language).artifact_language;
+    facts.sourceLanguage = sourceLanguage;
     facts.localizedGoal = localizedDecisionFields('UR', text, { locale: String(language).split('-')[0], sourceLanguage, path }).fields.goal ?? null;
     facts.authoredGoal = authoredGoal(text);
     facts.changedAt = Number.isFinite(stat.mtimeMs) ? new Date(stat.mtimeMs).toISOString() : null;

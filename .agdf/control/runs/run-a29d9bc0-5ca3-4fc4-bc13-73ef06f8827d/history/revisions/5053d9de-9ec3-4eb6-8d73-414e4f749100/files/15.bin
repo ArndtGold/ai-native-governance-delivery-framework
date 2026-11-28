@@ -1,0 +1,208 @@
+{
+  "schema_version": "3",
+  "policy_version": 2,
+  "target_id": "sha256:a5c1daee7886f81d27b2b7718718fa7a3822b27a4bc1d057f99af01be7688a19",
+  "run_id": "run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d",
+  "expected_revision_id": "dfc697f6-8a9f-47ba-8269-030f5e76749b",
+  "operation_id": "5053d9de-9ec3-4eb6-8d73-414e4f749100",
+  "source_gate": "UR",
+  "initiating_phase": "TP",
+  "reason": "The maintainer specified that click testing is exclusively in the browser.",
+  "intended_change": "Restrict click acceptance to the browser for this Run. Retain isolated disposable fixtures, duplicate-start protection and recovery. Distinguish browser observations from native host qualification, which is outside this click-test scope and remains with the linked Run.",
+  "sources": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UR.md",
+      "digest": "sha256:fb0b5006de2a271de4b54a9df8647088880bf532116ff0da860d8e57eb3cae48"
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/PRD.md",
+      "digest": "sha256:bb954b17be0203425bc2c10b434b14a2328558c3be74d7a2777f66cfa5bb94d3"
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/SD.md",
+      "digest": "sha256:95635bc312eb5ae0f2b9c1dd16077e6928d5b9775ad78173097dbb4ea84001d9"
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/TP.md",
+      "digest": "sha256:6c04a65c0453a943fcff86330dea63de6bd0349886f6fac4d9175185962fd4c8"
+    }
+  ],
+  "changed_statements": [
+    {
+      "type": "UR",
+      "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UR.md",
+      "digest": "sha256:fb0b5006de2a271de4b54a9df8647088880bf532116ff0da860d8e57eb3cae48",
+      "statement": "A manual click can then produce evidence about the corresponding real Codex turn and its handoff.",
+      "intended_change": "Exercise the Companion with a user gesture in the browser. Record observable handoff behavior in an isolated fixture; a real Desktop turn is outside this click test.",
+      "reason": "The maintainer specified that click testing is exclusively in the browser."
+    },
+    {
+      "type": "PRD",
+      "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/PRD.md",
+      "digest": "sha256:bb954b17be0203425bc2c10b434b14a2328558c3be74d7a2777f66cfa5bb94d3",
+      "statement": "Manually click “Run fortsetzen” once in the actual Codex Desktop Companion.",
+      "intended_change": "Activate “Run fortsetzen” in a real browser displaying the built Companion with a local fixture host; record actual browser gestures, messages and fixture claims as applicable.",
+      "reason": "The maintainer specified that click testing is exclusively in the browser."
+    },
+    {
+      "type": "SD",
+      "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/SD.md",
+      "digest": "sha256:95635bc312eb5ae0f2b9c1dd16077e6928d5b9775ad78173097dbb4ea84001d9",
+      "statement": "A manual click uses the installed Companion's normal message path.",
+      "intended_change": "Use a browser-rendered Companion and clearly identify which receiving-host events are simulated. Keep the isolated fixture and shared admission protections.",
+      "reason": "The maintainer specified that click testing is exclusively in the browser."
+    },
+    {
+      "type": "TP",
+      "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/TP.md",
+      "digest": "sha256:6c04a65c0453a943fcff86330dea63de6bd0349886f6fac4d9175185962fd4c8",
+      "statement": "Click once on a ready fixture in the installed side panel with no timing checkpoint.",
+      "intended_change": "Click the control inside the browser fixture. Exercise pending, reopen and contention in browser views where supported. Report any missing host-specific evidence separately.",
+      "reason": "The maintainer specified that click testing is exclusively in the browser."
+    }
+  ],
+  "impact_assessment": {
+    "reviewer": "Codex",
+    "earliest_source": "UR",
+    "upstream": [],
+    "analyses": [
+      {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:1d1a9d1970d21875f8d19b6b7e5deb64b4b3ca440301bf81c06bca08ed0fbeb7",
+        "disposition": "reassess",
+        "reason": "Re-evaluate the browser test harness, shared admission owners and candidate boundary in place of native click collection."
+      },
+      {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:5da7306b6188f59c400cfd611fa308442953f7447bb63b198c820a324f2cc56e",
+        "disposition": "reassess",
+        "reason": "Review scope labels, pending feedback and supported browser observations against revised user intent."
+      }
+    ],
+    "implementation_evidence": "Assess existing browser SDK-host tests for the revised click route. They cover browser interaction and fixture handoff. No native turn or production qualification is established by these results.",
+    "unresolved": []
+  },
+  "quality_assessment": [
+    {
+      "record": {
+        "type": "Brownfield Review",
+        "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:1d1a9d1970d21875f8d19b6b7e5deb64b4b3ca440301bf81c06bca08ed0fbeb7",
+        "status": "done"
+      },
+      "record_digest": "sha256:90eccd0ba7fe86781c368e07c0b638594f2116106b920435bf41734a4fd371b3",
+      "operation_id": "fa98b883-99a2-4ff1-bc42-a29afc3fabe3",
+      "source_set_digest": "sha256:52329f578f6d75710a805a8a0fa0982110035f0c1a983353b2399da76659ba5c",
+      "sources": [
+        {
+          "digest": "sha256:fb0b5006de2a271de4b54a9df8647088880bf532116ff0da860d8e57eb3cae48",
+          "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Recheck the source or analysis against the exclusive browser click-test route and its evidence boundary."
+    },
+    {
+      "record": {
+        "type": "UX Intent Definition",
+        "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:5da7306b6188f59c400cfd611fa308442953f7447bb63b198c820a324f2cc56e",
+        "status": "done"
+      },
+      "record_digest": "sha256:1617d0bd905e82db0444b203ec2cd14dcae49fb105ee7e5c730637c5c0c23e44",
+      "operation_id": "abf70089-fa19-45b5-bfa7-f19cb68cf100",
+      "source_set_digest": "sha256:8bf5c21110f6b4ce3a2a47c32772fe7f905f86cd46cead98f463ea5f79b2e550",
+      "sources": [
+        {
+          "digest": "sha256:fb0b5006de2a271de4b54a9df8647088880bf532116ff0da860d8e57eb3cae48",
+          "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d1a9d1970d21875f8d19b6b7e5deb64b4b3ca440301bf81c06bca08ed0fbeb7",
+          "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Recheck the source or analysis against the exclusive browser click-test route and its evidence boundary."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UR.md",
+        "digest": "sha256:fb0b5006de2a271de4b54a9df8647088880bf532116ff0da860d8e57eb3cae48",
+        "status": "documented"
+      },
+      "record_digest": "sha256:2555f492ee4341e55444fb835727bce95afd19310a971484aeebf8a595cc8bd7",
+      "operation_id": "7f55f11a-09d1-4c1b-b8c6-ca1c8018e1f0",
+      "source_set_digest": "sha256:e2dd4b0000fdd5613a30e3ab1250aa5d5d9c2ea4c680a81f055c203e5765bb69",
+      "sources": [],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Recheck the source or analysis against the exclusive browser click-test route and its evidence boundary."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/BROWNFIELD_REVIEW.md",
+        "digest": "sha256:1d1a9d1970d21875f8d19b6b7e5deb64b4b3ca440301bf81c06bca08ed0fbeb7",
+        "status": "documented"
+      },
+      "record_digest": "sha256:3b922b5abfd97e7fbf37b4c11ab841ce833b084f895edb99bfc5f730d52996fe",
+      "operation_id": "fa98b883-99a2-4ff1-bc42-a29afc3fabe3",
+      "source_set_digest": "sha256:52329f578f6d75710a805a8a0fa0982110035f0c1a983353b2399da76659ba5c",
+      "sources": [
+        {
+          "digest": "sha256:fb0b5006de2a271de4b54a9df8647088880bf532116ff0da860d8e57eb3cae48",
+          "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Recheck the source or analysis against the exclusive browser click-test route and its evidence boundary."
+    },
+    {
+      "record": {
+        "type": "evidence",
+        "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UX_INTENT_DEFINITION.md",
+        "digest": "sha256:5da7306b6188f59c400cfd611fa308442953f7447bb63b198c820a324f2cc56e",
+        "status": "documented"
+      },
+      "record_digest": "sha256:926610e27d2d0f35d2dccb925c9ea52c9456d2cb1375bbef96f9c32a9d275d2a",
+      "operation_id": "abf70089-fa19-45b5-bfa7-f19cb68cf100",
+      "source_set_digest": "sha256:8bf5c21110f6b4ce3a2a47c32772fe7f905f86cd46cead98f463ea5f79b2e550",
+      "sources": [
+        {
+          "digest": "sha256:fb0b5006de2a271de4b54a9df8647088880bf532116ff0da860d8e57eb3cae48",
+          "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/UR.md",
+          "status": "approved",
+          "type": "UR"
+        },
+        {
+          "digest": "sha256:1d1a9d1970d21875f8d19b6b7e5deb64b4b3ca440301bf81c06bca08ed0fbeb7",
+          "path": ".agdf/control/runs/run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d/documents/BROWNFIELD_REVIEW.md",
+          "status": "done",
+          "type": "Brownfield Review"
+        }
+      ],
+      "association": "current",
+      "disposition": "reassess",
+      "reason": "Recheck the source or analysis against the exclusive browser click-test route and its evidence boundary."
+    }
+  ]
+}

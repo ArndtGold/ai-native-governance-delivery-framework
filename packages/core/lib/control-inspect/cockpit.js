@@ -1,5 +1,6 @@
 import { readCockpitArchive, readArchiveDocument } from './cockpit-archive.js';
-import { runDocumentPath, runEvidencePath } from '../control-state/run-identity.js';
+import { runControlPath, runDocumentPath, runEvidencePath } from '../control-state/run-identity.js';
+import { PRESENTATION_ID_PATTERN, validateRunPresentationEnvelope } from '../control-state/run-presentation-envelope.js';
 import { existsSync } from '../control-read/fs.js';
 import { RUN_ID_PATTERN } from '../control-state/run-identity.js';
 import { join, posix, sep } from 'node:path';
@@ -25,7 +26,7 @@ import { ARTIFACT_READINESS_GATES, projectArtifactReadiness, describeArtifactRea
 import { artefactFileDigest } from '../control-state/run-seal-compute.js';
 import { inspectApprovedArtefact } from '../control-state/artefact-binding-proof.js';
 import { runClosure } from '../control-state/run-operations.js';
-import { projectRunEntry } from '../companion/run-view.js';
+import { projectRunEntry, readUrFacts } from '../companion/run-view.js';
 // Shared with the companion run view, in a module every runtime profile carries.
 import { boundedCode, projectCockpitAssessment } from './run-classification.js';
 export { boundedCode, projectCockpitAssessment };
@@ -108,6 +109,45 @@ export function createCockpitReader(root, options = {}) {
     }
     return result;
   }
+  // Match prepared bytes to the current gate evaluation, never to the newest filename.
+  function uatPresentation(run, presentation, resources) {
+    if (presentation?.current_gate !== 'UAT' || presentation.run_id !== run.run_id
+      || presentation.revision_id !== run.meta.revision_id || !presentation.markdown) return null;
+    const relative = runControlPath(run.run_id, 'presentations');
+    const directory = join(root, relative);
+    if (!view.existsSync(directory)) return null;
+    const contentDigest = rawDigest(presentation.markdown);
+    for (const name of view.readdirSync(directory)) {
+      const id = name.slice(0, -5);
+      if (!name.endsWith('.json') || !PRESENTATION_ID_PATTERN.test(id)) continue;
+      const metadata = view.readOptionalFileSync(join(directory, name), DESCRIPTION_LIMIT).bytes;
+      if (!metadata) continue;
+      let envelope;
+      try { envelope = JSON.parse(metadata); } catch { continue; }
+      const { record } = validateRunPresentationEnvelope(envelope, {
+        runId: run.run_id, revisionId: run.meta.revision_id, gate: 'UAT', presentationId: id,
+      });
+      if (record?.document_digest !== 'sha256:' + contentDigest || record.presentation_language !== presentation.presentation_language
+        || record.artefact_digest !== presentation.artefact_digest
+        || record.summary_digest !== presentation.summary_digest || record.content_digest !== run.meta.content_seal) continue;
+      const path = posix.join(relative, id + '.document');
+      const bytes = view.readOptionalFileSync(join(root, path), READ_LIMITS.preview).bytes;
+      if (!bytes || bytes.length !== record.document_bytes || rawDigest(bytes) !== contentDigest) continue;
+      const resource = { resource_id: randomUUID(), run_id: run.run_id, type: 'UAT Presentation', path,
+        registered_reference: path, status: 'registered' };
+      resources.push(resource);
+      documents.set(resource.resource_id, resource);
+      return { resource_id: resource.resource_id, content_digest: contentDigest };
+    }
+    return null;
+  }
+  function readableSource(resource) {
+    if (!resource || !SUPPORTED.has(resource.path.split('.').at(-1)?.toLowerCase())) return null;
+    const { bytes } = view.readOptionalFileSync(join(root, resource.path), READ_LIMITS.preview);
+    if (!bytes || bytes.includes(0)) return null;
+    try { decoder.decode(bytes); } catch { return null; }
+    return { resource_id: resource.resource_id, content_digest: rawDigest(bytes) };
+  }
   // The canonical gate-check reads registered sources outside the control scope, which this
   // reader never opens. Report that as unevaluated instead of a divergent second evaluation.
   function outOfScopeEvaluation(state, paths) {
@@ -140,22 +180,29 @@ export function createCockpitReader(root, options = {}) {
       && report.missing_approval === `Approval: ${decisionGate}` && operation?.type === 'human_gate_decision'
       && operation.actor === 'human' && operation.gate === decisionGate
       ? state.presentation_decisions.get(decisionGate) : null;
+    const acceptance = companion && decisionGate === 'UAT' && decision?.available && !decision.decided
+      ? uatPresentation(run, report.approval_presentation, resources) : null;
     const work_summary = outside.length ? null : runWorkSummary(root, run.content, state.path);
     const draft_check = draftDescriptor(run, state, report);
     const document_states = documentStates(run, state, report, resources, draft_check);
     const finding = assessed.control_assessment.state === 'blocked' && resources.find(resource => resource.status === 'registered'
       && resource.path === work_summary?.decisive_obligation?.source_path);
-    const findingBytes = finding && SUPPORTED.has(finding.path.split('.').at(-1)?.toLowerCase())
-      && view.readOptionalFileSync(join(root, finding.path), READ_LIMITS.preview).bytes;
-    const findingDigest = findingBytes && !findingBytes.includes(0) ? rawDigest(findingBytes) : null;
-    const urTitle = readArtefactHeading(root, state.artefacts.get('UR')).replace(/^UR:\s*/i, '').trim();
+    const findingSource = readableSource(finding);
+    const closeout = companion && readableSource(resources.find(resource => resource.type === 'OR'
+      && resource.status === 'registered' && resource.path === runDocumentPath(run.run_id, 'OR.md')));
+    const ur = state.artefacts.get('UR');
+    const urFacts = companion && ur && readUrFacts(root, String(ur.path ?? '').replace(/^`|`$/g, '').trim(), 'de');
+    const urTitle = urFacts?.heading || readArtefactHeading(root, ur).replace(/^UR:\s*/i, '').trim();
+    const companionGoal = urFacts?.sourceLanguage === 'de' ? urFacts.authoredGoal : urFacts?.localizedGoal;
     const identity = runIdentity({ runId: run.run_id, runContent: run.content, urHeading: urTitle });
     return { run_id: run.run_id, revision_id: run.meta.revision_id, lifecycle: run.meta.lifecycle,
       closure: projectRunClosure(run.content), work_summary,
       ...(companion && { figure: companion.figure, companion: { route: companion.mode, path: companion.path,
         next_text: companionText(companion.next_step_text), blocking_text: companionText(companion.blocking_text),
+        ...(companionGoal && { goal: companionText(companionGoal) }),
         ...(decision?.available && !decision.decided && { decision_material_version: decision.material_version }),
-        ...(findingDigest && { finding: { resource_id: finding.resource_id, content_digest: findingDigest } }) } }),
+        ...(acceptance && { uat_presentation: acceptance }),
+        ...(closeout && { closeout_report: closeout }), ...(findingSource && { finding: findingSource }) } }),
       // The cockpit identifies the undertaking; the gate card can still name its current artefact.
       // The detail shows the stored Objective as written, placeholders included (owner decision);
       // the title follows the shared Run title rule.
@@ -240,7 +287,8 @@ export function createCockpitReader(root, options = {}) {
       const resource = documents.get(resourceId);
       if (!resource) fail('resource_denied');
       if (resource.status === 'blocked') return envelope({ resource }, 'blocked', 'resource_denied');
-      const format = SUPPORTED.get(resource.path.split('.').at(-1)?.toLowerCase());
+      const acceptance = details.get(resource.run_id)?.data?.companion?.uat_presentation;
+      const format = acceptance?.resource_id === resourceId ? 'markdown' : SUPPORTED.get(resource.path.split('.').at(-1)?.toLowerCase());
       if (!view.existsSync(join(root, resource.path))) return envelope({ resource }, 'missing', 'document_missing', true);
       if (!format) return envelope({ resource }, 'unsupported', 'document_unsupported');
       const bytes = view.readFileSync(join(root, resource.path));
@@ -278,6 +326,11 @@ export function createCockpitReader(root, options = {}) {
     const runs = discoverRuns(root);
     const run = runs.find(row => row.run_id === runId);
     if (!run) { checkedDraft = null; return { state: 'missing', code: 'run_missing', data: { kind: 'run', requested_run_id: runId, run: null } }; }
+    // An open transaction journal fences all document reads until its Run has settled.
+    if (!run.valid && run.findings.some(row => row.code === 'AGDF_RUN_STEP_RECOVERY_REQUIRED')) {
+      checkedDraft = null;
+      return { state: 'blocked', code: 'run_step_pending', data: null };
+    }
     if (!run.valid) { checkedDraft = null; return { state: run.findings.some(row => row.classification === 'unsupported_version') ? 'unsupported' : 'invalid', code: run.findings.some(row => row.classification === 'unsupported_version') ? 'run_version_unsupported' : 'invalid_run', data: { kind: 'run', requested_run_id: runId,
       run: { run_id: runId, revision_id: null, lifecycle: null, resources: [], diagnostics: run.findings } } };
     }

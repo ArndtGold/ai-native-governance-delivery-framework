@@ -14,6 +14,18 @@ import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
 import { projectRunEntry } from '../lib/companion/run-view.js';
 import { currentFixture, currentRun } from './fixtures/current-run.js';
 import { buildCompanionFixtures, pendingCompanionUat, replaceCompanionPrd } from './fixtures/companion-fixtures.js';
+import { clarifiedUr } from './planned-fixtures.js';
+
+test('projects the localized UR goal independently of the Run title and stored Objective', t => {
+  const run = currentRun(currentFixture(t), 'Eigenständige Arbeit');
+  const goal = 'Ein Vorhaben bleibt nach der Übergabe eindeutig erkennbar.';
+  const recorded = run.step('ur', `${clarifiedUr}\n## AGDF Approval Summary (de; source=en)\n\n- Ziel: ${goal}\n`, { title: 'Independent work' });
+  assert.equal(recorded.outcome, 'accepted');
+  const data = createCockpitReader(run.f.root).snapshot(run.id).data.run;
+  assert.equal(data.title, 'Independent work');
+  assert.equal(data.objective, 'Eigenständige Arbeit');
+  assert.equal(data.companion.goal, goal);
+});
 
 test('projects the same pending decision across snapshots and a new version for changed material', t => {
   const [pending, preparation, invalid] = buildCompanionFixtures(t, ['F03', 'F04', 'F13']);

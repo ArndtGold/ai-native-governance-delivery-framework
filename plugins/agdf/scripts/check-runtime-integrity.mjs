@@ -503,13 +503,15 @@ function expectedSkillDescription(skill, suffix) {
 
 // Mirrors packages/core/lib/runtime/plugin-provenance.js: the installer writes absolute paths into the
 // Codex MCP declaration, and provenance digests the template for any config of the owned shape.
-function codexMcpTemplate({ pluginRoot = "{{AGDF_PLUGIN_ROOT}}", dataRoot = "{{AGDF_MCP_DATA}}", portable = true, cockpit = false } = {}) {
+function codexMcpTemplate({ pluginRoot = "{{AGDF_PLUGIN_ROOT}}", dataRoot = "{{AGDF_MCP_DATA}}", portable = true, cockpit = false, nativeStartup = false } = {}) {
+  const transport = portable || nativeStartup ? { type: "stdio" } : {};
+  const startup = nativeStartup ? { startup_timeout_sec: 90 } : {};
   return `${JSON.stringify({
     ...(portable ? { $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json" } : {}),
-    mcpServers: { agdf: { ...(portable ? { type: "stdio" } : {}), command: "node",
-      args: [`${pluginRoot.replaceAll("\\", "/")}/mcp/agdf-mcp-launch.js`, "--surface", "codex", "--data", dataRoot.replaceAll("\\", "/")] },
-      ...(cockpit ? { 'agdf-cockpit': { ...(portable ? { type: 'stdio' } : {}), command: 'node',
-        args: [`${pluginRoot.replaceAll('\\', '/')}/mcp/agdf-mcp-launch.js`, '--surface', 'codex', '--data', dataRoot.replaceAll('\\', '/'), '--cockpit'] } } : {}) },
+    mcpServers: { agdf: { ...transport, command: "node",
+      args: [`${pluginRoot.replaceAll("\\", "/")}/mcp/agdf-mcp-launch.js`, "--surface", "codex", "--data", dataRoot.replaceAll("\\", "/")], ...startup },
+      ...(cockpit ? { 'agdf-cockpit': { ...transport, command: 'node',
+        args: [`${pluginRoot.replaceAll('\\', '/')}/mcp/agdf-mcp-launch.js`, '--surface', 'codex', '--data', dataRoot.replaceAll('\\', '/'), '--cockpit'], ...startup } } : {}) },
   }, null, 2)}\n`;
 }
 function normalizeCodexPluginMcpConfig(content) {
@@ -520,15 +522,18 @@ function normalizeCodexPluginMcpConfig(content) {
         && args[0].endsWith("/mcp/agdf-mcp-launch.js") && typeof args[4] === "string" && args[4]) {
       const portable = Object.hasOwn(config, "$schema");
       const cockpit = Object.hasOwn(config.mcpServers, 'agdf-cockpit');
-      const expected = codexMcpTemplate({ pluginRoot: args[0].slice(0, -"/mcp/agdf-mcp-launch.js".length), dataRoot: args[4], portable, cockpit });
-      if (JSON.stringify(config) === JSON.stringify(JSON.parse(expected))) return codexMcpTemplate({ portable, cockpit });
+      const nativeStartup = !portable && config.mcpServers.agdf.startup_timeout_sec === 90;
+      const expected = codexMcpTemplate({ pluginRoot: args[0].slice(0, -"/mcp/agdf-mcp-launch.js".length), dataRoot: args[4], portable, cockpit, nativeStartup });
+      if (JSON.stringify(config) === JSON.stringify(JSON.parse(expected))) return codexMcpTemplate({ portable, cockpit, nativeStartup });
     }
   } catch {}
   return content;
 }
 function codexMcpShape(content) {
   const normalized = normalizeCodexPluginMcpConfig(content);
-  return normalized === codexMcpTemplate() || normalized === codexMcpTemplate({ cockpit: true });
+  // Portable discovery and the native Codex declaration with its startup timeout are both owned shapes.
+  return [false, true].some(cockpit => normalized === codexMcpTemplate({ cockpit })
+    || normalized === codexMcpTemplate({ cockpit, portable: false, nativeStartup: true }));
 }
 
 function digestPluginSource(root, canonicalVersion) {

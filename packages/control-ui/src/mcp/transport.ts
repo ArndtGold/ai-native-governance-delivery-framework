@@ -2,6 +2,22 @@ import { App as McpApp } from '@modelcontextprotocol/ext-apps';
 import { validateEnvelope, validateData, type ReadTransport } from '../api';
 import type { Envelope } from '../types';
 
+const documentReaderOperations = new Set(['snapshot', 'run', 'document', 'freshness', 'changes']);
+const negativeReadStates = new Set(['invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error']);
+
+// Some hosts forward an MCP tool rejection as JSON in the error message.
+// Accept only an authenticated read's negative envelope, never data or a selector.
+function hostReadRejection(message: unknown): Record<string, unknown> | undefined {
+  if (typeof message !== 'string' || message.length > 8192) return;
+  const payload = message.replace(/^MCP error -?\d+:\s*/u, '').trim();
+  if (!payload.startsWith('{') || !payload.endsWith('}')) return;
+  try {
+    const value = JSON.parse(payload);
+    if (value.schema_version === '2' && value.authorizes === false && value.data === null
+      && negativeReadStates.has(value.state) && typeof value.code === 'string' && /^[a-z][a-z0-9_]{0,127}$/.test(value.code)) return value;
+  } catch { /* Retain the original transport error for unrecognized replies. */ }
+}
+
 export class CockpitBridge {
   readonly app: McpApp;
   constructor(name = 'AGDF Cockpit', options = { autoResize: true }) { this.app = new McpApp({ name, version: '1.0.0' }, {}, options); }
@@ -46,12 +62,21 @@ export class CockpitBridge {
     if (!this.app.getHostCapabilities()?.serverTools || !session) throw Error('session_invalid');
     const isClose = argumentsValue.operation === 'close';
     if (isClose && Object.keys(argumentsValue).length !== 1) throw Error('resource_denied');
+    const canRecoverRejection = documentReaderOperations.has(String(argumentsValue.operation));
     const result = await (isClose ? this.close(session, signal) : this.request(() => this.app.callServerTool({ name: 'agdf_cockpit_read',
-      arguments: { ...argumentsValue, session_id: session } }, { timeout: 10_000, signal })));
+      arguments: { ...argumentsValue, session_id: session } }, { timeout: 10_000, signal }))).catch(error => {
+      const value = canRecoverRejection && error instanceof Error ? hostReadRejection(error.message) : undefined;
+      if (!value) throw error;
+      return { isError: true, structuredContent: value, content: [] };
+    });
     if ((boundSession === undefined && session !== this.session) || signal?.aborted) throw Error('session_invalid');
-    if (!result.structuredContent) throw Error('read_failed');
+    const content = result.content;
+    const fallback = !result.structuredContent && result.isError && canRecoverRejection && content?.length === 1
+      && content[0].type === 'text' ? hostReadRejection(content[0].text) : undefined;
+    const structured = result.structuredContent ?? fallback;
+    if (!structured) throw Error('read_failed');
     if (result.isError) {
-      const value = result.structuredContent as Record<string, unknown>;
+      const value = structured as Record<string, unknown>;
       // Decision session reads have a bounded negative envelope, distinct from
       // Cockpit DTOs. A negative reply can never become closure or read data.
       if (value.schema_version === '1' && value.outcome === 'rejected' && value.authorizes === false
@@ -64,10 +89,9 @@ export class CockpitBridge {
         && value.target === null && value.snapshot_id === null && value.observed_as_of === null && value.source_digest === null
         && value.retryable === false && value.data === null && value.authorizes === false) throw Error('session_expired');
       validateEnvelope(value);
-      if (!['invalid', 'missing', 'unsupported', 'blocked', 'stale', 'error'].includes(value.state)
-        || value.data !== null || typeof value.code !== 'string' || !/^[a-z][a-z0-9_]{0,127}$/.test(value.code)) throw Error('read_failed');
+      if (!negativeReadStates.has(value.state) || value.data !== null || typeof value.code !== 'string' || !/^[a-z][a-z0-9_]{0,127}$/.test(value.code)) throw Error('read_failed');
     }
-    return result.structuredContent;
+    return structured;
   }
   readForSession(session: string): ReadTransport { return this.reader(new Map(), session); }
   readonly read: ReadTransport = this.reader(this.resourceRuns);

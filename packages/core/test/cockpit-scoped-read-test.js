@@ -10,6 +10,29 @@ import { evaluateGateCheck } from '../lib/control-evaluation/gate-check.js';
 import { parseCockpitArguments } from '../lib/control-inspect/cockpit-contract.js';
 import { replaceFirstScalar } from '../lib/control-state/run-state-edits.js';
 import { sealRunState } from '../lib/control-state/run-seal.js';
+import { pendingRunStepPath } from '../lib/control-state/run-step-pending.js';
+
+test('a pending Run journal returns a retryable scoped read without exposing a draft', () => {
+  const f = fixture();
+  try {
+    const reader = createCockpitReader(f.root);
+    const initial = reader.snapshot('fixture-a');
+    const journal = pendingRunStepPath(f.root, 'fixture-a');
+    fs.mkdirSync(join(f.root, '.agdf/control/runs/fixture-a/control'), { recursive: true });
+    fs.writeFileSync(journal, '{}');
+    assert.throws(() => reader.freshness(initial.snapshot_id), { code: 'source_changed' });
+    const pending = reader.snapshot('fixture-a');
+    assert.equal(pending.state, 'blocked');
+    assert.equal(pending.code, 'run_step_pending');
+    assert.equal(pending.retryable, true);
+    assert.equal(pending.data, null);
+    assert.equal(fs.readFileSync(journal, 'utf8'), '{}');
+    fs.unlinkSync(journal);
+    const current = reader.snapshot('fixture-a');
+    assert.equal(current.state, 'available');
+    assert.equal(current.data.run.revision_id, initial.data.run.revision_id);
+  } finally { f.close(); }
+});
 
 test('current work inventory ignores retained foreign planning and unreferenced history bytes',()=>{
   const f=fixture();try{

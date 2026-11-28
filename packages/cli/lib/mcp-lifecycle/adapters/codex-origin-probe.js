@@ -1,9 +1,16 @@
 // Bounded discovery in a disposable project context. No model turn or config write.
 import { spawn } from 'node:child_process';
 import { isAbsolute } from 'node:path';
+import { StringDecoder } from 'node:string_decoder';
 import { fileURLToPath } from 'node:url';
 import { resolveHostCommand } from '../../host-command.js';
 import { CODEX_MCP_STARTUP_ARGS, independentCodexEnvironment } from '../../host-adapters/codex/mcp-startup.js';
+
+const MAX_MESSAGE_BYTES = 1024 * 1024;
+// One inventory per second can fit for the full observation window, plus
+// startup notifications. Individual JSON-RPC messages still have a 1 MiB cap.
+const MAX_OUTPUT_BYTES = 48 * MAX_MESSAGE_BYTES;
+const INVENTORY_POLL_MS = 1000;
 
 export function codexStartupConfiguration(result) {
   const key = 'mcp_optional_startup_grace_ms', value = result?.config?.[key];
@@ -21,6 +28,7 @@ export function observeCodexOrigins({ target, all = false, mode = 'catalog', env
   if (!['catalog', 'configuration'].includes(mode)) return Promise.resolve({ status: 'unavailable', reason: 'mode_invalid' });
   return new Promise(resolve => {
     let child, pending = '', received = 0, done = false, phase = 'initialize', threadId, closing, closeTimer, pollTimer, inventoryId = 3;
+    const decoder = new StringDecoder('utf8');
     const deadline = now() + timeoutMs;
     const finish = result => {
       if (done) return;
@@ -37,6 +45,8 @@ export function observeCodexOrigins({ target, all = false, mode = 'catalog', env
     };
     const timer = setTimeout(() => finish({ status: 'unavailable', reason: 'timeout' }), timeoutMs);
     const send = message => child.stdin.write(JSON.stringify(message) + '\n');
+    const requestInventory = () => send({ id: inventoryId, method: 'mcpServerStatus/list',
+      params: { threadId, detail: 'toolsAndAuthOnly' } });
     try {
       const resolved = command ?? resolveHostCommand(env.CODEX_BIN || 'codex', { env });
       child = spawnProcess(resolved.executable, [...resolved.prefixArgs, ...(mode === 'catalog' ? CODEX_MCP_STARTUP_ARGS : []), 'app-server'], { cwd: target, env: independentCodexEnvironment(env),
@@ -49,11 +59,14 @@ export function observeCodexOrigins({ target, all = false, mode = 'catalog', env
       child.stderr.on('data', () => {});
       child.stdin.on('error', () => finish({ status: 'unavailable', reason: 'stdin_failed' }));
       child.stdout.on('data', chunk => {
-        received += Buffer.byteLength(chunk); pending += String(chunk);
-        if (received > 1024 * 1024) return finish({ status: 'unavailable', reason: 'response_limit' });
+        if (done) return;
+        received += Buffer.byteLength(chunk);
+        if (received > MAX_OUTPUT_BYTES) return finish({ status: 'unavailable', reason: 'response_limit' });
+        pending += decoder.write(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
         let newline;
         while (!done && (newline = pending.indexOf('\n')) !== -1) {
           const line = pending.slice(0, newline); pending = pending.slice(newline + 1);
+          if (Buffer.byteLength(line) > MAX_MESSAGE_BYTES) return finish({ status: 'unavailable', reason: 'response_limit' });
           let message; try { message = JSON.parse(line); } catch { continue; }
           if (phase === 'initialize' && message.id === 1) {
             if (message.error) return finish({ status: 'unavailable', reason: 'initialize_failed' });
@@ -82,15 +95,17 @@ export function observeCodexOrigins({ target, all = false, mode = 'catalog', env
             // The temporary context owns every connection it starts. A narrow
             // server filter can finish while another SDK is still handshaking;
             // collect the complete settled inventory before closing the host.
-            send({ id: 3, method: 'mcpServerStatus/list', params: { threadId, detail: 'full' } });
+            requestInventory();
           } else if (phase === 'inventory' && message.id === inventoryId) {
             const rows = message.result?.data;
             if (message.error || !Array.isArray(rows) || rows.length > 256 || message.result.nextCursor
               || rows.some(row => typeof row?.name !== 'string' || (row.pluginId != null && typeof row.pluginId !== 'string')))
               return finish({ status: 'unavailable', reason: 'inventory_unconfirmed' });
             if (rows.some(row => ['starting', 'connecting'].includes(row.runtimeStatus))) {
-              pollTimer = setTimeout(() => send({ id: ++inventoryId, method: 'mcpServerStatus/list',
-                params: { threadId, detail: 'full' } }), 100);
+              pollTimer = setTimeout(() => {
+                inventoryId++;
+                requestInventory();
+              }, INVENTORY_POLL_MS);
               continue;
             }
             finish({ status: 'observed', scope: { cwd: target, thread_id: threadId, ephemeral: true },
@@ -98,6 +113,7 @@ export function observeCodexOrigins({ target, all = false, mode = 'catalog', env
                 runtime_status: row.runtimeStatus, tools: Object.keys(row.tools ?? {}) })) });
           }
         }
+        if (!done && Buffer.byteLength(pending) > MAX_MESSAGE_BYTES) finish({ status: 'unavailable', reason: 'response_limit' });
       });
       send({ id: 1, method: 'initialize', params: { clientInfo: { name: 'agdf_cockpit_origin', version: '1' },
         capabilities: { experimentalApi: true, requestAttestation: false } } });

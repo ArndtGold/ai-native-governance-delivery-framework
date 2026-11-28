@@ -2,20 +2,25 @@ import { randomUUID } from 'node:crypto';
 import { relative, sep } from 'node:path';
 import { COMPANION_DATA_ROOT_ENV } from '../companion/journal.js';
 import { readCodexObservation } from '../companion/codex-activity.js';
+import { createCodexContinuationAdmission } from '../companion/codex-continuation.js';
+import { continuationBinding, isCurrentContinuation } from '../companion/codex-continuation-binding.js';
 import { ReadWorkerPool } from '../control-read/cockpit-pool.js';
 import { READ_LIMITS, ControlReadError } from '../control-read/snapshot.js';
 import { resolveControlCommandTarget } from '../control-state/approval-command-contract.js';
 import { resolveTaskTarget } from '../task-target-resolution.js';
 import { runPath } from '../control-state/run-state-reader.js';
 import { containedRegularFile, hasSymlinkComponent } from '../control-state/contained-file.js';
-import { COCKPIT_LIMITS, parseCockpitArguments, parsePluginCockpitArguments } from './cockpit-contract.js';
+import { COCKPIT_LIMITS, parseCockpitArguments, parseCockpitContinuationArguments, parsePluginCockpitArguments } from './cockpit-contract.js';
 
 // One connection owns bounded independent read views. Retiring workers still occupy slots.
 export function createCockpitSessionService(root, {
   budget, poolFactory = viewRoot => new ReadWorkerPool(viewRoot, { limits: { total: COCKPIT_LIMITS.capture },
-    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration, budget }), now = Date.now, pluginMode = false, integrationSurface, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV],
+    maxOldGenerationSizeMb: COCKPIT_LIMITS.workerOldGeneration, budget }), now = Date.now, pluginMode = false, integrationSurface,
+  continuationQualified = false, companionDataRoot = process.env[COMPANION_DATA_ROOT_ENV], continuationRuntimeRoot, continuationBootId,
 } = {}) {
   const target = pluginMode ? null : { target_id: resolveControlCommandTarget(root).target_id, display_path: root };
+  const continueRun = pluginMode && integrationSurface === 'codex' && continuationQualified === true && companionDataRoot
+    ? createCodexContinuationAdmission(companionDataRoot, { now, runtimeRoot: continuationRuntimeRoot, bootId: continuationBootId }) : null;
   const sessions = new Map();
   let closed = false, renderGeneration = 0, publication = null, resourceIdentity = null;
   const failure = (code, viewTarget = target) => ({ schema_version: '2', target: viewTarget, snapshot_id: null, observed_as_of: null,
@@ -32,9 +37,16 @@ export function createCockpitSessionService(root, {
     if (publication.phase === 'preparing') publication = null;
     else publication.packet = null;
   }
+  function cancelContinuationReservation(session) {
+    const reservation = session.reservation;
+    if (!reservation) return;
+    const result = continueRun.cancelReservation(reservation.scope, session.id, reservation.attempt);
+    if (result.state !== 'unavailable') session.reservation = null;
+  }
   function retire(session) {
     if (session.retirement) return session.retirement;
     session.retired = true; ++session.generation;
+    cancelContinuationReservation(session);
     losePublication(session);
     clearTimeout(session.timer); session.documents.clear(); session.rows.clear(); session.snapshot = null; session.draft = null;
     session.retirement = Promise.resolve().then(() => session.pool.close()).then(() => {
@@ -61,6 +73,49 @@ export function createCockpitSessionService(root, {
   function touch(session) { session.touched = now(); schedule(session); }
   return Object.freeze({
     failure,
+    continuationAvailable: continueRun !== null,
+    continue(input, signal) {
+      const response = data => ({ schema_version: '1', authorizes: false, ...data });
+      try {
+        input = parseCockpitContinuationArguments(input);
+        const session = active(input.session_id);
+        const scope = session.continuationBinding;
+        if (!session.continuation || signal?.aborted || !scope || session.snapshot !== input.snapshot_id
+          || scope.run_id !== input.run_id || scope.revision_id !== input.revision_id)
+          return response({ state: 'stale' });
+        // First paint may not have acknowledged this exact snapshot yet. Reading
+        // status can retry; a gesture still requires the display acknowledgement.
+        if (!session.displayed) return response({ state: input.operation === 'status' ? 'unavailable' : 'stale' });
+        // Codex work on the shown agent step comes from the activity lease, not from the handoff store.
+        const working = () => Boolean(session.companionBinding
+          && readCodexObservation(companionDataRoot, session.companionBinding, now()).activity);
+        if (input.operation === 'status') {
+          const held = continueRun.inspect(scope);
+          return response(held.state === 'ready' && working() ? { state: 'running' } : held);
+        }
+        const eligible = () => !signal?.aborted && isCurrentContinuation(session.root, scope);
+        if (input.operation === 'reserve') {
+          if (working()) return response({ state: 'running' });
+          if (session.reservation) {
+            // A reservation of this view that the store no longer holds has ended (cancelled or expired).
+            const held = continueRun.inspect(scope);
+            if (held.state !== 'ready') return response(held);
+            session.reservation = null;
+          }
+          const result = continueRun.reserve(scope, session.id, eligible);
+          if (result.reserved) session.reservation = { scope, attempt: result.attempt_id };
+          return response(result.reserved ? { ...result, target: session.target, ...scope } : result);
+        }
+        if (input.operation === 'cancel') {
+          const result = continueRun.cancelReservation(scope, session.id, input.attempt_id);
+          if (result.state === 'ready') session.reservation = null;
+          return response(result);
+        }
+        const result = continueRun.publish(scope, session.id, input.attempt_id, eligible);
+        if (result.send || result.state === 'stale' || result.state === 'ready') session.reservation = null;
+        return response(result.send ? { ...result, target: session.target, ...scope } : result);
+      } catch { return response({ state: 'unavailable' }); }
+    },
     bindResourceIdentity({ digest, version } = {}) {
       if (resourceIdentity || sessions.size || !/^[a-f0-9]{64}$/u.test(digest ?? '')
         || typeof version !== 'string' || !/^[0-9A-Za-z.+-]{1,80}$/u.test(version)) throw Error('resource_identity_invalid');
@@ -71,7 +126,7 @@ export function createCockpitSessionService(root, {
       return { views: sessions.size, active: [...sessions.values()].filter(row => !row.retired).length,
         uncertain: publication?.phase === 'uncertain' ? 1 : 0 };
     },
-    async render(input = {}) {
+    async render(input = {}, { continuation = true } = {}) {
       input = pluginMode ? parsePluginCockpitArguments(input) : parseCockpitArguments(input, true);
       const companionStart = input.view === 'companion';
       let viewRoot = root, viewTarget = target;
@@ -103,6 +158,7 @@ export function createCockpitSessionService(root, {
       // No await between capacity check and ownership publication.
       const session = { id: randomUUID(), displayId: randomUUID(), initialRunId: input.run_id ?? null,
         displayed: null, displaySnapshot: null, companionStart, root: viewRoot, target: viewTarget,
+        continuation: continueRun !== null && continuation === true,
         created: now(), touched: now(), pool: poolFactory(viewRoot),
         documents: new Map(), rows: new Set(), snapshot: null, run_id: null, draft: null, generation: 0, retired: false, retirement: null, timer: null,
         completion: null };
@@ -124,6 +180,7 @@ export function createCockpitSessionService(root, {
           instruction: 'Check this receipt before saying the Cockpit was shown. If pending, allow a short interval for the UI to load and check once more. Only ui_reported_visible confirms the first visible render. If display.presentation is present, use it to report what the Companion showed on opening.' }],
         _meta: { agdf_cockpit: { session_id: session.id, target: viewTarget, render_generation: ++renderGeneration,
           display_ack: true,
+          ...(session.continuation ? { continuation: true } : {}),
           ...(['codex', 'claude'].includes(integrationSurface) ? { integration_surface: integrationSurface } : {}),
           ...(resourceIdentity ? { provenance: resourceIdentity } : {}),
           ...(session.initialRunId ? { initial_run_id: session.initialRunId } : {}),
@@ -234,7 +291,10 @@ export function createCockpitSessionService(root, {
           } else publication = null;
         }
         if (!['resource_denied', 'context_superseded', 'busy', 'context_cleanup_uncertain'].includes(result.code)) touch(session);
-        if (replacement && result.snapshot_id) session.snapshot = result.snapshot_id;
+        if (replacement && result.snapshot_id) {
+          if (session.snapshot !== result.snapshot_id) cancelContinuationReservation(session);
+          session.snapshot = result.snapshot_id;
+        }
         if (replacement && !session.displayed) {
           const initialView = session.initialRunId === null
             ? ['work', 'runs'].includes(result.data?.kind) && !result.data.removed_run_id
@@ -248,6 +308,7 @@ export function createCockpitSessionService(root, {
           const run = result.data?.run;
           session.run_id = run?.run_id ?? null;
           session.draft = run?.draft_check?.source ?? null;
+          session.continuationBinding = session.continuation && continuationBinding(session.target.target_id, run);
           session.companionBinding = run?.revision_id && run.lifecycle === 'active'
             && run.evaluation?.next_operation?.actor === 'agent' ? {
               target_id: session.target.target_id, run_id: run.run_id, revision_id: run.revision_id, gate: run.evaluation.current_gate,

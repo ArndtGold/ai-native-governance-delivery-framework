@@ -23,6 +23,7 @@ declare module '*core/lib/control-inspect/work-situation.js' {
 
 declare module '*claude/companion/gate-bar.mjs' {
   export interface GateMark { gate: string; mark: 'done' | 'current' | 'open' }
+  export const BUILD_MARK: 'CD+Tests';
   export function gateMarks(run: { path: import('./types').CompanionStatus['path']; gate?: string; route: string; lifecycle: string | null }):
     GateMark[];
   export function fullGateBar(marks: GateMark[]): string;

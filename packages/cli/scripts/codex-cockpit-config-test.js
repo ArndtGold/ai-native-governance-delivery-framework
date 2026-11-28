@@ -306,7 +306,7 @@ test('independent native discovery preserves security settings and waits within 
   assert.equal(source.CODEX_THREAD_ID, 'parent');
   assert.deepEqual(CODEX_MCP_STARTUP_ARGS, ['-c', 'mcp_optional_startup_grace_ms=0']);
 });
-for (const fault of [null, 'wrong-target', 'persistent', 'start-error', 'paged', 'inventory-error']) {
+for (const fault of [null, 'wrong-target', 'persistent', 'start-error', 'paged', 'inventory-error', 'oversize']) {
   test(`Codex origin discovery binds a disposable project context (${fault ?? 'success'})`, async () => {
     const target = process.cwd(), writes = [];
     const child = new EventEmitter(); child.stdout = new EventEmitter(); child.stderr = new EventEmitter();
@@ -324,15 +324,19 @@ for (const fault of [null, 'wrong-target', 'persistent', 'start-error', 'paged',
       }
       if (request.method === 'mcpServerStatus/list') {
         assert.equal(request.params.threadId, 'ephemeral-fixture');
+        assert.equal(request.params.detail, 'toolsAndAuthOnly');
         if (fault === 'inventory-error') queueMicrotask(() => child.stdout.emit('data', JSON.stringify({ id: request.id, error: {} }) + '\n'));
         else reply({ data: request.params.threadId ? [
-          { name: 'agdf-cockpit', pluginId: 'agdf@agdf', runtimeStatus: 'connected', tools: { agdf_cockpit: {}, agdf_cockpit_read: {} } },
+          { name: 'agdf-cockpit', pluginId: 'agdf@agdf', runtimeStatus: 'connected', tools: {
+            agdf_cockpit: fault === 'oversize' ? { description: 'x'.repeat(1024 * 1024) } : {}, agdf_cockpit_read: {},
+          } },
           { name: 'agdf-cockpit-local', pluginId: null, runtimeStatus: 'connected', tools: { agdf_cockpit: {}, agdf_cockpit_read: {} } },
         ] : [], nextCursor: fault === 'paged' ? 'unread-page' : null });
       }
     };
     const result = await observeCodexOrigins({ target, all: true, command: { executable: 'fixture', prefixArgs: [] }, spawnProcess: () => child });
     assert.equal(result.status, fault ? 'unavailable' : 'observed');
+    if (fault === 'oversize') assert.equal(result.reason, 'response_limit');
     if (!fault) assert.deepEqual(result.providers.map(row => row.server_id), ['agdf-cockpit', 'agdf-cockpit-local']);
     if (['wrong-target', 'persistent', 'start-error'].includes(fault)) assert.equal(writes.some(row => row.method === 'mcpServerStatus/list'), false);
     assert.equal(writes.some(row => row.method === 'turn/start'), false);
@@ -353,7 +357,7 @@ test('Codex project origin timeout closes its process without global-inventory f
   assert.deepEqual(writes.map(row => row.method), ['initialize']);
   assert.equal(child.killed, true);
 });
-test('narrow origin output waits for every connection owned by its temporary context', async () => {
+test('narrow origin output waits for all connections across inventories totaling more than 1 MiB', async () => {
   const target = process.cwd(), child = new EventEmitter(), writes = [];
   child.stdout = new EventEmitter(); child.stderr = new EventEmitter(); child.stdin = new EventEmitter();
   let inventories = 0;
@@ -368,7 +372,8 @@ test('narrow origin output waits for every connection owned by its temporary con
       assert.equal(request.params.serverName, undefined, 'discovery must also finish the sibling governance connection');
       reply({ data: [
         { name: 'agdf-cockpit', pluginId: 'agdf@agdf', runtimeStatus: 'connected', tools: {} },
-        { name: 'agdf', pluginId: 'agdf@agdf', runtimeStatus: ++inventories === 1 ? 'connecting' : 'connected', tools: {} },
+        { name: 'agdf', pluginId: 'agdf@agdf', runtimeStatus: ++inventories === 1 ? 'connecting' : 'connected',
+          tools: { agdf_inspect: { description: 'x'.repeat(600 * 1024) } } },
       ] });
     }
   };

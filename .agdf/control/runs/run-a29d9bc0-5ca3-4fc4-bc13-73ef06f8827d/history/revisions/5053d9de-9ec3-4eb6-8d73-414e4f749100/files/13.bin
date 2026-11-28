@@ -1,0 +1,64 @@
+# UR: Isolated AGDF test mode for native Codex Desktop click tests
+
+Status: draft
+Gate: UR
+Gate approval: open
+Requirements clarification: complete
+Preview requirement: none
+Date: 2026-11-20
+Owner: AGDF maintainers
+
+## 1. Problem
+
+AGDF requires native Codex Desktop evidence before it enables “Run fortsetzen” in ordinary use. The installed candidate keeps the action hidden while that evidence is missing. The isolated desktop profile exists, and both AGDF MCP servers connected in its temporary Codex context. A maintainer still needs a way to exercise the action with the actual desktop app and record what it does. Computer Use excludes the ChatGPT desktop app from automation, so the test must support a deliberate manual click.
+
+## 2. Goal
+
+An AGDF maintainer can enable “Run fortsetzen” for explicitly designated disposable Runs in the isolated Codex Desktop test profile. A manual click can then produce evidence about the corresponding real Codex turn and its handoff. The linked continuation Run can use that evidence for native qualification.
+
+## Affected Users
+
+AGDF maintainers and reviewers who prepare or execute native Codex Desktop tests and assess their evidence.
+
+## 3. Scope
+
+- Provide deliberate test-only activation before native qualification, restricted to the isolated profile and explicitly designated disposable Runs with a bounded fixture action. The visible state identifies the test context.
+- Preserve the shared admission check for the Companion and ordinary Codex continuation. The fixture supports a single click, competing Companion requests, Companion versus ordinary continuation, reopening during a pending handoff, and the upgrade boundary specified in the linked Run.
+- Make the installed candidate identity, original handoff and receiving turn traceable in the test evidence. Record the number of starts and the results of the supported cases so the linked Run can judge qualification.
+- Keep ordinary use subject to native qualification. Outside the eligible test profile and test Runs, the test activation grants no ability to continue work.
+
+## 4. Non-Goals
+
+- Enabling the feature in ordinary use before native qualification.
+- Running the test against active delivery Runs, automating the desktop app, or changing AGDF gate approvals.
+- Changing continuation behavior on other hosts or making a public release.
+
+## 5. Acceptance Signals
+
+- A maintainer can identify the isolated test context and exercise the action on a designated fixture. Missing, inconsistent, or out-of-scope test identity leaves the pre-qualification action unavailable.
+- The desktop procedure can establish whether one deliberate click starts one real turn bound to the original attempt and whether both contention cases reject the competing start.
+- The procedure can verify the original pending handoff after reopening, the corresponding terminal observation, and the expected upgrade behavior. The linked Run can review the resulting candidate-specific evidence.
+
+## 6. Existing Source Of Truth
+
+The blocked continuation Run owns the product behavior, shared admission, and native qualification scenarios. This Run owns the test activation required to exercise those scenarios. [Continuation test plan](../../run-4e2a3b9c-81a9-42e6-8d2f-00cf93c956b3/documents/TP.md) [Current continuation evidence](../../run-4e2a3b9c-81a9-42e6-8d2f-00cf93c956b3/documents/CD_TESTS.md)
+
+## 7. Risks And Unknowns
+
+Brownfield Review and solution design need to establish how both runtimes verify the same test scope, how disposable Runs and their data stay isolated across sessions and upgrades, and how the actual host events can be captured and tied to the installed candidate. The test procedure needs to make incomplete observations visible so the qualification decision can rely on the observed results.
+
+## 8. Next Step
+
+Review this UR and approve only with `Approval: UR`. Then use Brownfield Review to establish the owners and the scope of the test activation.
+
+## AGDF Approval Summary (de; source=en)
+
+- Problem: Der installierte Build verlangt den nativen Klicknachweis, bevor „Run fortsetzen“ im regulären Betrieb verfügbar ist. Im vorhandenen Testprofil fehlt ein Weg, den ersten echten Klick auszuführen.
+- Ziel: Im isolierten Codex-Desktop-Testprofil können AGDF-Verantwortliche „Run fortsetzen“ gezielt für ausgewiesene Wegwerf-Runs aktivieren und manuell prüfen.
+- Betroffene: AGDF-Verantwortliche, die den Desktop-Test durchführen oder seine Ergebnisse prüfen.
+- Umfang: Testkontext kenntlich machen, dieselbe Doppelstartsperre im Begleiter und im Chat verwenden sowie Klick, Übergabe und empfangenden Modellturn dem geprüften Build zuordnen.
+- Außerhalb des Umfangs: Freischaltung im regulären Betrieb vor der Qualifizierung, Tests an produktiven Runs, Desktop-Automatisierung und Änderungen an Gate-Freigaben.
+- Prüfsignale: Genau ein Modellturn bei einem zulässigen Start. Zweite Starts bleiben in beiden Konfliktfällen gesperrt. Offene Übergabe nach erneutem Öffnen und Verhalten beim Upgrade sind belegbar.
+- Bezug: Der bestehende Run „Run aus dem Codex-Begleiter fortsetzen und Doppelstarts verhindern“ gibt die Prüffälle vor und übernimmt den nativen Nachweis.
+- Offene Punkte: Die verbindliche Erkennung von Profil und Wegwerf-Run sowie die Erfassung der Desktop-Ereignisse klären wir im Design.
+- Nächster Schritt: Nutzerbedarf mit `Approval: UR` bestätigen.

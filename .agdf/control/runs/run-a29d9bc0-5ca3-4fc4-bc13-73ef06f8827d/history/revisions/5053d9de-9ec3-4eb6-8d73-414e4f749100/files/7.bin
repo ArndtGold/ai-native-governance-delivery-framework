@@ -1,0 +1,26 @@
+## Nutzeranforderungen prüfen und entscheiden
+
+UR: Isolated AGDF test mode for native Codex Desktop click tests
+
+- Quellsprache: Englisch · Zusammenfassung in gewählter Sprache
+- Problem: Der installierte Build verlangt den nativen Klicknachweis, bevor „Run fortsetzen“ im regulären Betrieb verfügbar ist. Im vorhandenen Testprofil fehlt ein Weg, den ersten echten Klick auszuführen.
+- Ziel: Im isolierten Codex-Desktop-Testprofil können AGDF-Verantwortliche „Run fortsetzen“ gezielt für ausgewiesene Wegwerf-Runs aktivieren und manuell prüfen.
+- Betroffene: AGDF-Verantwortliche, die den Desktop-Test durchführen oder seine Ergebnisse prüfen.
+- Umfang: Testkontext kenntlich machen, dieselbe Doppelstartsperre im Begleiter und im Chat verwenden sowie Klick, Übergabe und empfangenden Modellturn dem geprüften Build zuordnen.
+- Außerhalb des Umfangs: Freischaltung im regulären Betrieb vor der Qualifizierung, Tests an produktiven Runs, Desktop-Automatisierung und Änderungen an Gate-Freigaben.
+- Prüfsignale: Genau ein Modellturn bei einem zulässigen Start. Zweite Starts bleiben in beiden Konfliktfällen gesperrt. Offene Übergabe nach erneutem Öffnen und Verhalten beim Upgrade sind belegbar.
+- Bezug: Der bestehende Run „Run aus dem Codex-Begleiter fortsetzen und Doppelstarts verhindern“ gibt die Prüffälle vor und übernimmt den nativen Nachweis.
+- Offene Punkte: Die verbindliche Erkennung von Profil und Wegwerf-Run sowie die Erfassung der Desktop-Ereignisse klären wir im Design.
+- Nächster Schritt: Nutzerbedarf mit `Approval: UR` bestätigen.
+
+Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.
+
+Antworte „Dokument lesen“, um diese Fassung vollständig im Chat zu lesen. Fragen und Änderungswünsche kannst du hier besprechen. Ohne deine Freigabe bleibt dieser Schritt offen.
+
+Fragen und Änderungswünsche kannst du im Chat besprechen. Freigeben kannst du diese Fassung im Chat mit Approval: UR.
+
+### Fassung und Quellen
+
+Run: `run-a29d9bc0-5ca3-4fc4-bc13-73ef06f8827d` · Nutzeranforderungen · Revision: `64e1b0ff-e441-4b45-9609-081379b7d30b`
+
+SHA-256: `sha256:fb0b5006de2a271de4b54a9df8647088880bf532116ff0da860d8e57eb3cae48`

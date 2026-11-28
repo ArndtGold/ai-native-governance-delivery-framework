@@ -42,13 +42,23 @@ function placeLegacy(root) {
   mkdirSync(runDir(root, LEGACY_V2_RUN_ID), { recursive: true });
   writeFileSync(runStatePath(root, LEGACY_V2_RUN_ID), legacyV2RunState());
 }
-function structuredToQa(run) {
+function structuredToCodeReview(run) {
   urApproved(run); route(run, 'structured_delivery');
   for (const [gate, text] of [['PRD', syntheticPrd()], ['SD', syntheticSd()], ['TP', syntheticTp()]]) { accepted(run.record(gate, text)); accepted(run.approve(gate)); }
   accepted(run.step('internal', '# Brownfield Analysis\n\nDecision: pass\n\nExisting store and isolated test owner confirmed.\n', { internal_step: 'Brownfield Analysis', decision: 'pass' }));
   accepted(run.step('internal', '# CD+Tests\n\nDecision: pass\n\nSynthetic filter values compared in this disposable test.\n', { internal_step: 'CD+Tests', decision: 'pass' }));
-  for (const type of ['TP Review', 'Clean Implementation Review', 'CR'])
+  for (const type of ['TP Review', 'Clean Implementation Review'])
     accepted(run.step('internal', `# ${type}\n\nDecision: pass\n\nSynthetic fixture checks meet the declared local scope.\n`, { internal_step: type, decision: 'pass' }));
+}
+export function pendingCompanionCodeReview(f) {
+  const run = currentRun(f);
+  structuredToCodeReview(run);
+  return run;
+}
+function structuredToQa(run) {
+  structuredToCodeReview(run);
+  accepted(run.step('internal', '# CR\n\nDecision: pass\n\nSynthetic fixture checks meet the declared local scope.\n',
+    { internal_step: 'CR', decision: 'pass' }));
 }
 export function pendingCompanionUat(f) {
   const run = currentRun(f);

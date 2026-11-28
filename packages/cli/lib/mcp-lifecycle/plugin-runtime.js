@@ -6,7 +6,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { digestDirectory, digestPluginMcpDispatcherSource, mcpDispatcherRuntimeEntries, mcpDispatcherPackageExports } from "#agdf-core/runtime/plugin-provenance.js";
 import { acquireMcpExecutableClaim, inspectMcpServerPackage, mcpPackageConstants, mcpRuntimeRetirementState, prepareMcpServerPackage, createMcpRuntimeRetirementTransaction } from "./package.js";
 import { inspectPreparedCallJournals, retirePreparedCallJournals } from './prepared-call-journal.js';
-import { checkpointExecutableBootBoundary } from '#agdf-core/companion/executable-boot-boundary.js';
+import { EXECUTABLE_BOOT_BOUNDARY_NAME, checkpointExecutableBootBoundary } from '#agdf-core/companion/executable-boot-boundary.js';
 import { readSystemBootId } from './system-boot.js';
 
 // Plugin-local AGDF MCP runtime shared by the hosts whose runtime plugin declares the server itself:
@@ -413,6 +413,8 @@ export function inspectPluginMcpDataRoot(dataRoot) {
     for (const name of readdirSync(mcpDataRoot)) {
       const path = join(mcpDataRoot, name);
       const stats = lstatSync(path);
+      // The launcher's own boot checkpoint is retired with the generations it describes.
+      if (name === EXECUTABLE_BOOT_BOUNDARY_NAME && stats.isFile()) continue;
       if (!stats.isDirectory() || stats.isSymbolicLink()) return "foreign";
       if (name === 'prepared-calls') {
         if (inspectPreparedCallJournals(mcpDataRoot) !== 'owned') return 'foreign';
@@ -458,6 +460,9 @@ export function retirePluginMcpDataRoot(dataRoot, revalidate = () => {}) {
       rmdirSync(publication);
     }
     if (existsSync(generations)) rmdirSync(generations);
+    // Only after every described generation is gone: a concurrent publication fails rmdir above.
+    const checkpoint = join(mcp, EXECUTABLE_BOOT_BOUNDARY_NAME);
+    if (existsSync(checkpoint)) { revalidate(); unlinkSync(checkpoint); }
     retirePreparedCallJournals(mcp);
     if (existsSync(mcp)) rmdirSync(mcp);
     const journal = join(dataRoot, COMPANION_JOURNAL.directory);

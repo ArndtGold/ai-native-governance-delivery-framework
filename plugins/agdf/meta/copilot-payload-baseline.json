@@ -2,6 +2,6 @@
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
   "max_files": 463,
-  "max_bytes": 4888167,
-  "rationale": "The runtime integrity check accepts the native Codex MCP declaration that dc68ef35 now ships, and the executable boot boundary checks links without loading Run-state modules at launcher bootstrap and with slash paths on Windows."
+  "max_bytes": 4888836,
+  "rationale": "The launcher data root counts its own executable boot checkpoint as owned and retires it with the generations it describes, so uninstall can remove a Codex runtime on hosts that report a boot id."
 }

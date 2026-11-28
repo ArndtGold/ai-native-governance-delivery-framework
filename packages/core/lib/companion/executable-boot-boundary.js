@@ -1,7 +1,6 @@
 import { createHash } from 'node:crypto';
 import { constants, closeSync, fstatSync, lstatSync, openSync, readdirSync, readSync, realpathSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
-import { hasSymlinkComponent } from '../control-state/contained-file.js';
 import { atomicWrite, withOwnedFileLockWait } from '../owned-file-lock.js';
 
 const file = 'mcp/executable-boot-boundary.json';
@@ -14,9 +13,24 @@ const maxBytes = 12 * 1024 * 1024;
 const stampOf = stat => `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}`;
 const stampPattern = /^\d+:\d+:\d+:-?\d+:-?\d+$/u;
 
+// The MCP launcher imports this module, and bootstrap must not load Run-state modules
+// (plugin-mcp-runtime-test). Names are slash-separated on every host; an absent
+// component is safe, a link or an unreadable component is not.
+function linkedPath(root, name) {
+  const parts = typeof name === 'string' && !name.includes('\\') ? name.split('/') : [''];
+  if (parts.some(part => !part || part === '.' || part === '..')) return true;
+  let cursor = root;
+  for (const part of parts) {
+    cursor = join(cursor, part);
+    try { if (lstatSync(cursor).isSymbolicLink()) return true; }
+    catch (error) { return error.code !== 'ENOENT'; }
+  }
+  return false;
+}
+
 function read(root, name, limit, observe) {
   if (!isAbsolute(root) || lstatSync(root).isSymbolicLink() || realpathSync(root) !== resolve(root)) throw Error('executable_boundary_path_invalid');
-  if (hasSymlinkComponent(root, name)) throw Error('executable_boundary_path_invalid');
+  if (linkedPath(root, name)) throw Error('executable_boundary_path_invalid');
   const path = join(root, name);
   let fd;
   try {
@@ -133,7 +147,7 @@ export function createExecutableBootBoundary(dataRoot, bootId) {
 // release any Run. Preserve its first observed boot across repeated captures.
 export function checkpointExecutableBootBoundary(dataRoot, bootId) {
   if (!uuid.test(bootId)) return { state: 'unavailable' };
-  if (hasSymlinkComponent(dataRoot, 'mcp/generations') || hasSymlinkComponent(dataRoot, file)) throw Error('executable_boundary_path_invalid');
+  if (linkedPath(dataRoot, 'mcp/generations') || linkedPath(dataRoot, file)) throw Error('executable_boundary_path_invalid');
   let generations;
   try { generations = readdirSync(join(dataRoot, 'mcp/generations')); }
   catch (error) { if (error.code === 'ENOENT') return { state: 'unchanged', captured: 0 }; throw error; }
@@ -151,7 +165,7 @@ export function checkpointExecutableBootBoundary(dataRoot, bootId) {
     for (const generation of generations) {
       if (!digest.test(generation)) throw Error('executable_boundary_path_invalid');
       const path = `mcp/generations/${generation}`;
-      if (hasSymlinkComponent(dataRoot, path)) throw Error('executable_boundary_path_invalid');
+      if (linkedPath(dataRoot, path)) throw Error('executable_boundary_path_invalid');
       const versions = readdirSync(join(dataRoot, path));
       if (versions.length > 32) throw Error('executable_boundary_capacity');
       for (const version of versions) {
@@ -160,8 +174,8 @@ export function checkpointExecutableBootBoundary(dataRoot, bootId) {
           capture(join(dataRoot, path), version);
           continue;
         }
-        const root = join(dataRoot, path, version), claims = relative(dataRoot, join(root, '.agdf-executable-claims'));
-        if (hasSymlinkComponent(dataRoot, claims)) throw Error('executable_boundary_path_invalid');
+        const root = join(dataRoot, path, version), claims = `${path}/${version}/.agdf-executable-claims`;
+        if (linkedPath(dataRoot, claims)) throw Error('executable_boundary_path_invalid');
         let names;
         try { names = readdirSync(join(dataRoot, claims)); }
         catch (error) { if (error.code === 'ENOENT') continue; throw error; }
